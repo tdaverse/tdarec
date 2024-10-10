@@ -23,18 +23,18 @@ step_phom(
 )
 }
 \arguments{
-\item{recipe}{A recipe object. The step will be added to the sequence of
-operations for this recipe.}
+\item{recipe}{A recipe object. The step will be added to the
+sequence of operations for this recipe.}
 
-\item{...}{One or more selector functions to choose which variables are
-affected by the step.}
+\item{...}{One or more selector functions to choose variables
+for this step. See \code{\link[recipes:selections]{selections()}} for more details.}
 
 \item{role}{For model terms created by this step, what analysis role should
-they be assigned? By default, the function assumes that the new columns
-created by the original variables will be used as predictors in a model.}
+they be assigned? By default, the new columns created by this step from
+the original variables will be used as \emph{predictors} in a model.}
 
-\item{trained}{A logical value indicating whether the values used for
-binarization have been checked.}
+\item{trained}{A logical to indicate if the quantities for
+preprocessing have been estimated.}
 
 \item{engine}{Character; package to use to calculate persistent homology.}
 
@@ -50,15 +50,18 @@ is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} i
 \item{keep_original_cols}{A logical to keep the original variables in the
 output. Defaults to \code{FALSE}.}
 
-\item{skip}{A logical value indicating whether the step should be skipped
-when the recipe is baked by \code{bake.recipe()}.}
+\item{skip}{A logical. Should the step be skipped when the
+recipe is baked by \code{\link[recipes:bake]{bake()}}? While all operations are baked
+when \code{\link[recipes:prep]{prep()}} is run, some operations may not be able to be
+conducted on new data (e.g. processing the outcome variable(s)).
+Care should be taken when using \code{skip = TRUE} as it may affect
+the computations for subsequent operations.}
 
-\item{id}{A character string that is unique to this step, used to identify
-it.}
+\item{id}{A character string that is unique to this step to identify it.}
 }
 \value{
 An updated version of \code{recipe} with the new step added to the
-sequence of existing steps (if any).
+sequence of any existing operations.
 }
 \description{
 The function \code{step_phom()} creates a \emph{specification} of a recipe

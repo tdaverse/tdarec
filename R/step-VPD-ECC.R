@@ -14,30 +14,14 @@
 
 #' @import recipes
 #' @inheritParams recipes::step_pca
-#' @importFrom TDAvec computeECC
+#' @inherit recipes::step_pca return
 
-#' @param recipe A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are
-#'   affected by the step.
-#' @param role For model terms created by this step, what analysis role should
-#'   they be assigned? By default, the function assumes that the new columns
-#'   created by the original variables will be used as predictors in a model.
-#' @param trained A logical value indicating whether the values used for
-#'   binarization have been checked.
 #' @param dim_max,scale_seq Parameters used by {TDAvec}.
-#' @param skip A logical value indicating whether the step should be skipped
-#'   when the recipe is baked by `bake.recipe()`.
-#' @param id A character string that is unique to this step, used to identify
-#'   it.
-#' @return An updated version of `recipe` with the new step added to the
-#'   sequence of existing steps (if any).
 #' @example inst/examples/ex-step-VPD-ECC.R
 
 #' @export
 step_vpd_ecc <- function(
     recipe,
-    # custom inputs
     ...,
     # standard inputs
     role = "predictor",
@@ -51,8 +35,7 @@ step_vpd_ecc <- function(
     skip = FALSE,
     id = rand_id("vpd_ecc")
 ) {
-  
-  # check any criteria here
+  recipes_pkg_check(required_pkgs.step_vpd_ecc())
   
   # output the step
   add_step(
@@ -99,7 +82,6 @@ prep.step_vpd_ecc <- function(x, training, info = NULL, ...) {
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
-  # check_type(training[, col_names, drop = FALSE], types = c("list"))
   # check that all columns are list columns
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
     rlang::abort("The `vpd_ecc` step can only transform list columns.")
@@ -168,10 +150,13 @@ bake.step_vpd_ecc <- function(object, new_data, ...) {
   # save(object, new_data, file = here::here("step-ecc-bake.rda"))
   # load(here::here("step-ecc-bake.rda"))
   
+  col_names <- names(object$columns)
+  check_new_data(col_names, object, new_data)
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
-  # apply vectorization to each persistence data column
+  # tabulate vectorizations of each persistence data column
+  vph_data <- tibble::tibble(.rows = nrow(new_data))
   # TODO: compare with existing recipes and decide to store vectorizations as
   # * matrices in list columns (with or without names)
   # * data frames in list columns (require names)
@@ -185,15 +170,12 @@ bake.step_vpd_ecc <- function(object, new_data, ...) {
       )
     )
     term_ecc <- lapply(term_ecc, matrix, nrow = 1L)
-    new_data[[term]] <- term_ecc
+    vph_data[[paste(term, "ecc", sep = "_")]] <- term_ecc
   }
-  # rename transformed columns
-  names(new_data) <- ifelse(
-    names(new_data) %in% object$terms,
-    paste(names(new_data), "ecc", sep = "_"),
-    names(new_data)
-  )
   
+  check_name(vph_data, new_data, object)
+  new_data <- vctrs::vec_cbind(new_data, vph_data)
+  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
@@ -209,4 +191,10 @@ print.step_vpd_ecc <- function(
     width = width
   )
   invisible(x)
+}
+
+#' @rdname required_pkgs.tdarec
+#' @export
+required_pkgs.step_vpd_ecc <- function(x, ...) {
+  c("TDAvec", "tdarec")
 }

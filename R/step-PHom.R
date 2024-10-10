@@ -15,32 +15,17 @@
 
 #' @import recipes
 #' @inheritParams recipes::step_pca
-#' @param recipe A recipe object. The step will be added to the sequence of
-#'   operations for this recipe.
-#' @param ... One or more selector functions to choose which variables are
-#'   affected by the step.
-#' @param role For model terms created by this step, what analysis role should
-#'   they be assigned? By default, the function assumes that the new columns
-#'   created by the original variables will be used as predictors in a model.
-#' @param trained A logical value indicating whether the values used for
-#'   binarization have been checked.
+#' @inherit recipes::step_pca return
 #' @param engine Character; package to use to calculate persistent homology.
 #' @param method Character; type of filtration to construct (must be compatible
 #'   with data).
 #' @param dim_max,radius_max,diameter_max,field_order,cubical_method Parameters
 #'   passed to persistence engines.
-#' @param skip A logical value indicating whether the step should be skipped
-#'   when the recipe is baked by `bake.recipe()`.
-#' @param id A character string that is unique to this step, used to identify
-#'   it.
-#' @return An updated version of `recipe` with the new step added to the
-#'   sequence of existing steps (if any).
 #' @example inst/examples/ex-step-PHom.R
 
 #' @export
 step_phom <- function(
     recipe,
-    # custom inputs
     ...,
     # standard inputs
     role = "predictor",
@@ -57,9 +42,7 @@ step_phom <- function(
     skip = FALSE,
     id = rand_id("phom")
 ) {
-  
-  # # check any criteria here
-  # recipes:::check_character(engine)
+  recipes_pkg_check(required_pkgs.step_phom())
   
   # output the step
   add_step(
@@ -113,8 +96,8 @@ prep.step_phom <- function(x, training, info = NULL, ...) {
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
-  # check_type(training[, col_names, drop = FALSE], types = c("list"))
   # check that all columns are list columns
+  # TODO: Check other existing steps for handling of list columns.
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
     rlang::abort("The `phom` step can only transform list columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
@@ -198,12 +181,15 @@ bake.step_phom <- function(object, new_data, ...) {
   # save(object, new_data, file = here::here("step-phom-bake.rda"))
   # load(here::here("step-phom-bake.rda"))
   
+  col_names <- names(object$columns)
+  check_new_data(col_names, object, new_data)
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
   # TODO: move {ggtda} procedure for passing data to engine to helper package
   # TODO: include `.ripserr_version` in helper package
-  # calculate persistent homology across each data column
+  # tabulate persistent homology from each data column
+  phom_data <- tibble::tibble(.rows = nrow(new_data))
   ripserr_version <- utils::packageVersion("ripserr")
   for (term in object$terms) {
     term_phom <- if (ripserr_version == "0.1.1") {
@@ -228,15 +214,12 @@ bake.step_phom <- function(object, new_data, ...) {
         )
       )
     }
-    new_data[[term]] <- term_phom
+    phom_data[[paste(term, "phom", sep = "_")]] <- term_phom
   }
-  # rename transformed columns
-  names(new_data) <- ifelse(
-    names(new_data) %in% object$terms,
-    paste(names(new_data), "phom", sep = "_"),
-    names(new_data)
-  )
   
+  check_name(phom_data, new_data, object)
+  new_data <- vctrs::vec_cbind(new_data, phom_data)
+  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
@@ -253,4 +236,12 @@ print.step_phom <- function(
     width = width
   )
   invisible(x)
+}
+
+#' @rdname required_pkgs.tdarec
+#' @export
+required_pkgs.step_phom <- function(x, ...) {
+  # REVIEW: {ggplot2} encourages this syntax, but {recipes} might not tolerate
+  # it.
+  c("ripserr|TDA", "tdarec")
 }
