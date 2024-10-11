@@ -241,7 +241,7 @@ print.step_phom <- function(
 #' @rdname required_pkgs.tdarec
 #' @export
 required_pkgs.step_phom <- function(x, ...) {
-  # REVIEW: {ggplot2} encourages this syntax, but {recipes} might not tolerate
-  # it.
+  # REVIEW: {ggplot2} encourages pipe syntax for a disjunctive requirement, but
+  # {recipes} might not tolerate it.
   c("ripserr|TDA", "tdarec")
 }

@@ -1,8 +1,9 @@
-#' @title Vectorize persistence data as Euler characteristic curves
+#' @title Euler characteristic curve vectorization of persistent homology
 #'
-#' @description The functions `step_vpd_*()` create _specifications_ of recipe
-#'   steps that will convert 3-column matrix representations of persistence
-#'   diagrams to 1-row matrices of vectorizations.
+#' @description The function `step_vpd_ecc()` creates a _specification_ of a
+#'   recipe step that will convert a list-column of 3-column matrix
+#'   representations of persistence data to a list-column of 1-row matrices of
+#'   vectorizations.
 #'
 #' @details
 #'

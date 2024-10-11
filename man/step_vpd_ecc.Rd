@@ -2,7 +2,7 @@
 % Please edit documentation in R/step-VPD-ECC.R
 \name{step_vpd_ecc}
 \alias{step_vpd_ecc}
-\title{Vectorize persistence data as Euler characteristic curves}
+\title{Euler characteristic curve vectorization of persistent homology}
 \usage{
 step_vpd_ecc(
   recipe,
@@ -53,9 +53,10 @@ An updated version of \code{recipe} with the new step added to the
 sequence of any existing operations.
 }
 \description{
-The functions \verb{step_vpd_*()} create \emph{specifications} of recipe
-steps that will convert 3-column matrix representations of persistence
-diagrams to 1-row matrices of vectorizations.
+The function \code{step_vpd_ecc()} creates a \emph{specification} of a
+recipe step that will convert a list-column of 3-column matrix
+representations of persistence data to a list-column of 1-row matrices of
+vectorizations.
 }
 \details{
 (What are ECCs?)
