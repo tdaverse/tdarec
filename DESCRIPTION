@@ -1,5 +1,5 @@
 Package: tdarec
-Title: A 'recipes' extension for vectorizations of persistence data
+Title: A 'recipes' extension for persistent homology and its vectorizations
 Version: 0.0.9000
 Authors@R: c(
     person("Jason Cory", "Brunson",
