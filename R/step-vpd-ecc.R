@@ -12,7 +12,7 @@
 #' learning benefit from transformations of persistence data, often to Hilbert
 #' spaces (vector spaces with inner products and induced metrics).
 #' 
-#' The Euler characteristic curve vectorization calls
+#' The Euler characteristic curve vectorization deploys
 #' [TDAvec::computeECC()].
 #'
 #' The `hom_degree()` and `max_hom_degree` arguments determine the degree, or
@@ -33,7 +33,7 @@
 
 #' @param max_hom_degree,xseq,xmin,xmax,xlen,xby Parameters transformed and
 #'   passed to {TDAvec}.
-#' @example inst/examples/ex-step-vpd-ecc-mv.R
+#' @example inst/examples/ex-step-vpd-ecc.R
 
 #' @export
 step_vpd_ecc <- function(
