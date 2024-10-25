@@ -12,16 +12,18 @@ Description: Topological data analysis usually produces persistence data
     null hypothesis testing, machine learning, and other workflows.
     These recipe steps provide validated vectorizations of persistence data as
     recipe steps.
-License: MIT
+License: GPL (>= 3)
 URL: https://github.com/corybrunson/tdarec
 BugReports: https://github.com/corybrunson/tdarec/issues
 Depends:
     R (>= 3.1),
-    recipes (>= 0.1.17)
+    recipes (>= 0.1.17),
+    dials
 Imports:
     rlang (>= 1.1.0),
     vctrs (>= 0.5.0),
     tibble,
+    tidyr,
     purrr (>= 1.0.0)
 Suggests:
     tdaunif,
@@ -34,5 +36,5 @@ Suggests:
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)

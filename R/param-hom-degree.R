@@ -1,0 +1,117 @@
+#' @title (Maximum) topological dimension or homological degree
+#' 
+#' @description
+#' The degree of the homology group to vectorize, or the degree at which to stop
+#' vectorizing.
+#'
+#' @details
+#' Topological features have whole number dimensions that determine the
+#' degrees of homology that encode them. Any finite point cloud will have finite
+#' topological dimension, but most practical applications exploit features of
+#' degree at most 3.
+#'
+#' Steps may vectorize features of a single degree (`hom_degree()`) or of
+#' degrees zero through some maximum (`max_hom_degree()`).
+#' 
+#' In case the (maximum) degree is not provided, `get_max_dim()` queries each
+#' list-column for the maximum dimension of its point cloud and returns the
+#' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
+#' homological degree of interest in most practical applications).
+#'
+#' @inheritParams dials::Laplace
+#' @inheritParams dials::finalize
+#' @param max_dim Bound on the maximum dimension determined from the data.
+#' @param ... Other arguments to pass to the underlying parameter finalizer
+#'   functions.
+#' @example inst/examples/ex-param-hom-degree.R
+#' @export
+hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
+  new_quant_param(
+    type = "integer",
+    range = range,
+    inclusive = c(TRUE, TRUE),
+    trans = trans,
+    label = c(hom_degree = "Homological Degree"),
+    finalize = get_max_dim
+  )
+}
+
+#' @rdname hom_degree
+#' @export
+max_hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
+  new_quant_param(
+    type = "integer",
+    range = range,
+    inclusive = c(TRUE, TRUE),
+    trans = trans,
+    label = c(max_hom_degree = "Maximum Homological Degree"),
+    finalize = get_max_dim
+  )
+}
+
+#' @rdname hom_degree
+#' @export
+get_max_dim <- function(object, x, max_dim = 2L, ...) {
+  check_param(object)
+  
+  rngs <- dials::range_get(object, original = FALSE)
+  if (! dials::is_unknown(rngs$upper)) {
+    return(object)
+  }
+  
+  # check that all columns are list-columns of objects with sizes
+  if (! all(vapply(x, typeof, "") == "list")) {
+    rlang::abort("The `phom` step can only transform list-columns.")
+  }
+  
+  # calculate maximum dimensions of list-column
+  x_max_dims <- vapply(x, \(l) max(vapply(l, ph_dim, 0L), na.rm = FALSE), 0L)
+  x_max_dim <- max(x_max_dims)
+  
+  # set the range based on the maximum observed and the minimum required
+  rngs[2L] <- min(max_dim, x_max_dim)
+  
+  if (object$type == "integer" & is.null(object$trans)) {
+    rngs <- as.integer(rngs)
+  }
+  
+  dials::range_set(object, rngs)
+}
+
+# determine the dimension of a data set for purposes of persistent homology
+# FIXME: should be informed by engine & method, e.g. `ripserr::vietoris_rips()`
+# versus `ripserr::cubical()` treat a 2-column matrix as a coordinate matrix and
+# as a 2D image, respectively
+
+#' @rdname hom_degree
+#' @export
+ph_dim <- function(x) {
+  UseMethod("ph_dim")
+}
+
+#' @rdname hom_degree
+#' @export
+ph_dim.default <- function(x) ncol(as.matrix(x))
+
+#' @rdname hom_degree
+#' @export
+ph_dim.matrix <- function(x) ncol(x)
+
+#' @rdname hom_degree
+#' @export
+ph_dim.array <- 
+  function(x) if (is.matrix(x)) ph_dim.default(x) else length(dim(x))
+
+#' @rdname hom_degree
+#' @export
+ph_dim.data.frame <- function(x) ncol(x)
+
+#' @rdname hom_degree
+#' @export
+ph_dim.dist <- function(x) as.integer(attr(x, "Size"))
+
+#' @rdname hom_degree
+#' @export
+ph_dim.ts <- ph_dim.default
+
+check_param <- getFromNamespace("check_param", "dials")

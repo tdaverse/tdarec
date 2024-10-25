@@ -18,10 +18,10 @@ sample_train <- filter(sample_data, part == "train")
 sample_test <- filter(sample_data, part == "test")
 
 # build preprocessing recipe with default settings
-sample_train %>%
-  recipe() %>%
-  update_role(id, new_role = "id") %>%
-  step_phom(sample) %>%
+sample_train |>
+  recipe() |>
+  update_role(id, new_role = "id") |>
+  step_phom_point_cloud(sample, filtration = "Rips") |>
   prep(training = sample_train, strings_as_factors = FALSE) ->
   sample_rec
 print(sample_rec)
@@ -31,4 +31,3 @@ juice(sample_rec)
 
 # preprocess testing data
 bake(sample_test, object = sample_rec)
-

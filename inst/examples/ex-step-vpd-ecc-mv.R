@@ -25,14 +25,14 @@ phom_train$phom |>
   lapply(\(d) d$death) |> 
   unlist() |> max() |> 
   print() -> max_threshold
-# create grid
-phom_seq <- seq(0, round(max_threshold * 2.01, digits = 2), .01)
+# # create grid
+# phom_seq <- seq(0, round(max_threshold * 2.01, digits = 2), .01)
 
 # build preprocessing recipe with custom settings
 phom_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
-  step_vpd_ecc(phom, dim_max = 2, scale_seq = phom_seq) %>%
+  step_vpd_ecc(phom, max_hom_degree = 2, xmax = max_threshold, xby = .01) %>%
   prep(training = phom_train, strings_as_factors = FALSE) ->
   phom_rec
 print(phom_rec)
@@ -65,8 +65,8 @@ sample_test <- filter(sample_data, part == "test")
 sample_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
-  step_phom(sample, engine = "ripserr") %>%
-  step_vpd_ecc(sample_phom) %>%
+  step_phom_point_cloud(sample, engine = "ripserr") %>%
+  step_vpd_ecc(sample_phom, keep_original_cols = FALSE) %>%
   prep(training = sample_train, strings_as_factors = FALSE) ->
   sample_rec
 print(sample_rec)

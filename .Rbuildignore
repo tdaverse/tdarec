@@ -1,2 +1,8 @@
+# RStudio project
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+# development
+^ignore$
+
+^LICENSE\.md$
