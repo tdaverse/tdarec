@@ -2,7 +2,11 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 
+# R package
+^LICENSE\.md$
+^README\.Rmd$
+^CODE_OF_CONDUCT\.md$
+
 # development
 ^ignore$
 
-^LICENSE\.md$
