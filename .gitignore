@@ -4,6 +4,8 @@
 # R project
 .Rproj.user
 
+# package
+inst/doc
+
 # development
 ignore
-
