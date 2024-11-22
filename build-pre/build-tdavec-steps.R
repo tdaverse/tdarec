@@ -367,7 +367,7 @@ build_details <- function(fn) {
   )
   
   c(
-    "@template step-vpd",
+    "@template step-vpd-details",
     "",
     fn_line,
     "",
