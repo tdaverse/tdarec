@@ -15,7 +15,7 @@
 #' The Euler characteristic curve vectorization deploys
 #' [TDAvec::computeECC()].
 #'
-#' The `hom_degree()` and `max_hom_degree` arguments determine the degree, or
+#' The `hom_degree` and `max_hom_degree` arguments determine the degree, or
 #' the highest degree (starting with `0`), of the features to be transformed.
 #' `xseq` will specify an entire discretization grid, while `xmin`, `xmax`, and
 #' one of `xlen` and `xby` will construct a grid using [base::seq()].
@@ -52,6 +52,7 @@ step_vpd_ecc <- function(
     skip = FALSE,
     id = rand_id("vpd_ecc")
 ) {
+  # ensure that required packages are installed
   recipes_pkg_check(required_pkgs.step_vpd_ecc())
   
   # output the step
@@ -103,13 +104,14 @@ prep.step_vpd_ecc <- function(x, training, info = NULL, ...) {
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
+  # TODO: Write a helper function to check for persistence data.
   # check that all columns are list columns
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
     rlang::abort("The `vpd_ecc` step can only transform list columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   # check that each list element is a 3-column matrix or data frame
-  # TODO: encode using persistence data class
+  # TODO: Encode persistence data using a specialized class.
   are_phom <- function(l) all(vapply(
     l,
     \(x) ncol(x) == 3L && (
@@ -123,6 +125,7 @@ prep.step_vpd_ecc <- function(x, training, info = NULL, ...) {
     rlang::abort("The `vpd_ecc` step requires 3-column persistence data.")
   }
   
+  # TODO: Write a helper function to prepare (maximum) dimension from input.
   # if needed, select maximum dimension
   if (x$max_hom_degree == Inf) {
     train_max_hom_degrees <- purrr::map(
@@ -132,6 +135,7 @@ prep.step_vpd_ecc <- function(x, training, info = NULL, ...) {
     x$max_hom_degree <- max(unlist(train_max_hom_degrees))
   }
   
+  # TODO: Write a helper function to reconcile sequence inputs.
   # if provided, use the full sequence
   if (! is.null(x$xseq)) {
     if (! is.null(x$xmin) || ! is.null(x$xmax) ||
@@ -252,11 +256,18 @@ bake.step_vpd_ecc <- function(object, new_data, ...) {
 print.step_vpd_ecc <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  cat("Euler characteristic curves of ", sep = "")
-  printer(
+  title <- "Euler characteristic curves of "
+  
+  print_step(
+    # names before prep (could be selectors)
     untr_obj = x$terms,
+    # names after prep
     tr_obj = NULL,
+    # whether recipe has been prepped
     trained = x$trained,
+    # what the recipe does
+    title = title,
+    # estimated number of characters to print per line
     width = width
   )
   invisible(x)
@@ -268,15 +279,41 @@ required_pkgs.step_vpd_ecc <- function(x, ...) {
   c("TDAvec", "tdarec")
 }
 
+# #' @rdname tidy_tdavec
+#' @export
+tidy.step_vpd_ecc <- function(x, ...) {
+  if (is_trained(x)) {
+    res <- tibble(
+      terms = unname(x$columns),
+      value = rep(NA_real_, length(x$columns))
+    )
+  } else {
+    term_names <- sel2char(x$terms)
+    res <- tibble(
+      terms = term_names,
+      value = rep(NA_real_, length(term_names))
+    )
+  }
+  # step id
+  res$id <- x$id
+  res
+}
+
+# #' @rdname tunable_tdavec
 #' @export
 tunable.step_vpd_ecc <- function(x, ...) {
   tibble::tibble(
+    # argument name
     name = c("max_hom_degree"),
+    # dial generators
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, 3L))
     ),
+    # source of tuning value
     source = "recipe",
+    # sub-source of tuning value
     component = "step_vpd_ecc",
+    # unique identifier
     component_id = x$id
   )
 }

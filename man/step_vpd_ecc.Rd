@@ -121,9 +121,17 @@ phom_train \%>\%
   recipe() \%>\%
   update_role(id, new_role = "id") \%>\%
   step_vpd_ecc(phom, max_hom_degree = 2, xmax = max_threshold, xby = .01) \%>\%
-  prep(training = phom_train, strings_as_factors = FALSE) ->
-  phom_rec
-print(phom_rec)
+  print() -> phom_rec
+# tidy the prepped recipe step
+tidy(phom_rec, number = 1)
+
+# prepare recipe with training data
+phom_rec \%>\%
+  prep(training = phom_train, strings_as_factors = FALSE) \%>\%
+  print() -> phom_prep
+print(phom_prep)
+# tidy the prepped recipe step
+tidy(phom_prep, number = 1)
 
 # build preprocessing recipe with default settings
 phom_train \%>\%
@@ -131,14 +139,14 @@ phom_train \%>\%
   update_role(id, new_role = "id") \%>\%
   step_vpd_ecc(phom) \%>\%
   prep(training = phom_train, strings_as_factors = FALSE) ->
-  phom_rec
-print(phom_rec)
+  phom_prep2
+print(phom_prep2)
 
 # preprocess training data
-juice(phom_rec)
+juice(phom_prep2)
 
 # preprocess testing data
-bake(phom_test, object = phom_rec)
+bake(phom_test, object = phom_prep2)
 
 # two-step recipe from sample to vectorization
 sample_data <- data.frame(

@@ -32,7 +32,7 @@ phom_train$phom |>
 phom_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
-  step_vpd_ecc(phom, max_hom_degree = 2, xmax = max_threshold, xby = .01) %>%
+  step_vpd_(phom, max_hom_degree = 2, xmax = max_threshold, xby = .01) %>%
   print() -> phom_rec
 # tidy the prepped recipe step
 tidy(phom_rec, number = 1)
@@ -49,7 +49,7 @@ tidy(phom_prep, number = 1)
 phom_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
-  step_vpd_ecc(phom) %>%
+  step_vpd_(phom) %>%
   prep(training = phom_train, strings_as_factors = FALSE) ->
   phom_prep2
 print(phom_prep2)
@@ -74,7 +74,7 @@ sample_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
   step_phom_point_cloud(sample, engine = "ripserr") %>%
-  step_vpd_ecc(sample_phom, keep_original_cols = FALSE) %>%
+  step_vpd_(sample_phom, keep_original_cols = FALSE) %>%
   prep(training = sample_train, strings_as_factors = FALSE) ->
   sample_rec
 print(sample_rec)

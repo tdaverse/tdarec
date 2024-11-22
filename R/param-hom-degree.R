@@ -13,7 +13,7 @@
 #' Steps may vectorize features of a single degree (`hom_degree()`) or of
 #' degrees zero through some maximum (`max_hom_degree()`).
 #' 
-#' In case the (maximum) degree is not provided, `get_max_dim()` queries each
+#' In case the (maximum) degree is not provided, `get_hom_range()` queries each
 #' list-column for the maximum dimension of its point cloud and returns the
 #' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
 #' homological degree of interest in most practical applications).
@@ -32,7 +32,7 @@ hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
     inclusive = c(TRUE, TRUE),
     trans = trans,
     label = c(hom_degree = "Homological Degree"),
-    finalize = get_max_dim
+    finalize = get_hom_range
   )
 }
 
@@ -45,13 +45,13 @@ max_hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
     inclusive = c(TRUE, TRUE),
     trans = trans,
     label = c(max_hom_degree = "Maximum Homological Degree"),
-    finalize = get_max_dim
+    finalize = get_hom_range
   )
 }
 
 #' @rdname hom_degree
 #' @export
-get_max_dim <- function(object, x, max_dim = 2L, ...) {
+get_hom_range <- function(object, x, max_dim = 2L, ...) {
   check_param(object)
   
   rngs <- dials::range_get(object, original = FALSE)
