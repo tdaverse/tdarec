@@ -1,5 +1,4 @@
 #' @details
-#'
 #' Persistent homology is usually encoded as birth--death pairs (barcodes or
 #' diagrams), but the space of persistence data sets does not satisfy convenient
 #' statistical properties. Such applications as hypothesis testing and machine
