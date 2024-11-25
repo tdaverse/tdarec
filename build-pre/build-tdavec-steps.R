@@ -638,10 +638,10 @@ for (fn in tdavec_functions$name) {
   
   ex_file <- 
     here::here(glue::glue("inst/examples/{build_prefix}-step-vpd-{fn_abbr}.R"))
-  cat(build_warning, file = ex_file, append = FALSE)
+  # cat(build_warning, file = ex_file, append = FALSE)
   
-  readLines("man/ex/ex-step-vpd-template.R") |> 
+  readLines("man/ex/step-vpd-ex-template.R") |> 
     gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_abbr)) |> 
     gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
-    write(file = ex_file, append = TRUE)
+    write(file = ex_file, append = FALSE)
 }

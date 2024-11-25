@@ -45,20 +45,11 @@ print(phom_prep)
 # tidy the prepped recipe step
 tidy(phom_prep, number = 1)
 
-# build preprocessing recipe with default settings
-phom_train %>%
-  recipe() %>%
-  update_role(id, new_role = "id") %>%
-  step_vpd_(phom) %>%
-  prep(training = phom_train, strings_as_factors = FALSE) ->
-  phom_prep2
-print(phom_prep2)
-
 # preprocess training data
-juice(phom_prep2)
+juice(phom_prep)
 
 # preprocess testing data
-bake(phom_test, object = phom_prep2)
+bake(phom_test, object = phom_prep)
 
 # two-step recipe from sample to vectorization
 sample_data <- data.frame(
