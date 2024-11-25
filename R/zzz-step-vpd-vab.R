@@ -168,23 +168,24 @@ print.step_vpd_vab <- function(
   invisible(x)
 }
 
-#' @rdname required_pkgs_tdarec
+#' @rdname required_pkgs.tdarec
 #' @export
 required_pkgs.step_vpd_vab <- function(x, ...) {
   c("TDAvec", "tdarec")
 }
 
-#' @rdname tidy_tdavec
+#' @rdname step_vpd_vab
+#' @usage NULL
 #' @export
 tidy.step_vpd_vab <- function(x, ...) {
   if (is_trained(x)) {
-    res <- tibble(
+    res <- tibble::tibble(
       terms = unname(x$columns),
       value = rep(NA_real_, length(x$columns))
     )
   } else {
     term_names <- sel2char(x$terms)
-    res <- tibble(
+    res <- tibble::tibble(
       terms = term_names,
       value = rep(NA_real_, length(term_names))
     )

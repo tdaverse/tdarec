@@ -28,8 +28,6 @@ build_warning <- glue::glue(
 # source building utilities
 source(here::here("build-pre/build-tdavec.R"))
 
-Sys.sleep(.5)
-
 #' GENERATORS
 
 #' Generate step documentation.
@@ -491,7 +489,7 @@ build_req <- function(fn) {
   fn_abbr <- abbr_vec(fn)
   
   glue::glue(
-    doc_wrap("@rdname required_pkgs_tdarec"),
+    doc_wrap("@rdname required_pkgs.tdarec"),
     doc_wrap("@export"),
     "required_pkgs.step_vpd_{fn_abbr} <- function(x, ...) {{\n",
     "  c(\"TDAvec\", \"tdarec\")\n",
@@ -506,17 +504,18 @@ build_tidy <- function(fn) {
   fn_abbr <- abbr_vec(fn)
   
   glue::glue(
-    doc_wrap("@rdname tidy_tdavec"),
+    doc_wrap("@rdname step_vpd_{fn_abbr}"),
+    doc_wrap("@usage NULL"),
     doc_wrap("@export"),
     "tidy.step_vpd_{fn_abbr} <- function(x, ...) {{\n",
     "  if (is_trained(x)) {{\n",
-    "    res <- tibble(\n",
+    "    res <- tibble::tibble(\n",
     "      terms = unname(x$columns),\n",
     "      value = rep(NA_real_, length(x$columns))\n",
     "    )\n",
     "  }} else {{\n",
     "    term_names <- sel2char(x$terms)\n",
-    "    res <- tibble(\n",
+    "    res <- tibble::tibble(\n",
     "      terms = term_names,\n",
     "      value = rep(NA_real_, length(term_names))\n",
     "    )\n",
