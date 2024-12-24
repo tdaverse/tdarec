@@ -21,13 +21,11 @@ get_param_list <- function(x) {
 }
 ```
 
-# Tuning Parameters
-
 ```{r echo = FALSE}
 param <- get_param_list(step)
 ```
 
-This step has `r length(param)` tuning parameters:
+This step has `r length(param)` tuning parameter(s):
 
 ```{r echo = FALSE, results = "asis"}
 param
