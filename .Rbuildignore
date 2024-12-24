@@ -10,5 +10,6 @@
 ^build-pre$
 
 # development
+^data-raw$
 ^ignore$
-
+^sandbox$
