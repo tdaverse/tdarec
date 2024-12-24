@@ -40,6 +40,7 @@
 #' @param engine The computational engine to use (see 'Details'). Reasonable
 #'   defaults are chosen based on `filtration`.
 #' @family topological feature extraction via persistent homology
+#' @example inst/examples/ex-step-phom-image.R
 
 #' @export
 step_phom_image <- function(
@@ -164,6 +165,8 @@ prep.step_phom_image <- function(x, training, info = NULL, ...) {
   if (is.null(x$value_max)) {
     x$value_max <- 9999L
   }
+  # match method
+  x$method <- match.arg(x$method, c("link_join", "compute_pairs"))
   
   # output prepped step
   step_phom_image_new(
@@ -201,7 +204,7 @@ bake.step_phom_image <- function(object, new_data, ...) {
         new_data[[term]],
         \(d) ripserr::cubical(
           d,
-          threshold = object$diameter_max,
+          threshold = object$value_max,
           method = switch(object$method, link_join = 0, compute_pairs = 1),
           return_format = "df"
         )
@@ -211,7 +214,7 @@ bake.step_phom_image <- function(object, new_data, ...) {
         new_data[[term]],
         \(d) ripserr::cubical(
           d,
-          threshold = object$diameter_max,
+          threshold = object$value_max,
           method = switch(object$method, link_join = "lj", compute_pairs = "cp")
         )
       )

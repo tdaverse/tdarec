@@ -67,12 +67,16 @@ set.seed(984520L)
 train_sample <- strat_sample_digits(train_x, train_y, prop = .01)
 mnist_train <- tibble(
   digit = lapply(train_sample, \(s) extract_digit(train_x[s, ])),
-  label = as.vector(y[train_sample, ])
+  label = as.vector(train_y[train_sample, ])
 )
 test_sample <- strat_sample_digits(test_x, test_y, prop = .01)
 mnist_test <- tibble(
   digit = lapply(test_sample, \(s) extract_digit(test_x[s, ])),
-  label = as.vector(y[test_sample, ])
+  label = as.vector(train_y[test_sample, ])
 )
 
-save(mnist_train, mnist_test, file = here::here("data/mnist.rda"))
+save(
+  mnist_train, mnist_test,
+  file = here::here("data/mnist.rda"),
+  compression_level = 9
+)
