@@ -1,0 +1,89 @@
+
+# ensure that all columns are list-columns of 3-column persistence diagrams
+check_phom_list <- function(data) {
+  # check that all columns are list columns
+  if (! all(vapply(data, typeof, "") == "list"))
+    rlang::abort("The `vpd_*` steps can only transform list columns.")
+  # TODO: Delete this conversion here if not needed for the function.
+  # remove troublesome 'AsIs' class (and any other non-'list' classes)
+  for (col in names(data)) class(data[[col]]) <- "list"
+  # check that each list element is a 3-column matrix or data frame
+  # TODO: Encode persistence data using a specialized class.
+  are_phom <- function(l) all(vapply(
+    l,
+    \(x) ncol(x) == 3L && (
+      (inherits(x, "data.frame") && 
+         all(vapply(x, typeof, "") %in% c("double", "integer"))) ||
+        (inherits(x, "matrix") && typeof(x) %in% c("double", "integer"))
+    ),
+    FALSE
+  ))
+  if (! all(vapply(data, are_phom, FALSE))) {
+    rlang::abort("The `vpd_*` steps require 3-column persistence data.")
+  }
+}
+
+# calculate the maximum dimension of the input data sets
+get_max_dim <- function(data) {
+  max_dims <- purrr::map(
+    data,
+    \(x) purrr::map_dbl(x, \(m) max(m[, 1L]))
+  )
+  max(unlist(max_dims))
+}
+
+# reconcile scale sequence parameters
+reconcile_scale_seq <- function(x, data, axis) {
+  stopifnot(axis %in% c("x", "y"))
+  xyseq <- x[[paste0(axis, "seq")]]
+  xymin <- x[[paste0(axis, "min")]]
+  xymax <- x[[paste0(axis, "max")]]
+  xylen <- x[[paste0(axis, "len")]]
+  xyby <- x[[paste0(axis, "by")]]
+  
+  # if provided, use the full sequence
+  if (! is.null(xyseq)) {
+    if (! is.null(xymin) || ! is.null(xymax) ||
+        ! is.null(xylen) || ! is.null(xyby)) {
+      warning(
+        "Pass either `", paste0(axis, "seq"), "` alone ",
+        "or `", paste0(axis, "min"), "`, `", paste0(axis, "max"), "`, ",
+        "and `", paste0(axis, "len"), "` or `", paste0(axis, "by"), "`, ",
+        "not both."
+      )
+    }
+  } else {
+    # if needed, determine scale sequence
+    if (is.null(xymax)) {
+      train_xmax <- purrr::map(data, \(x) purrr::map_dbl(x, \(m) max(m[, 3L])))
+      train_xmax <- min(unlist(train_xmax))
+      xymax <- max(train_xmax, 0)
+    }
+    if (is.null(xymin)) {
+      train_xmin <- purrr::map(data, \(x) purrr::map_dbl(x, \(m) min(m[, 2L])))
+      train_xmin <- min(unlist(train_xmin))
+      # TODO: Consult with specialists about this convention.
+      # only deviate from zero if it would reduce the grid size by at least half
+      if (train_xmin < xymax * .5) train_xmin <- 0
+      xymin <- train_xmin
+    }
+    if (is.null(xyby)) {
+      if (is.null(xylen)) xylen <- 100
+      xyby <- (xymax - xymin) / xylen
+    } else if (! is.null(xylen)) {
+      # TODO: Make a macro to warn about redundant parameters.
+      warning(
+        "Both `", paste0(axis, "by"), "` and `", paste0(axis, "len"),
+        "` were passed; only `", paste0(axis, "len"), "` value will be used."
+      )
+      xyby <- (xymax - xymin) / xylen
+    } else {
+      xylen <- (xymax - xymin) / xyby
+    }
+    # calculate `xseq`
+    xyseq <- seq(xymin, xymax, length.out = xylen)
+    # xymin <- xymax <- xylen <- xyby <- NULL
+  }
+  
+  list(xyseq, xymin, xymax, xylen, xyby)
+}

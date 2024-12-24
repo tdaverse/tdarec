@@ -6,6 +6,8 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
+^man-roxygen$
+^build-pre$
 
 # development
 ^ignore$
