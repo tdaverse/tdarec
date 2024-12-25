@@ -10,7 +10,6 @@ sample_data <- data.frame(
   sample = I(c(replicate(6L, klein_sampler(60), simplify = FALSE))),
   part = rep(c("train", "test"), each = 3L)
 )
-print(sample_data)
 head(sample_data$sample[[1]])
 
 sample_train <- filter(sample_data, part == "train")
