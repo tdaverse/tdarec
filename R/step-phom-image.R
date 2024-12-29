@@ -1,40 +1,30 @@
-#' @title Persistent homology of point clouds
+#' @title Persistent homology of images
 #'
-#' @description The function `step_phom_point_cloud()` creates a _specification_
-#'   of a recipe step that will convert compatible data formats (distance
-#'   matrices, coordinate matrices, or time series) to 3-column matrix
+#' @description The function `step_phom_image()` creates a _specification_ ofa
+#'   recipe step that will convert compatible data formats (numerical arrays,
+#'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
 #'   list-columns.
 #'
 #' @template step-phom-details
 #'
-#' @section PH of Point Clouds:
+#' @section PH of Images:
 #'
-#'   The PH of a point cloud arises from a simplicial filtration (usually
-#'   Vietoris--Rips, Čech, or alpha) along an increasing distance threshold.
+#'   The PH of (greyscale) digital images is computed from the cubical
+#'   filtration of the pixel or voxel array, treated as a function from a
+#'   cubical mesh to a finite value range.
 #'
-#'   Ripser is a highly efficient implementation of PH on a point cloud (a
-#'   finite metric space) via the Vietoris--Rips filtration and is ported to R
-#'   through the {ripserr} package. The {TDA} package calls the Dionysus, PHAT,
-#'   and GUDHI libraries to compute PH via Vietoris--Rips and alpha filtrations.
-#'   The `filtration` parameter controls the choice of filtration while the
-#'   `engine` parameter allows the user to manually select an implementation.
+#'   Cubical Ripser is an efficient implementation of cubical PH and is ported
+#'   to R through the {ripserr} package. It accepts numerical arrays.
 #'
-#'   Both engines accept data sets in distance matrix, coordinate matrix, and
-#'   data frame formats. While {ripserr} computes PH for time series data, this
-#'   is not currently supported in {tdarec}.
-#'
-#'   The `max_hom_degree` argument determines the highest-dimensional features
-#'   to be calculated. Either `diameter_max` (preferred) or `radius_max` can be
-#'   used to bound the distance threshold along which PH is computed. The
-#'   `field_order` argument should be prime and will be the order of the field
-#'   of coefficients used in the computation. In most applications, only
-#'   `max_hom_degree` will be tuned, and to at most `3`.
+#'   The `value_max` argument bounds the value range along which PH is computed.
+#'   Cubical Ripser is implemented using both of two methods, link-join and
+#'   compute-pairs, controlled by the `method` parameter.
 #'
 #' @section Tuning Parameters:
 #'
 #' ```{r, echo=FALSE, results="asis"}
-#' step <- "step_phom_point_cloud"
+#' step <- "step_phom_image"
 #' result <- knitr::knit_child("man/rmd/tunable-args.Rmd")
 #' cat(result)
 #' ```
@@ -45,46 +35,43 @@
 #' @inheritParams recipes::step_pca
 #' @inherit recipes::step_pca return
 #' @param filtration The type of filtration from which to compute persistent
-#'   homology; one of `"Rips"`, `"Vietoris"` (equivalent), or `"alpha"`.
-#' @param max_hom_degree,radius_max,diameter_max,field_order
-#'   Parameters passed to persistence engines.
+#'   homology; currently only `"cubical"`.
+#' @param value_max,method Parameters passed to persistence engines.
 #' @param engine The computational engine to use (see 'Details'). Reasonable
 #'   defaults are chosen based on `filtration`.
 #' @family topological feature extraction via persistent homology
-#' @example inst/examples/ex-step-phom-point-cloud.R
+#' @example inst/examples/ex-step-phom-image.R
 
 #' @export
-step_phom_point_cloud <- function(
+step_phom_image <- function(
     recipe,
     ...,
     # standard inputs
     role = "predictor",
     trained = FALSE,
     # custom parameters
-    filtration = "Rips",
-    max_hom_degree = 1L,
-    radius_max = NULL, diameter_max = NULL,
-    field_order = 2L,
+    filtration = "cubical",
+    value_max = 9999L,
+    method = c("link_join", "compute_pairs"),
     engine = NULL,
     # standard parameters
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
-    id = rand_id("phom_point_cloud")
+    id = rand_id("phom_image")
 ) {
-  recipes_pkg_check(required_pkgs.step_phom_point_cloud())
+  recipes_pkg_check(required_pkgs.step_phom_image())
   
   # output the step
   add_step(
     recipe,
-    step_phom_point_cloud_new(
+    step_phom_image_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
       filtration = filtration,
-      max_hom_degree = max_hom_degree,
-      radius_max = radius_max, diameter_max = diameter_max,
-      field_order = field_order,
+      value_max = value_max,
+      method = method,
       engine = engine,
       columns = columns,
       keep_original_cols = keep_original_cols,
@@ -94,24 +81,23 @@ step_phom_point_cloud <- function(
   )
 }
 
-step_phom_point_cloud_new <- function(
+step_phom_image_new <- function(
     terms,
     role, trained,
     filtration,
-    max_hom_degree, radius_max, diameter_max, field_order,
+    value_max, method,
     engine,
     columns, keep_original_cols,
     skip, id
 ) {
   step(
-    subclass = "phom_point_cloud",
+    subclass = "phom_image",
     terms = terms,
     role = role,
     trained = trained,
     filtration = filtration,
-    max_hom_degree = max_hom_degree,
-    radius_max = radius_max, diameter_max = diameter_max,
-    field_order = field_order,
+    value_max = value_max,
+    method = method,
     engine = engine,
     columns = columns,
     keep_original_cols = keep_original_cols,
@@ -121,16 +107,16 @@ step_phom_point_cloud_new <- function(
 }
 
 #' @export
-prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
-  # save(x, training, info, file = here::here("step-phom-point-cloud-prep.rda"))
-  # load(here::here("step-phom-point-cloud-prep.rda"))
+prep.step_phom_image <- function(x, training, info = NULL, ...) {
+  # save(x, training, info, file = here::here("step-phom-image-prep.rda"))
+  # load(here::here("step-phom-image-prep.rda"))
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
   # check that all columns are list-columns
   # TODO: Check other existing steps for handling of list-columns.
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
-    rlang::abort("The `phom_point_cloud` step can only transform list-columns.")
+    rlang::abort("The `phom_image` step can only transform list-columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
@@ -141,34 +127,18 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
   # logic to deduce reasonable values of engine
   # + issue warnings when choices are incompatible
   x$filtration <-
-    match.arg(x$filtration, c("Vietoris", "Rips", "alpha"))
-  if (x$filtration %in% c("Vietoris", "Rips")) x$filtration <- "Vietoris-Rips"
+    match.arg(x$filtration, c("cubical"))
   if (is.null(x$engine)) {
     x$engine <- "ripserr"
   } else {
     x$engine <-
-      match.arg(x$engine, c("TDA", "GUDHI", "Dionysus", "ripserr"))
+      match.arg(x$engine, c("ripserr"))
   }
   # TODO: Incorporate assignment helper functions into helper package.
   # x$engine <-
   #   assign_filtration_engine(x$filtration, x$engine)
-  if (x$filtration == "alpha")
-    rlang::abort("Alpha filtrations are not deployable yet.")
   if (x$engine != "ripserr")
     rlang::abort("Only the {ripserr} engine can be deployed as yet.")
-
-  # # reconcile thresholds
-  # if (is.null(x$radius_max) && is.null(x$diameter_max)) {
-  #   x$diameter_max <- Inf
-  # }
-  # if (! is.null(x$radius_max)) {
-  #   if (! is.null(x$diameter_max)) {
-  #     warning("Both `radius_max` and `diameter_max` were passed; ",
-  #             "only `diameter_max` value will be used.")
-  #   } else {
-  #     x$diameter_max <- x$radius_max * 2
-  #   }
-  # }
 
   # TODO: End helper package section. Begin temporary section.
   
@@ -181,46 +151,31 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) {
     inheritance <- purrr::map_lgl(
       training[[col_name]],
-      \(x) inherits(x, .ripserr_vietoris_rips_classes)
+      \(x) inherits(x, .ripserr_cubical_classes)
     )
     if (! all(inheritance)) col_errs <- c(col_errs, col_name)
   }
   if (length(col_errs) > 0L)
     rlang::abort(paste0(
       "Some list-column elements are not passable to ",
-      "`ripserr::vietoris_rips()`."
+      "`ripserr::cubical()`."
     ))
   
   # if needed, select threshold
-  if (is.null(x$diameter_max)) {
-    if (is.null(x$radius_max)) {
-      x$diameter_max <- -1L
-    } else {
-      x$diameter_max <- 2 * x$radius_max
-      x$radius_max <- NULL
-    }
-  } else {
-    if (x$diameter_max == Inf) {
-      x$diameter_max <- -1L
-    }
-    if (! is.null(x$radius_max)) {
-      warning(
-        "Both `radius_max` and `diameter_max` were passed; ",
-        "only `diameter_max` value will be used."
-      )
-      x$radius_max <- NULL
-    }
+  if (is.null(x$value_max)) {
+    x$value_max <- 9999L
   }
+  # match method
+  x$method <- match.arg(x$method, c("link_join", "compute_pairs"))
   
   # output prepped step
-  step_phom_point_cloud_new(
+  step_phom_image_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
     filtration = x$filtration,
-    max_hom_degree = x$max_hom_degree,
-    radius_max = x$radius_max, diameter_max = x$diameter_max,
-    field_order = x$field_order,
+    value_max = x$value_max,
+    method = x$method,
     engine = x$engine,
     columns = col_names,
     keep_original_cols = get_keep_original_cols(x),
@@ -230,9 +185,9 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_phom_point_cloud <- function(object, new_data, ...) {
-  # save(object, new_data, file = here::here("step-phom-point-cloud-bake.rda"))
-  # load(here::here("step-phom-point-cloud-bake.rda"))
+bake.step_phom_image <- function(object, new_data, ...) {
+  # save(object, new_data, file = here::here("step-phom-image-bake.rda"))
+  # load(here::here("step-phom-image-bake.rda"))
   
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
@@ -247,22 +202,20 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
     term_phom <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::vietoris_rips(
+        \(d) ripserr::cubical(
           d,
-          threshold = object$diameter_max,
-          dim = object$max_hom_degree,
-          p = object$field_order,
+          threshold = object$value_max,
+          method = switch(object$method, link_join = 0, compute_pairs = 1),
           return_format = "df"
         )
       )
     } else if (.ripserr_version >= "0.2.0") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::vietoris_rips(
+        \(d) ripserr::cubical(
           d,
-          threshold = object$diameter_max,
-          max_dim = object$max_hom_degree,
-          p = object$field_order
+          threshold = object$value_max,
+          method = switch(object$method, link_join = "lj", compute_pairs = "cp")
         )
       )
     }
@@ -276,11 +229,11 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_phom_point_cloud <- function(
+print.step_phom_image <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  # save(x, width, file = here::here("step-phom-point-cloud-print.rda"))
-  # load(here::here("step-phom-point-cloud-print.rda"))
+  # save(x, width, file = here::here("step-phom-image-print.rda"))
+  # load(here::here("step-phom-image-print.rda"))
   
   cat(
     "Persistent features from a ",
@@ -299,19 +252,19 @@ print.step_phom_point_cloud <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_phom_point_cloud <- function(x, ...) {
+required_pkgs.step_phom_image <- function(x, ...) {
   c("ripserr", "tdarec")
 }
 
 #' @export
-tunable.step_phom_point_cloud <- function(x, ...) {
+tunable.step_phom_image <- function(x, ...) {
   tibble::tibble(
     name = c("max_hom_degree"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, 3L))
     ),
     source = "recipe",
-    component = "step_phom_point_cloud",
+    component = "step_phom_image",
     component_id = x$id
   )
 }

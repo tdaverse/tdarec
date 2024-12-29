@@ -3,7 +3,7 @@
 \name{hom_degree}
 \alias{hom_degree}
 \alias{max_hom_degree}
-\alias{get_max_dim}
+\alias{get_hom_range}
 \alias{ph_dim}
 \alias{ph_dim.default}
 \alias{ph_dim.matrix}
@@ -17,7 +17,7 @@ hom_degree(range = c(0L, unknown()), trans = NULL)
 
 max_hom_degree(range = c(0L, unknown()), trans = NULL)
 
-get_max_dim(object, x, max_dim = 2L, ...)
+get_hom_range(object, x, max_dim = 2L, ...)
 
 ph_dim(x)
 
@@ -66,7 +66,7 @@ degree at most 3.
 Steps may vectorize features of a single degree (\code{hom_degree()}) or of
 degrees zero through some maximum (\code{max_hom_degree()}).
 
-In case the (maximum) degree is not provided, \code{get_max_dim()} queries each
+In case the (maximum) degree is not provided, \code{get_hom_range()} queries each
 list-column for the maximum dimension of its point cloud and returns the
 smaller of this maximum and \code{max_dim} (which defaults to \code{2L}, the highest
 homological degree of interest in most practical applications).
@@ -87,14 +87,14 @@ sample_data <- data.frame(
 
 # options to calibrate homological degree
 hom_degree(range = c(2, 5))
-hom_degree() |> get_max_dim(x = sample_data[, 2, drop = FALSE])
-hom_degree() |> get_max_dim(x = sample_data[, 2, drop = FALSE], max_dim = 5)
+hom_degree() |> get_hom_range(x = sample_data[, 2, drop = FALSE])
+hom_degree() |> get_hom_range(x = sample_data[, 2, drop = FALSE], max_dim = 5)
 
 # heterogeneous data types
 hetero_data <- tibble(dataset = list(mtcars, nhtemp, eurodist, HairEyeColor))
 hetero_data |> 
   mutate(class = vapply(dataset, \(x) class(x)[[1L]], ""))
-get_max_dim(
+get_hom_range(
   hom_degree(),
   hetero_data,
   max_dim = 60

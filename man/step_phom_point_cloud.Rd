@@ -2,7 +2,7 @@
 % Please edit documentation in R/step-phom-point-cloud.R
 \name{step_phom_point_cloud}
 \alias{step_phom_point_cloud}
-\title{Topological feature extraction via persistent homology}
+\title{Persistent homology of point clouds}
 \usage{
 step_phom_point_cloud(
   recipe,
@@ -63,46 +63,53 @@ An updated version of \code{recipe} with the new step added to the
 sequence of any existing operations.
 }
 \description{
-The functions \verb{step_phom_*()} create \emph{specifications} of recipe steps that
-will convert compatible data formats (distance matrices, coordinate matrices,
-or time series) to 3-column matrix representations of persistence diagram
-data. The input and output must be list-columns.
+The function \code{step_phom_point_cloud()} creates a \emph{specification}
+of a recipe step that will convert compatible data formats (distance
+matrices, coordinate matrices, or time series) to 3-column matrix
+representations of persistence diagram data. The input and output must be
+list-columns.
 }
 \details{
 Persistent homology (PH) is a tool of algebraic topology to extract features
 from data whose \emph{persistence} measures their robustness to scale. The
 computation relies on a sequence of maps between discrete topological spaces
 (usually a filtration comprising only inclusions) constructed from the data.
+}
+\section{PH of Point Clouds}{
+
+
 The PH of a point cloud arises from a simplicial filtration (usually
 Vietoris--Rips, Čech, or alpha) along an increasing distance threshold.
 
-Ripser is a highly efficient implementation of PH on a point cloud (a finite
-metric space) via the Vietoris--Rips filtration and is ported to R through
-the {ripserr} package. The {TDA} package calls the Dionysus, PHAT, and GUDHI
-libraries to compute PH via Vietoris--Rips and alpha filtrations. The
-\code{filtration} parameter controls the choice of filtration while the \code{engine}
-parameter allows the user to manually select an implementation.
+Ripser is a highly efficient implementation of PH on a point cloud (a
+finite metric space) via the Vietoris--Rips filtration and is ported to R
+through the {ripserr} package. The {TDA} package calls the Dionysus, PHAT,
+and GUDHI libraries to compute PH via Vietoris--Rips and alpha filtrations.
+The \code{filtration} parameter controls the choice of filtration while the
+\code{engine} parameter allows the user to manually select an implementation.
 
-Both engines accept data sets in distance matrix, coordinate matrix, and data
-frame formats. While {ripserr} computes PH for time series data, this is not
-currently supported in {tdarec}.
+Both engines accept data sets in distance matrix, coordinate matrix, and
+data frame formats. While {ripserr} computes PH for time series data, this
+is not currently supported in {tdarec}.
 
-The \code{max_hom_degree} argument determines the highest-dimensional features to
-be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} can be used
-to bound the distance threshold along which PH is computed. The \code{field_order}
-argument should be prime and will be the order of the field of coefficients
-used in the computation. In most applications, only \code{max_hom_degree} will be
-tuned, and to at most \code{3}.
+The \code{max_hom_degree} argument determines the highest-dimensional features
+to be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} can be
+used to bound the distance threshold along which PH is computed. The
+\code{field_order} argument should be prime and will be the order of the field
+of coefficients used in the computation. In most applications, only
+\code{max_hom_degree} will be tuned, and to at most \code{3}.
 }
+
 \section{Tuning Parameters}{
-This step has 1 tuning parameters:
+
+
+This step has 1 tuning parameter(s):
 \itemize{
 \item \code{max_hom_degree}: Maximum Homological Degree (type: integer, default: 1)
 }
 }
 
 \examples{
-# toy data set
 klein_sampler <- function(n, prob = .5) {
   if (rbinom(1, 1, prob) == 0) {
     tdaunif::sample_klein_flat(n)
@@ -115,13 +122,11 @@ sample_data <- data.frame(
   sample = I(c(replicate(6L, klein_sampler(60), simplify = FALSE))),
   part = rep(c("train", "test"), each = 3L)
 )
-print(sample_data)
 head(sample_data$sample[[1]])
 
 sample_train <- filter(sample_data, part == "train")
 sample_test <- filter(sample_data, part == "test")
 
-# build preprocessing recipe with default settings
 sample_train |>
   recipe() |>
   update_role(id, new_role = "id") |>
@@ -130,9 +135,12 @@ sample_train |>
   sample_rec
 print(sample_rec)
 
-# preprocess training data
 juice(sample_rec)
 
-# preprocess testing data
 bake(sample_test, object = sample_rec)
 }
+\seealso{
+Other topological feature extraction via persistent homology: 
+\code{\link{step_phom_image}()}
+}
+\concept{topological feature extraction via persistent homology}
