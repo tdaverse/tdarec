@@ -109,7 +109,7 @@ klein_res <- tune_bayes(
   preprocessor = klein_rec,
   resamples = klein_folds,
   metrics = metric_set(accuracy, roc_auc),
-  iter = 12, initial = 6
+  iter = 6, initial = 3
 )
 collect_metrics(klein_res)
 (klein_param <- select_best(klein_res, metric = "roc_auc"))
