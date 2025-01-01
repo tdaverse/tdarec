@@ -18,12 +18,9 @@ This vignette will illustrate the tuning of hyperparameters at two pre-processin
 The vignette will be updated as additional hyperparameters become available.
 
 ```{r setup}
-library(rsample)
+library(tidymodels)
 library(tdarec)
-library(tune)
-library(parsnip)
 library(discrim)
-library(yardstick)
 ```
 
 ## Point cloud sampling
@@ -86,13 +83,27 @@ We can check which hyperparameters are primed to be tuned by extracting the dial
 extract_parameter_set_dials(klein_rec)
 ```
 
-As a test of whether the vectorized persistence data are intrinsically informative, we will build a linear discriminant analysis classifier rather than a more flexible but less interpretable support vector machine or random forest.
+Because the vectorization yields numerous features, each of which may contribute incrementally to model performance, we will build a random forest classifier, the most common type of ensemble model.
+
+One tuning parameter, the number of variables sampled for each split (`mtry`), depends on the dimensionality of the pre-processed data.
+To provide it with a tuning range, we first pre-process the data using the largest candidate homological degree:
+
+```{r}
+klein_rec |> 
+  finalize_recipe(list(vr_degree = 3)) |> 
+  prep() |> 
+  bake(new_data = klein_train) ->
+  klein_bake
+mtry_param <- finalize(mtry(), klein_bake)
+```
+
+We can now specify the model and its tunable parameters.
 In anticipation of the optimization process, we can also check its dials.
 
 ```{r linear discriminant model}
-discrim_linear(penalty = tune()) |> 
+rand_forest(trees = 500, min_n = tune(), mtry = tune()) |> 
   set_mode("classification") |> 
-  set_engine("mda") |> 
+  set_engine("randomForest") |> 
   print() -> klein_spec
 extract_parameter_set_dials(klein_spec)
 ```
@@ -108,8 +119,13 @@ klein_res <- tune_bayes(
   klein_spec,
   preprocessor = klein_rec,
   resamples = klein_folds,
+  # FIXME: This doesn't work, and anyway it shouldn't be necessary.
+  # param_info = parameters(list(
+  #   vr_degree = max_hom_degree(),
+  #   mtry = mtry_param, min_n = min_n()
+  # )),
   metrics = metric_set(accuracy, roc_auc),
-  iter = 6, initial = 3
+  iter = 6, initial = 6
 )
 collect_metrics(klein_res)
 (klein_param <- select_best(klein_res, metric = "roc_auc"))
