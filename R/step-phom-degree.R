@@ -65,7 +65,7 @@ step_phom_degree_new <- function(
     terms = terms,
     role = role,
     trained = trained,
-    hom_degrees,
+    hom_degrees = hom_degrees,
     columns = columns,
     keep_original_cols = keep_original_cols,
     skip = skip,
@@ -84,7 +84,9 @@ prep.step_phom_degree <- function(x, training, info = NULL, ...) {
   
   # intersection of `hom_degrees` (if passed) and dimensions in data
   x_hom_degrees <- get_hom_degrees(training[, col_names, drop = FALSE])
-  if (! is.null(x$hom_degrees))
+  if (is.null(x$hom_degrees))
+    x$hom_degrees <- x_hom_degrees
+  else
     x$hom_degrees <- sort(intersect(as.integer(x$hom_degrees), x_hom_degrees))
   
   # output prepped step
