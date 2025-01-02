@@ -1,22 +1,22 @@
 roads <- data.frame(dist = I(list(eurodist, UScitiesD)))
-rec <- recipe(~ ., data = roads)
-ph_trans <- rec |> 
+
+ph_rec <- recipe(~ ., data = roads) |> 
   step_phom_point_cloud(dist, max_hom_degree = 1, filtration = "Rips")
-ph_estimates <- prep(ph_trans, training = roads)
-ph_data <- bake(ph_estimates, roads)
+ph_prep <- prep(ph_rec, training = roads)
+ph_res <- bake(ph_prep, roads)
+
+tidy(ph_rec, number = 1)
+tidy(ph_prep, number = 1)
 
 par(mfrow = c(1, 2), mar = c(2, 2, 0, 0) + 0.1)
-for (i in seq(nrow(ph_data))) {
-  with(ph_data$dist_phom[[i]], plot(
+for (i in seq(nrow(ph_res))) {
+  with(ph_res$dist_phom[[i]], plot(
     x = birth, y = death, pch = dimension + 1, col = dimension + 1,
     xlab = NA, ylab = "", asp = 1
   ))
 }
 
-with_thres <- rec |> 
+with_max <- recipe(~ ., data = roads) |> 
   step_phom_point_cloud(dist, max_hom_degree = 1, diameter_max = 200)
-with_thres <- prep(with_thres, training = roads)
-bake(with_thres, roads)
-
-tidy(ph_trans, number = 1)
-tidy(ph_estimates, number = 1)
+with_max <- prep(with_max, training = roads)
+bake(with_max, roads)
