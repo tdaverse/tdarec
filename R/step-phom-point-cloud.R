@@ -29,7 +29,7 @@
 #'   used to bound the distance threshold along which PH is computed. The
 #'   `field_order` argument should be prime and will be the order of the field
 #'   of coefficients used in the computation. In most applications, only
-#'   `max_hom_degree` will be tuned, and to at most `3`.
+#'   `max_hom_degree` will be tuned, and to at most `3L`.
 #'
 #' @section Tuning Parameters:
 #'

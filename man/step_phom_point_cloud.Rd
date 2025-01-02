@@ -98,7 +98,7 @@ to be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} ca
 used to bound the distance threshold along which PH is computed. The
 \code{field_order} argument should be prime and will be the order of the field
 of coefficients used in the computation. In most applications, only
-\code{max_hom_degree} will be tuned, and to at most \code{3}.
+\code{max_hom_degree} will be tuned, and to at most \code{3L}.
 }
 
 \section{Tuning Parameters}{
@@ -136,6 +136,7 @@ bake(with_max, roads)
 }
 \seealso{
 Other topological feature extraction via persistent homology: 
+\code{\link{step_phom_degree}()},
 \code{\link{step_phom_image}()}
 }
 \concept{topological feature extraction via persistent homology}

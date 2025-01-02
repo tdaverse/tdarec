@@ -16,19 +16,19 @@ num_level(range = c(1L, unknown()), trans = NULL)
 
 get_level_range(object, x, hom_degrees = NULL, ...)
 
-max_pairs(x, d)
+max_pairs(x, hom_degrees)
 
-\method{max_pairs}{default}(x, d)
+\method{max_pairs}{default}(x, hom_degrees)
 
-\method{max_pairs}{matrix}(x, d)
+\method{max_pairs}{matrix}(x, hom_degrees)
 
-\method{max_pairs}{data.frame}(x, d)
+\method{max_pairs}{data.frame}(x, hom_degrees)
 
-\method{max_pairs}{diagram}(x, d)
+\method{max_pairs}{diagram}(x, hom_degrees)
 
-\method{max_pairs}{PHom}(x, d)
+\method{max_pairs}{PHom}(x, hom_degrees)
 
-\method{max_pairs}{persistence}(x, d)
+\method{max_pairs}{persistence}(x, hom_degrees)
 }
 \arguments{
 \item{range}{A two-element vector holding the \emph{defaults} for the smallest and
@@ -45,11 +45,11 @@ transformation, \code{NULL}.}
 \item{x}{The predictor data. In some cases (see below) this should only
 include numeric data.}
 
-\item{hom_degrees, d}{Integer vector of homological degrees whose persistence
-pairs to count.}
+\item{hom_degrees}{Integer vector of homological degrees.}
 
-\item{...}{Other arguments to pass to the underlying parameter finalizer
-functions.}
+\item{...}{Other arguments to pass to the underlying parameter
+finalizer functions. For example, for \code{get_rbf_range()}, the dots are passed
+along to \code{\link[kernlab:sigest]{kernlab::sigest()}}.}
 }
 \description{
 The number of levels of a persistence landscape to vectorize.
@@ -65,8 +65,8 @@ list-column for the number of persistent pairs of each degree (among
 bound on the level.
 
 Currently, \code{\link[TDAvec:computePL]{TDAvec::computePL()}} specifies only one level which to
-vectorize. When multiple levels are allowed, this parameter will be
-updated (and its name changed).
+vectorize. When multiple levels are allowed, this parameter will be updated
+(and its name changed).
 }
 \examples{
 data.frame(dist = I(list(eurodist, UScitiesD))) |> 

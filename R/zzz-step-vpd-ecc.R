@@ -100,7 +100,7 @@ prep.step_vpd_ecc <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   if (x$max_hom_degree == Inf)
-    x$max_hom_degree <- get_max_dim(training[, col_names, drop = FALSE])
+    x$max_hom_degree <- get_max_hom_degree(training[, col_names, drop = FALSE])
   
   x[paste0("x", c("seq", "min", "max", "len", "by"))] <- 
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "x")

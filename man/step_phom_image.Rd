@@ -121,6 +121,7 @@ bake(with_max, topos)
 }
 \seealso{
 Other topological feature extraction via persistent homology: 
+\code{\link{step_phom_degree}()},
 \code{\link{step_phom_point_cloud}()}
 }
 \concept{topological feature extraction via persistent homology}

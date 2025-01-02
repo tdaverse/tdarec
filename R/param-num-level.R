@@ -12,12 +12,12 @@
 #'   bound on the level.
 #'
 #'   Currently, [TDAvec::computePL()] specifies only one level which to
-#'   vectorize. When multiple levels are allowed, this parameter will be
-#'   updated (and its name changed).
+#'   vectorize. When multiple levels are allowed, this parameter will be updated
+#'   (and its name changed).
 #'
-#' @inheritParams hom_degree
-#' @param hom_degrees,d Integer vector of homological degrees whose persistence
-#'   pairs to count.
+#' @inheritParams dials::Laplace
+#' @inheritParams dials::finalize
+#' @inheritParams step_phom_degree
 #' @example inst/examples/ex-param-num-level.R
 #' @export
 num_level <- function(range = c(1L, unknown()), trans = NULL) {
@@ -49,7 +49,10 @@ get_level_range <- function(object, x, hom_degrees = NULL, ...) {
   # calculate maximum within-dimension level
   x_max_levs <- vapply(
     x,
-    \(l) max(vapply(l, max_pairs, 0L, d = hom_degrees), na.rm = FALSE),
+    \(l) max(
+      vapply(l, max_pairs, 0L, hom_degrees = hom_degrees),
+      na.rm = FALSE
+    ),
     0L
   )
   x_max_lev <- max(x_max_levs)
@@ -68,44 +71,47 @@ get_level_range <- function(object, x, hom_degrees = NULL, ...) {
 
 #' @rdname num_level
 #' @export
-max_pairs <- function(x, d) {
+max_pairs <- function(x, hom_degrees) {
   UseMethod("max_pairs")
 }
 
 #' @rdname num_level
 #' @export
-max_pairs.default <- function(x, d) {
+max_pairs.default <- function(x, hom_degrees) {
   stop("Unrecognized persistent homology class.")
 }
 
 #' @rdname num_level
 #' @export
-max_pairs.matrix <- function(x, d) {
-  if (is.null(d)) {
+max_pairs.matrix <- function(x, hom_degrees) {
+  if (is.null(hom_degrees)) {
     max(unname(table(x[, 1L])))
   } else {
-    max(unname(table(x[x[, 1L] %in% d, 1L])))
+    max(unname(table(x[x[, 1L] %in% hom_degrees, 1L])))
   }
 }
 
 #' @rdname num_level
 #' @export
-max_pairs.data.frame <- function(x, d) max_pairs.matrix(x, d)
+max_pairs.data.frame <- 
+  function(x, hom_degrees) max_pairs.matrix(x, hom_degrees)
 
 #' @rdname num_level
 #' @export
-max_pairs.diagram <- function(x, d) max_pairs.matrix(unclass(x), d)
+max_pairs.diagram <- 
+  function(x, hom_degrees) max_pairs.matrix(unclass(x), hom_degrees)
 
 #' @rdname num_level
 #' @export
-max_pairs.PHom <- function(x, d) max_pairs.data.frame(x, d)
+max_pairs.PHom <- 
+  function(x, hom_degrees) max_pairs.data.frame(x, hom_degrees)
 
 #' @rdname num_level
 #' @export
-max_pairs.persistence <- function(x, d) {
-  if (is.null(d)) {
+max_pairs.persistence <- function(x, hom_degrees) {
+  if (is.null(hom_degrees)) {
     max(vapply(x$pairs, nrow, 0L))
   } else {
-    max(vapply(x$pairs[d + 1L], nrow, 0L))
+    max(vapply(x$pairs[hom_degrees + 1L], nrow, 0L))
   }
 }

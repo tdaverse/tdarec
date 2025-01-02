@@ -102,7 +102,7 @@ param_preprocesses <- list(
   # if maximum degree is not specified, use the maximum data dimension
   max_hom_degree = c(
     "if (x$max_hom_degree == Inf)",
-    "  x$max_hom_degree <- get_max_dim(training[, col_names, drop = FALSE])"
+    "  x$max_hom_degree <- get_max_hom_degree(training[, col_names, drop = FALSE])"
   ),
   # reconcile scale sequence parameters
   xseq = c(
