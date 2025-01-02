@@ -1,3 +1,4 @@
+data(permeability_qsar, package = "modeldata")
 permeability_qsar |> 
   transform(perm_cut = cut(permeability, breaks = seq(0, 60, 10))) |> 
   subset(select = -permeability) |> 
@@ -5,7 +6,7 @@ permeability_qsar |>
   print() -> perm_dat
 recipe(perm_cut ~ chem_fp, data = perm_dat) |> 
   step_phom_point_cloud(chem_fp, max_hom_degree = 2) |> 
-  step_vpd_ecc(chem_fp_phom, max_hom_degree = 2) |> 
+  step_vpd_(chem_fp_phom, {param_vals}) |> 
   step_pca(starts_with("chem_fp_phom_ecc_"), num_comp = 2) |>
   print() -> perm_rec
 perm_est <- prep(perm_rec, training = perm_dat)
