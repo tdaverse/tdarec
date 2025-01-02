@@ -303,6 +303,26 @@ required_pkgs.step_phom_point_cloud <- function(x, ...) {
   c("ripserr", "tdarec")
 }
 
+#' @rdname step_phom_point_cloud
+#' @usage NULL
+#' @export
+tidy.step_phom_point_cloud <- function(x, ...) {
+  if (is_trained(x)) {
+    res <- tibble::tibble(
+      terms = unname(x$columns),
+      value = rep(NA_real_, length(x$columns))
+    )
+  } else {
+    term_names <- sel2char(x$terms)
+    res <- tibble::tibble(
+      terms = term_names,
+      value = rep(NA_real_, length(term_names))
+    )
+  }
+  res$id <- x$id
+  res
+}
+
 #' @export
 tunable.step_phom_point_cloud <- function(x, ...) {
   tibble::tibble(
