@@ -9,7 +9,7 @@ test_that("`step_phom_point_cloud()` accepts multiple data classes", {
 test_that("`prep()` requires at least one variable", {
   rec <- recipe(~ dataset, data = dat) |> 
     step_phom_point_cloud()
-  expect_error(prep(rec, training = dat), "check")
+  expect_error(prep(rec, training = dat), "names")
 })
 
 test_that("`prep()` checks names", {
