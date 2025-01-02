@@ -64,7 +64,7 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
     rlang::abort("The `phom` step can only transform list-columns.")
   }
   
-  # calculate maximum dimensions of list-column
+  # calculate maximum dimensions of list-columns
   x_max_dims <- vapply(x, \(l) max(vapply(l, ph_dim, 0L), na.rm = FALSE), 0L)
   x_max_dim <- max(x_max_dims)
   
@@ -79,9 +79,13 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
 }
 
 # determine the dimension of a data set for purposes of persistent homology
+
 # FIXME: should be informed by engine & method, e.g. `ripserr::vietoris_rips()`
 # versus `ripserr::cubical()` treat a 2-column matrix as a coordinate matrix and
 # as a 2D image, respectively
+
+# FIXME: This is designed for input data but should also apply to persistence
+# data.
 
 #' @rdname hom_degree
 #' @export
