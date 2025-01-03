@@ -62,7 +62,7 @@ An updated version of \code{recipe} with the new step added to the
 sequence of any existing operations.
 }
 \description{
-The function \code{step_phom_image()} creates a \emph{specification} ofa
+The function \code{step_phom_image()} creates a \emph{specification} of a
 recipe step that will convert compatible data formats (numerical arrays,
 including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 representations of persistence diagram data. The input and output must be

@@ -1,6 +1,6 @@
 #' @title Persistent homology of images
 #'
-#' @description The function `step_phom_image()` creates a _specification_ ofa
+#' @description The function `step_phom_image()` creates a _specification_ of a
 #'   recipe step that will convert compatible data formats (numerical arrays,
 #'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
@@ -162,6 +162,7 @@ prep.step_phom_image <- function(x, training, info = NULL, ...) {
     ))
   
   # if needed, select threshold
+  # TODO: Make this threshold at least the largest finite value in the data.
   if (is.null(x$value_max)) {
     x$value_max <- 9999L
   }

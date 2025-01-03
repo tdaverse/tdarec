@@ -21,8 +21,6 @@
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
 #' @param max_dim Bound on the maximum dimension determined from the data.
-#' @param ... Other arguments to pass to the underlying parameter finalizer
-#'   functions.
 #' @example inst/examples/ex-param-hom-degree.R
 #' @export
 hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
