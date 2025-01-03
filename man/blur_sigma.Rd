@@ -4,7 +4,7 @@
 \alias{blur_sigma}
 \title{Standard deviation of Gaussian blur}
 \usage{
-blur_sigma(range = c(0, unknown()), trans = transform_log10())
+blur_sigma(range = c(0, unknown()), trans = transform_log1p())
 }
 \arguments{
 \item{range}{A two-element vector holding the \emph{defaults} for the smallest and
@@ -17,16 +17,22 @@ the default is used which matches the units used in \code{range}. If no
 transformation, \code{NULL}.}
 }
 \description{
-The standard deviation of the noise function convolved with array values to
-induce blur in images.
+The standard deviation of the noise function convolved with
+array values to induce blur in images.
 }
 \details{
-Additional details...
+The gaussian blur step deploys \code{\link[=blur]{blur()}}. See there for definitions
+and references.
+
+\code{get_blur_range()} varies the parameter logarithmically from 0 to an order
+of magnitude greater than the \code{\link[=blur]{blur()}} default.
 }
 \examples{
 img_dat <- data.frame(img = I(list(volcano)))
 
-# options to calibrate gaussian noise
-blur_sigma(range = c(0, 10))
-blur_sigma() |> get_blur_range(x = img_dat)
+(blur_man <- blur_sigma(range = c(0, 3)))
+grid_regular(blur_man)
+
+(blur_fin <- blur_sigma() |> get_blur_range(x = img_dat))
+grid_regular(blur_fin)
 }

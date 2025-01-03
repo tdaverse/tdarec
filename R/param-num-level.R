@@ -1,19 +1,11 @@
-#' @title (Maximum) number of persistence landscape levels
+#' @title Persistence Landscape parameters
 #'
-#' @description The number of levels of a persistence landscape to vectorize.
+#' @description Parameters related to vectorized persistence landscapes.
 #'
-#' @details Persistence landscapes are natural number--indexed sequences of
-#'   continuous real-valued functions derived from persistence data for a single
-#'   homological degree. Most machine learning workflows vectorize the first
-#'   \eqn{k} levels, for some \eqn{k>0} required by `num_level()`. In case an _a
-#'   priori_ choice is not provided, `get_level_range()` queries each
-#'   list-column for the number of persistent pairs of each degree (among
-#'   `hom_degrees`, if specified); the maximum of these is taken as the upper
-#'   bound on the level.
-#'
-#'   Currently, [TDAvec::computePL()] specifies only one level which to
-#'   vectorize. When multiple levels are allowed, this parameter will be updated
-#'   (and its name changed).
+#' @details
+#' The persistence surface vectorization deploys
+#' [TDAvec::computePL()].
+#' See there for definitions and references.
 #'
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
@@ -26,7 +18,7 @@ num_level <- function(range = c(1L, unknown()), trans = NULL) {
     range = range,
     inclusive = c(TRUE, TRUE),
     trans = trans,
-    label = c(num_level = "Landscape Level"),
+    label = c(num_level = "Persistence Landscape level"),
     finalize = get_level_range
   )
 }

@@ -117,8 +117,8 @@ param_preprocesses <- list(
   num_levels = c(),
   # TODO: pre-process `dist_power`
   dist_power = c(),
-  # TODO: pre-process `std_dev`
-  std_dev = c(),
+  # TODO: pre-process `img_sigma`
+  img_sigma = c(),
   # TODO: pre-process `block_size`
   block_size = c()
 )
@@ -618,7 +618,7 @@ ex_param_vals <- c(
   yby = .01,
   num_levels = 3,
   dist_power = 2,
-  std_dev = 1,
+  img_sigma = 1,
   block_size = 1
 )
 

@@ -60,7 +60,8 @@ step that will induce Gaussian blur in numerical arrays. The input and
 output must be list-columns.
 }
 \details{
-Additional details...
+The gaussian blur step deploys \code{\link[=blur]{blur()}}. See there for definitions
+and references.
 
 \strong{TODO:} Explain the importance of blur for PH of image data.
 }

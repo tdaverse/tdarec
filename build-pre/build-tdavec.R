@@ -90,7 +90,7 @@ arg_params <- c(
   k = "num_levels",
   # TODO: Check that the silhouette function uses this as a distance power.
   p = "weight_power",
-  sigma = "std_dev",
+  sigma = "img_sigma",
   tau = "block_size"
 )
 
@@ -125,7 +125,7 @@ param_docs <- list(
   weight_power = c(
     "The power of weights in a persistence silhouette function."
   ),
-  std_dev = c(
+  img_sigma = c(
     "The standard deviation of the gaussian distribution",
     "convolved with persistence diagrams to obtain persistence images."
   ),
@@ -142,7 +142,7 @@ param_defaults <- c(
   max_hom_degree = "Inf",
   num_levels = "6L",
   weight_power = "1",
-  std_dev = "1",
+  img_sigma = "1",
   block_size = "1"
 )
 
@@ -153,7 +153,7 @@ param_dials <- c(
   # TODO: Revisit this name.
   num_levels = "num_levels",
   weight_power = "weight_power",
-  std_dev = "std_dev",
+  img_sigma = "img_sigma",
   block_size = "block_size"
 )
 
@@ -165,7 +165,7 @@ param_bullets <- c(
   yseq = "2D discretization intervals",
   num_levels = "# Levels or envelopes",
   weight_power = "Exponent weight",
-  std_dev = "Convolved Gaussian standard deviation",
+  img_sigma = "Convolved Gaussian standard deviation",
   block_size = "Square side length scaling factor"
 )
 
@@ -175,28 +175,28 @@ dial_ranges <- list(
   num_levels = c("1L", "unknown()"),
   weight_power = c("1", "2"),
   # TODO: Learn range from diagram radius to some orders of magnitude smaller.
-  std_dev = c("unknown()", "unknown()"),
+  img_sigma = c("unknown()", "unknown()"),
   block_size = c("unknown()", "unknown()")
 )
 dial_transforms <- list(
   hom_degree = NULL,
   num_levels = NULL,
   weight_power = NULL,
-  std_dev = expr(transform_log10()),
+  img_sigma = expr(transform_log10()),
   block_size = expr(transform_log10())
 )
 dial_types <- c(
   hom_degree = "integer",
   num_levels = "integer",
   weight_power = "double",
-  std_dev = "double",
+  img_sigma = "double",
   block_size = "double"
 )
 dial_inclusive <- list(
   hom_degree = c(TRUE, TRUE),
   num_levels = c(TRUE, TRUE),
   weight_power = c(TRUE, TRUE),
-  std_dev = c(TRUE, TRUE),
+  img_sigma = c(TRUE, TRUE),
   block_size = c(TRUE, TRUE)
 )
 

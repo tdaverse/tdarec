@@ -10,7 +10,7 @@
 \alias{max_pairs.diagram}
 \alias{max_pairs.PHom}
 \alias{max_pairs.persistence}
-\title{(Maximum) number of persistence landscape levels}
+\title{Persistence Landscape parameters}
 \usage{
 num_level(range = c(1L, unknown()), trans = NULL)
 
@@ -52,21 +52,12 @@ finalizer functions. For example, for \code{get_rbf_range()}, the dots are passe
 along to \code{\link[kernlab:sigest]{kernlab::sigest()}}.}
 }
 \description{
-The number of levels of a persistence landscape to vectorize.
+Parameters related to vectorized persistence landscapes.
 }
 \details{
-Persistence landscapes are natural number--indexed sequences of
-continuous real-valued functions derived from persistence data for a single
-homological degree. Most machine learning workflows vectorize the first
-\eqn{k} levels, for some \eqn{k>0} required by \code{num_level()}. In case an \emph{a
-priori} choice is not provided, \code{get_level_range()} queries each
-list-column for the number of persistent pairs of each degree (among
-\code{hom_degrees}, if specified); the maximum of these is taken as the upper
-bound on the level.
-
-Currently, \code{\link[TDAvec:computePL]{TDAvec::computePL()}} specifies only one level which to
-vectorize. When multiple levels are allowed, this parameter will be updated
-(and its name changed).
+The persistence surface vectorization deploys
+\code{\link[TDAvec:computePL]{TDAvec::computePL()}}.
+See there for definitions and references.
 }
 \examples{
 data.frame(dist = I(list(eurodist, UScitiesD))) |> 
@@ -74,7 +65,12 @@ data.frame(dist = I(list(eurodist, UScitiesD))) |>
   subset(select = c(pd)) |> 
   print() -> pd_data
 
-num_level(range = c(1, 24))
-num_level() |> get_level_range(x = pd_data)
-num_level() |> get_level_range(x = pd_data, hom_degrees = seq(2L))
+(lev_man <- num_level(range = c(1, 24)))
+grid_regular(lev_man)
+
+(lev_dat <- num_level() |> get_level_range(x = pd_data))
+grid_regular(lev_dat)
+
+(lev_hom <- num_level() |> get_level_range(x = pd_data, hom_degrees = seq(2L)))
+grid_regular(lev_hom)
 }

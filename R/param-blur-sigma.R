@@ -1,18 +1,20 @@
 #' @title Standard deviation of Gaussian blur
-#' 
-#' @description
-#' The standard deviation of the noise function convolved with array values to
-#' induce blur in images.
 #'
-#' @details
-#' Additional details...
-#' 
-#' @importFrom scales transform_log10
+#' @description The standard deviation of the noise function convolved with
+#'   array values to induce blur in images.
+#'
+#' @details The gaussian blur step deploys [blur()]. See there for definitions
+#'   and references.
+#'
+#'   `get_blur_range()` varies the parameter logarithmically from 0 to an order
+#'   of magnitude greater than the [blur()] default.
+#'
+#' @importFrom scales transform_log1p
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
 #' @example inst/examples/ex-param-blur-sigma.R
 #' @export
-blur_sigma <- function(range = c(0, unknown()), trans = transform_log10()) {
+blur_sigma <- function(range = c(0, unknown()), trans = transform_log1p()) {
   new_quant_param(
     type = "double",
     range = range,
@@ -52,7 +54,7 @@ get_blur_range <- function(object, x, ...) {
     0
   ))
   # set the upper bound to one order of magnitude beyond the maximum
-  rngs[2L] <- max(x_sigmas) * 10
+  rngs[2L] <- log1p(max(x_sigmas)) + 1
   
   if (object$type == "integer" & is.null(object$trans)) {
     rngs <- as.integer(rngs)
