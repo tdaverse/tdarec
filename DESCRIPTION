@@ -27,6 +27,7 @@ Imports:
     purrr (>= 1.0.0),
     scales
 Suggests:
+    modeldata,
     tdaunif,
     TDA,
     ripserr (>= 0.1.1),
