@@ -21,7 +21,7 @@ step_vpd_pi(
   ymax = NULL,
   ylen = NULL,
   yby = NULL,
-  std_dev = 1,
+  img_sigma = 1,
   columns = NULL,
   keep_original_cols = TRUE,
   skip = FALSE,
@@ -55,7 +55,7 @@ specify only one of \code{xlen} and \code{xby}.}
 \item{ymin, ymax, ylen, yby}{Limits and resolution of a discretization grid;
 specify only one of \code{ylen} and \code{yby}.}
 
-\item{std_dev}{The standard deviation of the gaussian distribution
+\item{img_sigma}{The standard deviation of the gaussian distribution
 convolved with persistence diagrams to obtain persistence images.}
 
 \item{columns}{A character string of the selected variable names. This field
@@ -104,7 +104,7 @@ See there for definitions and references.
 This step has 2 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{std_dev}: Convolved Gaussian standard deviation (type: double, default: \code{1})
+\item \code{img_sigma}: Convolved Gaussian standard deviation (type: double, default: \code{1})
 }
 }
 
@@ -143,7 +143,7 @@ max_persistence <- phom_train$phom |>
 phom_train \%>\%
   recipe() \%>\%
   update_role(id, new_role = "id") \%>\%
-  step_vpd_pi(phom, hom_degree = 1, std_dev = 1) \%>\%
+  step_vpd_pi(phom, hom_degree = 1, img_sigma = 1) \%>\%
   print() -> phom_rec
 # tidy the prepped recipe step
 tidy(phom_rec, number = 1)

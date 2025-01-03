@@ -24,7 +24,7 @@
 #' This step has 2 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `std_dev`: Convolved Gaussian standard deviation (type: double, default: `1`)
+#'   \item `img_sigma`: Convolved Gaussian standard deviation (type: double, default: `1`)
 #' }
 #' 
 #' @param hom_degree
@@ -40,7 +40,7 @@
 #' @param ymin,ymax,ylen,yby
 #'   Limits and resolution of a discretization grid;
 #'   specify only one of `ylen` and `yby`.
-#' @param std_dev
+#' @param img_sigma
 #'   The standard deviation of the gaussian distribution
 #'   convolved with persistence diagrams to obtain persistence images.
 
@@ -58,7 +58,7 @@ step_vpd_pi <- function(
     hom_degree = 0L,
     xseq = NULL, xmin = NULL, xmax = NULL, xlen = NULL, xby = NULL,
     yseq = NULL, ymin = NULL, ymax = NULL, ylen = NULL, yby = NULL,
-    std_dev = 1,
+    img_sigma = 1,
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
@@ -75,7 +75,7 @@ step_vpd_pi <- function(
       hom_degree = hom_degree,
       xseq = xseq, xmin = xmin, xmax = xmax, xlen = xlen, xby = xby,
       yseq = yseq, ymin = ymin, ymax = ymax, ylen = ylen, yby = yby,
-      std_dev = std_dev,
+      img_sigma = img_sigma,
       columns = columns,
       keep_original_cols = keep_original_cols,
       skip = skip,
@@ -90,7 +90,7 @@ step_vpd_pi_new <- function(
     hom_degree,
     xseq, xmin, xmax, xlen, xby,
     yseq, ymin, ymax, ylen, yby,
-    std_dev,
+    img_sigma,
     columns, keep_original_cols,
     skip, id
 ) {
@@ -102,7 +102,7 @@ step_vpd_pi_new <- function(
     hom_degree = hom_degree,
     xseq = xseq, xmin = xmin, xmax = xmax, xlen = xlen, xby = xby,
     yseq = yseq, ymin = ymin, ymax = ymax, ylen = ylen, yby = yby,
-    std_dev = std_dev,
+    img_sigma = img_sigma,
     columns = columns,
     keep_original_cols = keep_original_cols,
     skip = skip,
@@ -131,7 +131,7 @@ prep.step_vpd_pi <- function(x, training, info = NULL, ...) {
     hom_degree = x$hom_degree,
     xseq = x$xseq, xmin = x$xmin, xmax = x$xmax, xlen = x$xlen, xby = x$xby,
     yseq = x$yseq, ymin = x$ymin, ymax = x$ymax, ylen = x$ylen, yby = x$yby,
-    std_dev = x$std_dev,
+    img_sigma = x$img_sigma,
     columns = col_names,
     keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
@@ -154,7 +154,7 @@ bake.step_vpd_pi <- function(object, new_data, ...) {
         homDim = object$hom_degree,
         xSeq = object$xseq,
         ySeq = object$yseq,
-        sigma = object$std_dev
+        sigma = object$img_sigma
       )
     )
     col_vpd <- purrr::map(
@@ -223,10 +223,10 @@ tidy.step_vpd_pi <- function(x, ...) {
 #' @export
 tunable.step_vpd_pi <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "std_dev"),
+    name = c("hom_degree", "img_sigma"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "std_dev", range = c(unknown(), unknown()))
+      list(pkg = "tdarec", fun = "img_sigma", range = c(unknown(), unknown()))
     ),
     source = "recipe",
     component = "step_vpd_pi",

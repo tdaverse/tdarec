@@ -32,7 +32,7 @@ max_persistence <- phom_train$phom |>
 phom_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
-  step_vpd_pi(phom, hom_degree = 1, std_dev = 1) %>%
+  step_vpd_pi(phom, hom_degree = 1, img_sigma = 1) %>%
   print() -> phom_rec
 # tidy the prepped recipe step
 tidy(phom_rec, number = 1)

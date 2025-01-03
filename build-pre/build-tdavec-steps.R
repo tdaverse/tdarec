@@ -612,9 +612,9 @@ for (fn in tdavec_functions$name) {
 ex_param_vals <- c(
   hom_degree = 1L,
   max_hom_degree = 2L,
-  xmax = max_death,
+  xmax = "max_death",
   xby = .01,
-  ymax = max_persistence,
+  ymax = "max_persistence",
   yby = .01,
   num_levels = 3,
   dist_power = 2,
