@@ -20,7 +20,6 @@ The vignette will be updated as additional hyperparameters become available.
 ```{r setup}
 library(tidymodels)
 library(tdarec)
-library(discrim)
 ```
 
 ## Point cloud sampling
@@ -100,8 +99,12 @@ mtry_param <- finalize(mtry(), klein_bake)
 We can now specify the model and its tunable parameters.
 In anticipation of the optimization process, we can also check its dials.
 
-```{r linear discriminant model}
-rand_forest(trees = 500, min_n = tune(), mtry = tune()) |> 
+```{r random forest model}
+rand_forest(
+  trees = 500,
+  min_n = tune("rf_node")#,
+  #mtry = tune("rf_pred")
+) |> 
   set_mode("classification") |> 
   set_engine("randomForest") |> 
   print() -> klein_spec
@@ -119,10 +122,10 @@ klein_res <- tune_bayes(
   klein_spec,
   preprocessor = klein_rec,
   resamples = klein_folds,
-  # FIXME: This doesn't work, and anyway it shouldn't be necessary.
+  # # FIXME: This doesn't work, and anyway it shouldn't be necessary.
   # param_info = parameters(list(
   #   vr_degree = max_hom_degree(),
-  #   mtry = mtry_param, min_n = min_n()
+  #   rf_node = min_n()#, rf_pred = mtry_param
   # )),
   metrics = metric_set(accuracy, roc_auc),
   iter = 6, initial = 6
