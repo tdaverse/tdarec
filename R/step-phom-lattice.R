@@ -1,18 +1,18 @@
-#' @title Persistent homology of images
+#' @title Persistent homology of lattice data (images)
 #'
-#' @description The function `step_phom_image()` creates a _specification_ of a
-#'   recipe step that will convert compatible data formats (numerical arrays,
+#' @description The function `step_phom_lattice()` creates a _specification_ of
+#'   a recipe step that will convert compatible data formats (numerical arrays,
 #'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
 #'   list-columns.
 #'
 #' @template step-phom-details
 #'
-#' @section PH of Images:
+#' @section PH of Lattices:
 #'
-#'   The PH of (greyscale) digital images is computed from the cubical
-#'   filtration of the pixel or voxel array, treated as a function from a
-#'   cubical mesh to a finite value range.
+#'   The PH of numeric lattices such as (greyscale) digital images is computed
+#'   from the cubical filtration of the pixel or voxel array, treated as a
+#'   function from a cubical mesh to a finite value range.
 #'
 #'   Cubical Ripser is an efficient implementation of cubical PH and is ported
 #'   to R through the {ripserr} package. It accepts numerical arrays.
@@ -24,7 +24,7 @@
 #' @section Tuning Parameters:
 #'
 #' ```{r, echo=FALSE, results="asis"}
-#' step <- "step_phom_image"
+#' step <- "step_phom_lattice"
 #' result <- knitr::knit_child("man/rmd/tunable-args.Rmd")
 #' cat(result)
 #' ```
@@ -40,10 +40,10 @@
 #' @param engine The computational engine to use (see 'Details'). Reasonable
 #'   defaults are chosen based on `filtration`.
 #' @family topological feature extraction via persistent homology
-#' @example inst/examples/ex-step-phom-image.R
+#' @example inst/examples/ex-step-phom-lattice.R
 
 #' @export
-step_phom_image <- function(
+step_phom_lattice <- function(
     recipe,
     ...,
     # standard inputs
@@ -58,14 +58,14 @@ step_phom_image <- function(
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
-    id = rand_id("phom_image")
+    id = rand_id("phom_lattice")
 ) {
-  recipes_pkg_check(required_pkgs.step_phom_image())
+  recipes_pkg_check(required_pkgs.step_phom_lattice())
   
   # output the step
   add_step(
     recipe,
-    step_phom_image_new(
+    step_phom_lattice_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
@@ -81,7 +81,7 @@ step_phom_image <- function(
   )
 }
 
-step_phom_image_new <- function(
+step_phom_lattice_new <- function(
     terms,
     role, trained,
     filtration,
@@ -91,7 +91,7 @@ step_phom_image_new <- function(
     skip, id
 ) {
   step(
-    subclass = "phom_image",
+    subclass = "phom_lattice",
     terms = terms,
     role = role,
     trained = trained,
@@ -107,16 +107,16 @@ step_phom_image_new <- function(
 }
 
 #' @export
-prep.step_phom_image <- function(x, training, info = NULL, ...) {
-  # save(x, training, info, file = here::here("step-phom-image-prep.rda"))
-  # load(here::here("step-phom-image-prep.rda"))
+prep.step_phom_lattice <- function(x, training, info = NULL, ...) {
+  # save(x, training, info, file = here::here("step-phom-lattice-prep.rda"))
+  # load(here::here("step-phom-lattice-prep.rda"))
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
   # check that all columns are list-columns
   # TODO: Check other existing steps for handling of list-columns.
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
-    rlang::abort("The `phom_image` step can only transform list-columns.")
+    rlang::abort("The `phom_lattice` step can only transform list-columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
@@ -170,7 +170,7 @@ prep.step_phom_image <- function(x, training, info = NULL, ...) {
   x$method <- match.arg(x$method, c("link_join", "compute_pairs"))
   
   # output prepped step
-  step_phom_image_new(
+  step_phom_lattice_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
@@ -186,9 +186,9 @@ prep.step_phom_image <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_phom_image <- function(object, new_data, ...) {
-  # save(object, new_data, file = here::here("step-phom-image-bake.rda"))
-  # load(here::here("step-phom-image-bake.rda"))
+bake.step_phom_lattice <- function(object, new_data, ...) {
+  # save(object, new_data, file = here::here("step-phom-lattice-bake.rda"))
+  # load(here::here("step-phom-lattice-bake.rda"))
   
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
@@ -230,11 +230,11 @@ bake.step_phom_image <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_phom_image <- function(
+print.step_phom_lattice <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  # save(x, width, file = here::here("step-phom-image-print.rda"))
-  # load(here::here("step-phom-image-print.rda"))
+  # save(x, width, file = here::here("step-phom-lattice-print.rda"))
+  # load(here::here("step-phom-lattice-print.rda"))
   
   cat(
     "Persistent features from a ",
@@ -253,14 +253,14 @@ print.step_phom_image <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_phom_image <- function(x, ...) {
+required_pkgs.step_phom_lattice <- function(x, ...) {
   c("ripserr", "tdarec")
 }
 
-#' @rdname step_phom_image
+#' @rdname step_phom_lattice
 #' @usage NULL
 #' @export
-tidy.step_phom_image <- function(x, ...) {
+tidy.step_phom_lattice <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
       terms = unname(x$columns),
@@ -278,14 +278,14 @@ tidy.step_phom_image <- function(x, ...) {
 }
 
 #' @export
-tunable.step_phom_image <- function(x, ...) {
+tunable.step_phom_lattice <- function(x, ...) {
   tibble::tibble(
     name = c("max_hom_degree"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, 3L))
     ),
     source = "recipe",
-    component = "step_phom_image",
+    component = "step_phom_lattice",
     component_id = x$id
   )
 }

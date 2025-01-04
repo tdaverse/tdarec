@@ -1,4 +1,4 @@
-#' @title Blur image data
+#' @title Blur lattice (image) data
 #'
 #' @description The function `step_blur()` creates a _specification_ of a recipe
 #'   step that will induce Gaussian blur in numerical arrays. The input and
