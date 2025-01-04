@@ -23,13 +23,23 @@ check_phom_list <- function(data) {
   }
 }
 
-# calculate the maximum dimension of the input data sets
-get_max_dim <- function(data) {
-  max_dims <- purrr::map(
+# calculate the maximum homological degree of a list of persistence data sets
+# TODO: Store this as an integer rather than a double.
+get_max_hom_degree <- function(data) {
+  max_degs <- purrr::map(
     data,
     \(x) purrr::map_dbl(x, \(m) max(m[, 1L]))
   )
-  max(unlist(max_dims))
+  max(unlist(max_degs))
+}
+
+# calculate the distinct homological degrees of a list of persistence data sets
+get_hom_degrees <- function(data) {
+  degs <- purrr::map(
+    data,
+    \(x) purrr::map(x, \(m) unique(m[, 1L]))
+  )
+  sort(unique(unlist(degs)))
 }
 
 # reconcile scale sequence parameters

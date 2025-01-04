@@ -1,17 +1,19 @@
-data(mnist)
+topos <- data.frame(pix = I(list(volcano)))
 
-cph_transform <- recipe(~ ., data = mnist_train) |> 
-  step_phom_image(digit, value_max = 255L) |> 
-  step_vpd_ecc(digit_phom)
-cph_estimates <- prep(cph_transform, training = mnist_train)
-cph_data <- bake(cph_estimates, mnist_test)
+ph_rec <- recipe(~ ., data = topos) |> 
+  step_phom_image(pix)
+ph_prep <- prep(ph_rec, training = topos)
+ph_res <- bake(ph_prep, topos)
 
-head(cph_data$digit_phom[[1]])
-cph_data |> 
-  select(contains("ecc")) |> 
-  prcomp() ->
-  cph_pca
-plot(cph_pca$x[, 1:2], col = cph_data$label, pch = 16, asp = 1)
+tidy(ph_rec, number = 1)
+tidy(ph_prep, number = 1)
 
-tidy(cph_transform)
-tidy(cph_estimates)
+with(ph_res$pix_phom[[1]], plot(
+  x = birth, y = death, pch = dimension + 1, col = dimension + 1,
+  xlab = NA, ylab = "", asp = 1
+))
+
+with_max <- recipe(~ ., data = topos) |> 
+  step_phom_image(pix, value_max = 150)
+with_max <- prep(with_max, training = topos)
+bake(with_max, topos)
