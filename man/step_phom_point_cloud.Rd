@@ -137,6 +137,6 @@ bake(with_max, roads)
 \seealso{
 Other topological feature extraction via persistent homology: 
 \code{\link{step_phom_degree}()},
-\code{\link{step_phom_image}()}
+\code{\link{step_phom_lattice}()}
 }
 \concept{topological feature extraction via persistent homology}

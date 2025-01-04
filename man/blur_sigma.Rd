@@ -18,7 +18,7 @@ transformation, \code{NULL}.}
 }
 \description{
 The standard deviation of the noise function convolved with array values to
-induce blur in images.
+induce blur in lattice data (images).
 }
 \details{
 Additional details...
