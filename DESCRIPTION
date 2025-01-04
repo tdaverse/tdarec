@@ -24,7 +24,8 @@ Imports:
     vctrs (>= 0.5.0),
     tibble,
     tidyr,
-    purrr (>= 1.0.0)
+    purrr (>= 1.0.0),
+    scales
 Suggests:
     tdaunif,
     TDA,

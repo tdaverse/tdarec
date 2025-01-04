@@ -29,7 +29,7 @@
 #'   used to bound the distance threshold along which PH is computed. The
 #'   `field_order` argument should be prime and will be the order of the field
 #'   of coefficients used in the computation. In most applications, only
-#'   `max_hom_degree` will be tuned, and to at most `3`.
+#'   `max_hom_degree` will be tuned, and to at most `3L`.
 #'
 #' @section Tuning Parameters:
 #'
@@ -301,6 +301,26 @@ print.step_phom_point_cloud <- function(
 #' @export
 required_pkgs.step_phom_point_cloud <- function(x, ...) {
   c("ripserr", "tdarec")
+}
+
+#' @rdname step_phom_point_cloud
+#' @usage NULL
+#' @export
+tidy.step_phom_point_cloud <- function(x, ...) {
+  if (is_trained(x)) {
+    res <- tibble::tibble(
+      terms = unname(x$columns),
+      value = rep(NA_real_, length(x$columns))
+    )
+  } else {
+    term_names <- sel2char(x$terms)
+    res <- tibble::tibble(
+      terms = term_names,
+      value = rep(NA_real_, length(term_names))
+    )
+  }
+  res$id <- x$id
+  res
 }
 
 #' @export

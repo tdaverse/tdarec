@@ -1,6 +1,6 @@
 #' @title Persistent homology of images
 #'
-#' @description The function `step_phom_image()` creates a _specification_ ofa
+#' @description The function `step_phom_image()` creates a _specification_ of a
 #'   recipe step that will convert compatible data formats (numerical arrays,
 #'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
@@ -162,6 +162,7 @@ prep.step_phom_image <- function(x, training, info = NULL, ...) {
     ))
   
   # if needed, select threshold
+  # TODO: Make this threshold at least the largest finite value in the data.
   if (is.null(x$value_max)) {
     x$value_max <- 9999L
   }
@@ -254,6 +255,26 @@ print.step_phom_image <- function(
 #' @export
 required_pkgs.step_phom_image <- function(x, ...) {
   c("ripserr", "tdarec")
+}
+
+#' @rdname step_phom_image
+#' @usage NULL
+#' @export
+tidy.step_phom_image <- function(x, ...) {
+  if (is_trained(x)) {
+    res <- tibble::tibble(
+      terms = unname(x$columns),
+      value = rep(NA_real_, length(x$columns))
+    )
+  } else {
+    term_names <- sel2char(x$terms)
+    res <- tibble::tibble(
+      terms = term_names,
+      value = rep(NA_real_, length(term_names))
+    )
+  }
+  res$id <- x$id
+  res
 }
 
 #' @export

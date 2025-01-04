@@ -2,6 +2,7 @@
 % Please edit documentation in R/step-phom-point-cloud.R
 \name{step_phom_point_cloud}
 \alias{step_phom_point_cloud}
+\alias{tidy.step_phom_point_cloud}
 \title{Persistent homology of point clouds}
 \usage{
 step_phom_point_cloud(
@@ -97,7 +98,7 @@ to be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} ca
 used to bound the distance threshold along which PH is computed. The
 \code{field_order} argument should be prime and will be the order of the field
 of coefficients used in the computation. In most applications, only
-\code{max_hom_degree} will be tuned, and to at most \code{3}.
+\code{max_hom_degree} will be tuned, and to at most \code{3L}.
 }
 
 \section{Tuning Parameters}{
@@ -110,37 +111,32 @@ This step has 1 tuning parameter(s):
 }
 
 \examples{
-klein_sampler <- function(n, prob = .5) {
-  if (rbinom(1, 1, prob) == 0) {
-    tdaunif::sample_klein_flat(n)
-  } else {
-    tdaunif::sample_klein_tube(n)
-  }
+roads <- data.frame(dist = I(list(eurodist, UScitiesD)))
+
+ph_rec <- recipe(~ ., data = roads) |> 
+  step_phom_point_cloud(dist, max_hom_degree = 1, filtration = "Rips")
+ph_prep <- prep(ph_rec, training = roads)
+ph_res <- bake(ph_prep, roads)
+
+tidy(ph_rec, number = 1)
+tidy(ph_prep, number = 1)
+
+par(mfrow = c(1, 2), mar = c(2, 2, 0, 0) + 0.1)
+for (i in seq(nrow(ph_res))) {
+  with(ph_res$dist_phom[[i]], plot(
+    x = birth, y = death, pch = dimension + 1, col = dimension + 1,
+    xlab = NA, ylab = "", asp = 1
+  ))
 }
-sample_data <- data.frame(
-  id = LETTERS[seq(6L)],
-  sample = I(c(replicate(6L, klein_sampler(60), simplify = FALSE))),
-  part = rep(c("train", "test"), each = 3L)
-)
-head(sample_data$sample[[1]])
 
-sample_train <- filter(sample_data, part == "train")
-sample_test <- filter(sample_data, part == "test")
-
-sample_train |>
-  recipe() |>
-  update_role(id, new_role = "id") |>
-  step_phom_point_cloud(sample, filtration = "Rips") |>
-  prep(training = sample_train, strings_as_factors = FALSE) ->
-  sample_rec
-print(sample_rec)
-
-juice(sample_rec)
-
-bake(sample_test, object = sample_rec)
+with_max <- recipe(~ ., data = roads) |> 
+  step_phom_point_cloud(dist, max_hom_degree = 1, diameter_max = 200)
+with_max <- prep(with_max, training = roads)
+bake(with_max, roads)
 }
 \seealso{
 Other topological feature extraction via persistent homology: 
+\code{\link{step_phom_degree}()},
 \code{\link{step_phom_image}()}
 }
 \concept{topological feature extraction via persistent homology}
