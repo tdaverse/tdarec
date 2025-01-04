@@ -1,7 +1,7 @@
 data(mnist)
 
 cph_transform <- recipe(~ ., data = mnist_train) |> 
-  step_phom_image(digit, value_max = 255L) |> 
+  step_phom_lattice(digit, value_max = 255L) |> 
   step_vpd_ecc(digit_phom)
 cph_estimates <- prep(cph_transform, training = mnist_train)
 cph_data <- bake(cph_estimates, mnist_test)
