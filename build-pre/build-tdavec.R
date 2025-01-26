@@ -25,7 +25,9 @@ library(tidyr)
 lsf.str("package:TDAvec") |> 
   enframe(name = NULL, value = "structure") |> 
   mutate(name = map_chr(structure, as.character)) |> 
-  filter(grepl("^compute[A-Z]+$", name)) |> 
+  filter(grepl("^compute[A-Za-z]+$", name)) |> 
+  # exclude helper function
+  filter(name != "computeLimits") |> 
   mutate(fun = map(name, \(s) getFromNamespace(s, ns = "TDAvec"))) |> 
   mutate(args = map(fun, formals)) |> 
   print() -> tdavec_functions
@@ -69,7 +71,7 @@ tdavec_functions |>
   transmute(name, arg = map(args, names)) |> 
   unnest(arg) |> 
   nest(funs = c(name)) |> 
-  filter(arg != "D") |> 
+  # filter(arg != "D") |> 
   arrange(desc(map_int(funs, nrow))) |> 
   print() -> tdavec_args
 # which vectorizations use which parameters
@@ -77,7 +79,7 @@ tdavec_args |>
   mutate(funs = map(funs, deframe)) |> 
   mutate(funs = map(funs, gsub, pattern = "compute", replacement = "")) |> 
   mutate(funs = map_chr(funs, paste, collapse = ", ")) |> 
-  print()
+  print(n = Inf)
 
 # CHOICE: assign parameter names (existing or new) for recipe steps
 arg_params <- c(
@@ -87,10 +89,27 @@ arg_params <- c(
   scaleSeq = "xseq",
   xSeq = "xseq",
   ySeq = "yseq",
-  k = "num_levels",
-  # TODO: Check that the silhouette function uses this as a distance power.
-  p = "weight_power",
+  evaluate = "evaluate",
+  # CP
+  m = "num_coef",
+  polyType = "poly_type",
+  # PI
   sigma = "std_dev",
+  # PL
+  k = "num_levels",
+  generalized = "generalized",
+  kernel = "weight_func",
+  h = "bandwidth",
+  # TODO: Check that the silhouette function uses this as a distance power.
+  # PS
+  p = "weight_power",
+  # TC
+  r = "num_bars",
+  # TF
+  delta = "incr_size",
+  d = "num_bins",
+  epsilon = "vertical_shift",
+  # VPB
   tau = "block_size"
 )
 
