@@ -47,9 +47,10 @@ custom_params_leave <- function(args) {
   )
   lines
 }
-custom_params_set <- function(args) {
+custom_params_set <- function(fn, args) {
   params <- unname(arg_params[args])
-  lines <- paste0(params, " = ", param_defaults[params])
+  defaults <- subset(param_defaults, fun == fn, c(param, default)) |> deframe()
+  lines <- paste0(params, " = ", defaults[params])
   # if no default provided, use `NULL`
   lines <- gsub(" NA$", " NULL", lines)
   lines <- gsub(
@@ -90,7 +91,7 @@ custom_params_compute <- function(args) {
   lines
 }
 # custom_params_leave(c("homDim", "scaleSeq", "tau"))
-# custom_params_set(c("homDim", "scaleSeq", "tau"))
+# custom_params_set("computeVPB", c("homDim", "scaleSeq", "tau"))
 # custom_params_pass(c("homDim", "scaleSeq", "tau"))
 # custom_params_elt(c("homDim", "scaleSeq", "tau"))
 # custom_params_compute(c("homDim", "scaleSeq", "tau"))
@@ -102,7 +103,8 @@ param_preprocesses <- list(
   # if maximum degree is not specified, use the maximum data dimension
   max_hom_degree = c(
     "if (x$max_hom_degree == Inf)",
-    "  x$max_hom_degree <- get_max_hom_degree(training[, col_names, drop = FALSE])"
+    "  x$max_hom_degree <-",
+    "    get_max_hom_degree(training[, col_names, drop = FALSE])"
   ),
   # reconcile scale sequence parameters
   xseq = c(
@@ -143,6 +145,7 @@ build_title_descr <- function(fn) {
     do.call(what = glue::glue)
 }
 # build_title_descr("computeNL")
+# build_title_descr("computeTC")
 
 # generate details
 build_details <- function(fn) {
@@ -159,14 +162,14 @@ build_details <- function(fn) {
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
-  fn_params <- arg_params[fn_args] |> 
+  fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
-    strsplit("\\|") |> unlist() |> unname() |> 
-    intersect(names(param_dials))
-  fn_dials <- unname(param_dials[fn_params])
+    strsplit("\\|") |> unlist() |> unname()
   fn_bullets <- param_bullets[fn_dials]
   fn_type <- dial_types[fn_dials]
-  fn_defaults <- param_defaults[fn_dials]
+  fn_defaults <- 
+    subset(param_defaults, fun == fn, c(param, default)) |> deframe()
+  fn_defaults <- fn_defaults[fn_dials]
   
   fn_tunables <- paste0(
     "This step has ", length(fn_dials),
@@ -207,15 +210,21 @@ build_param_docs <- function(fn) {
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
-  fn_params <- arg_params[fn_args] |> 
+  fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
     strsplit("\\|") |> unlist() |> unname()
   fn_param_docs <- mapply(
     \(p, d) c(paste0("@param ", p, "\n", d[1L]), d[-1L]),
-    p = gsub("([xy]{1})other", "\\1min,\\1max,\\1len,\\1by", fn_params),
-    d = param_docs[fn_params]
+    p = gsub("([xy]{1})other", "\\1min,\\1max,\\1len,\\1by", fn_dials),
+    d = param_docs[fn_dials]
   ) |> 
     unname() |> unlist() |> 
+    # replace any placeholders with `@inheritParams` tags
+    gsub(
+      pattern = "^@param [A-Za-z0-9\\_]+\n([A-Za-z0-9\\.]+::[A-Za-z0-9\\_]+)",
+      replacement = "@inheritParams \\1"
+    ) |> 
+    unique() |> 
     strsplit("\n *") |> unlist() |> 
     gsub(pattern = "^([^@]+)", replacement = "  \\1") |> 
     doc_wrap() |> as.list() |> c(list("\n\n"))
@@ -255,7 +264,7 @@ build_step <- function(fn) {
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
   fn_set <- paste0(
-    "    ", custom_params_set(fn_args), ",\n",
+    "    ", custom_params_set(fn, fn_args), ",\n",
     collapse = ""
   )
   fn_pass <- paste0(
@@ -534,19 +543,21 @@ build_tunable <- function(fn) {
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
-  fn_params <- arg_params[fn_args] |> 
+  fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
-    strsplit("\\|") |> unlist() |> unname() |> 
-    intersect(names(param_dials))
-  fn_dials <- unname(param_dials[fn_params])
-  fn_ranges <- dial_ranges[fn_dials] |> 
+    strsplit("\\|") |> unlist() |> unname()
+  fn_ranges_values <- dial_ranges_values[fn_dials] |> 
+    lapply(\(x) ifelse(is.na(x), "unknown()", x)) |> 
     sapply(paste0, collapse = ", ")
-  fn_params_string <- paste0("\"", paste0(fn_params, collapse = "\", \""), "\"")
+  fn_param_class <- type_class[dial_types[fn_dials]] |> unname()
+  fn_scope_param <- c(quant = "range", qual = "values")[fn_param_class]
+  fn_params_string <- paste0("\"", paste0(fn_dials, collapse = "\", \""), "\"")
+  fn_dials_set <- ! is.na(fn_scope_param)
   fn_dials_string <- paste0(
     "      list(pkg = \"tdarec\", fun = \"",
-    fn_dials,
-    "\", range = c(",
-    fn_ranges,
+    fn_dials[fn_dials_set],
+    "\", ", fn_scope_param[fn_dials_set], " = c(",
+    fn_ranges_values[fn_dials_set],
     "))",
     collapse = ",\n"
   )
@@ -573,7 +584,9 @@ build_tunable <- function(fn) {
     "\n\n"
   )
 }
+# build_tunable("computeBetti")
 # build_tunable("computePL")
+# build_tunable("computeTF")
 
 #' WRITING
 
@@ -616,9 +629,9 @@ ex_param_vals <- c(
   xby = .01,
   ymax = "max_persistence",
   yby = .01,
+  img_sigma = 1,
   num_levels = 3,
   dist_power = 2,
-  img_sigma = 1,
   block_size = 1
 )
 
@@ -637,7 +650,7 @@ for (fn in tdavec_functions$name) {
   
   ex_file <- 
     here::here(glue::glue("inst/examples/{build_prefix}-step-vpd-{fn_abbr}.R"))
-  # cat(build_warning, file = ex_file, append = FALSE)
+  cat(build_warning, file = ex_file, append = FALSE)
   
   readLines("man/ex/step-vpd-ex-template2.R") |> 
     gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_abbr)) |> 
