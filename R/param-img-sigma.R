@@ -4,7 +4,7 @@
 #'
 #' @details
 #' The persistence surface vectorization deploys
-#' [TDAvec::computePI()].
+#' [TDAvec::computePersistenceImage()].
 #' See there for definitions and references.
 #'
 #' **FIXME:** Current default parameter ranges are _ad hoc_.

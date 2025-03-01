@@ -58,18 +58,10 @@ tdavec_functions |>
   select(name) |> 
   mutate(help = map(name, help, package = "TDAvec")) |> 
   mutate(doc = map(help, utils:::.getHelpFile)) |> 
-  # pull(doc) |> first() -> x
   # mutate(title = map_chr(doc, char_by_tag, tag = "\\title")) |> 
   mutate(title = map_chr(
     doc,
     \(x) unlist(x[vapply(x, function(e) attr(e, "Rd_tag"), "") == "\\title"])
-  )) |> 
-  mutate(full_name = gsub("A Vector Summary of the ", "", title)) |> 
-  mutate(full_name = gsub(" Function", "", full_name)) |> 
-  # TODO: Do this later, after the retrieval section.
-  mutate(step_title = map_chr(
-    full_name,
-    \(s) paste(s, "Vectorization of Persistent Homology", sep = " ")
   )) |> 
   print() -> tdavec_content
 
@@ -78,7 +70,25 @@ proper_names <- c("Betti", "Euler")
 
 #' ADAPTATION
 
-#' Rename parameters.
+#' Rename functions and parameters.
+
+# CHOICE: rename functions for step names & documentation
+vec_renames <- c(
+  EulerCharacteristic = "EulerCharacteristicCurve",
+  NormalizedLife = "NormalizedLifeCurve",
+  PersistentEntropy = "PersistentEntropySummary",
+  Stats = "DescriptiveStatistics",
+  TemplateFunction = "TentTemplateFunctions"
+)
+tdavec_functions |> 
+  select(name) |> 
+  mutate(rename = gsub("^compute", "", name)) |> 
+  mutate(rename = ifelse(
+    rename %in% names(vec_renames),
+    unname(vec_renames[rename]),
+    rename
+  )) |> 
+  print() -> tdavec_renames
 
 # all parameters used by {TDAvec} vectorization functions
 tdavec_functions |> 
@@ -104,27 +114,27 @@ arg_params <- c(
   xSeq = "xseq",
   ySeq = "yseq",
   evaluate = "evaluate",
-  # computeCP
+  # ComplexPolynomial
   m = "num_coef",
   polyType = "poly_type",
-  # computePI
+  # PersistenceBlock
+  tau = "block_size",
+  # PersistenceImage
   sigma = "img_sigma",
-  # computePL
+  # PersistenceLandscape
   k = "num_levels",
   generalized = "generalized",
   kernel = "weight_func",
   h = "bandwidth",
   # TODO: Check that the silhouette function uses this as a distance power.
-  # computePS
+  # PersistenceSilhouette
   p = "weight_power",
-  # computeTC
-  r = "num_bars",
-  # computeTF
+  # TemplateFunction
   delta = "tent_delta",
   d = "num_bins",
   epsilon = "tent_offset",
-  # computeVPB
-  tau = "block_size"
+  # TropicalCoordinates
+  r = "num_bars"
 )
 
 # document parameters
@@ -155,7 +165,7 @@ param_docs <- list(
     "either 'intervals' or 'points'.",
     "Some functions only admit one method."
   ),
-  # computeCP
+  # ComplexPolynomial
   num_coef = c(
     "The number of coefficients of a convex polynomial",
     "fitted to finite persistence pairs."
@@ -163,12 +173,12 @@ param_docs <- list(
   poly_type = c(
     "The type of complex polynomial to fit ('R', 'S', or 'T')."
   ),
-  # computePI
+  # PersistenceImage
   img_sigma = c(
     "The standard deviation of the gaussian distribution",
     "convolved with persistence diagrams to obtain persistence images."
   ),
-  # computePL
+  # PersistenceLandscape
   num_levels = c(
     "The number of levels of a persistence landscape to vectorize.",
     "If `num_levels` is greater than the length of a landscape,",
@@ -186,15 +196,15 @@ param_docs <- list(
   bandwidth = c(
     "The bandwidth of a kernel function."
   ),
-  # computePS
+  # PersistenceSilhouette
   weight_power = c(
     "The power of weights in a persistence silhouette function."
   ),
-  # computeTC
+  # TropicalCoordinates
   num_bars = c(
     "Number of bars (persistent pairs) over which to maximize...."
   ),
-  # computeTF
+  # TemplateFunction
   tent_delta = c(
     "The length of the increment used to discretize tent template functions."
   ),
@@ -204,7 +214,7 @@ param_docs <- list(
   tent_offset = c(
     "The vertical shift applied to the discretization grid."
   ),
-  # computeVPB
+  # PersistenceBlock
   block_size = c(
     "The scaling factor of the squares used to obtain persistence blocks.",
     "The side length of the square centered at a feature \\eqn{{(b,p)}}",
@@ -311,6 +321,7 @@ dial_ranges_values <- list(
   # TODO: Learn range from diagram radius to some orders of magnitude smaller.
   block_size = c(NA, NA)
 )
+# dial range endpoints
 dial_inclusive <- list(
   hom_degree = c(TRUE, TRUE),
   max_hom_degree = c(TRUE, TRUE),
@@ -324,6 +335,7 @@ dial_inclusive <- list(
   tent_offset = c(TRUE, TRUE),
   block_size = c(TRUE, TRUE)
 )
+# dial transformations
 dial_transforms <- list(
   # hom_degree = NULL,
   img_sigma = expr(transform_log10()),
@@ -339,9 +351,14 @@ dial_transforms <- list(
 
 #' Format text.
 
-# get lowercase abbreviation of vectorization method
-abbr_vec <- function(name) tolower(gsub("^compute", "", name))
-# abbr_vec("computePL")
+# abbr_vec <- function(name) tolower(gsub("^compute", "", name))
+# get snakecase name of vectorization method
+vec_sname <- function(name) {
+  name <- tdavec_renames$rename[tdavec_renames$name == name]
+  name <- snakecase::to_snake_case(name)
+  name
+}
+# vec_sname("computePersistenceLandscape")
 
 # capitalize proper names
 capitalize_proper_names <- function(full_name) {
@@ -370,8 +387,8 @@ link_obj <- function(name) {
 }
 # load_all()
 # link_obj("step_phom_point_cloud")
-# link_obj("computePL")
-# # FIXME: This should link to `dials::check_param`.
+# link_obj("computePersistenceLandscape")
+# # FIXME: This should link to `dials::check_param`, but it is not exported.
 # link_obj("check_param")
 
 # surround lines of documentation with "#' " and "\n"

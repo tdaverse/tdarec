@@ -187,8 +187,9 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
   }
   if (length(col_errs) > 0L)
     rlang::abort(paste0(
-      "Some list-column elements are not passable to ",
-      "`ripserr::vietoris_rips()`."
+      "Some columns contain elements impassable to ",
+      "`ripserr::vietoris_rips()`: '",
+      paste0(col_errs, collapse = "', '"), "'."
     ))
   
   # if needed, select threshold

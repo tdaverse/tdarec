@@ -4,7 +4,7 @@
 
 #' @title Persistence Block Vectorization of Persistent Homology
 #' 
-#' @description The function `step_vpd_vpb()` creates
+#' @description The function `step_vpd_persistence_block()` creates
 #'   a _specification_ of a recipe step that will convert
 #'   a list-column of 3-column matrices of persistence data
 #'   to a list-column of 1-row matrices of vectorizations.
@@ -16,15 +16,19 @@
 #' @section Engine:
 #' 
 #' The persistence block vectorization deploys
-#' [TDAvec::computeVPB()].
+#' [TDAvec::computePersistenceBlock()].
 #' See there for definitions and references.
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 2 tuning parameters:
+#' This step has 6 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `block_size`: Square side length scaling factor (type: double, default: `1`)
+#'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
+#'   \item `xother`: NA (type: NA, default: `NA`)
+#'   \item `yseq`: 2D discretization intervals (type: NA, default: `NA`)
+#'   \item `yother`: NA (type: NA, default: `NA`)
+#'   \item `block_size`: Square side length scaling factor (type: double, default: `0.3`)
 #' }
 #' 
 #' @param hom_degree
@@ -48,10 +52,10 @@
 #' @import recipes
 #' @inheritParams recipes::step_pca
 #' @inherit recipes::step_pca return
-#' @example inst/examples/zzz-step-vpd-vpb.R
+#' @example inst/examples/zzz-ex-step-vpd-persistence-block.R
 
 #' @export
-step_vpd_vpb <- function(
+step_vpd_persistence_block <- function(
     recipe,
     ...,
     role = "predictor",
@@ -59,17 +63,17 @@ step_vpd_vpb <- function(
     hom_degree = 0L,
     xseq = NULL, xmin = NULL, xmax = NULL, xlen = NULL, xby = NULL,
     yseq = NULL, ymin = NULL, ymax = NULL, ylen = NULL, yby = NULL,
-    block_size = 1,
+    block_size = 0.3,
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
-    id = rand_id("vpd_vpb")
+    id = rand_id("vpd_persistence_block")
 ) {
-  recipes_pkg_check(required_pkgs.step_vpd_vpb())
+  recipes_pkg_check(required_pkgs.step_vpd_persistence_block())
   
   add_step(
     recipe,
-    step_vpd_vpb_new(
+    step_vpd_persistence_block_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
@@ -85,7 +89,7 @@ step_vpd_vpb <- function(
   )
 }
 
-step_vpd_vpb_new <- function(
+step_vpd_persistence_block_new <- function(
     terms,
     role, trained,
     hom_degree,
@@ -96,7 +100,7 @@ step_vpd_vpb_new <- function(
     skip, id
 ) {
   step(
-    subclass = "vpd_vpb",
+    subclass = "vpd_persistence_block",
     terms = terms,
     role = role,
     trained = trained,
@@ -112,7 +116,7 @@ step_vpd_vpb_new <- function(
 }
 
 #' @export
-prep.step_vpd_vpb <- function(x, training, info = NULL, ...) {
+prep.step_vpd_persistence_block <- function(x, training, info = NULL, ...) {
   col_names <- recipes_eval_select(x$terms, training, info)
   check_phom_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
@@ -125,7 +129,7 @@ prep.step_vpd_vpb <- function(x, training, info = NULL, ...) {
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "y")
   
   
-  step_vpd_vpb_new(
+  step_vpd_persistence_block_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
@@ -141,7 +145,7 @@ prep.step_vpd_vpb <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_vpd_vpb <- function(object, new_data, ...) {
+bake.step_vpd_persistence_block <- function(object, new_data, ...) {
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
   for (col_name in col_names) class(new_data[[col_name]]) <- "list"
@@ -150,25 +154,26 @@ bake.step_vpd_vpb <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) TDAvec::computeVPB(
+      \(d) as.vector(TDAvec::computePersistenceBlock(
         as.matrix(d),
         homDim = object$hom_degree,
         xSeq = object$xseq,
         ySeq = object$yseq,
         tau = object$block_size
-      )
+      ))
     )
     col_vpd <- purrr::map(
       col_vpd,
       \(v) as.data.frame(matrix(
+        # NB: `v` may be a matrix.
         v, nrow = 1L, dimnames = list(NULL, seq(length(v)))
       ))
     )
-    vph_data[[paste(col_name, "vpb", sep = "_")]] <- col_vpd
+    vph_data[[paste(col_name, "persistence_block", sep = "_")]] <- col_vpd
   }
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "vpb", sep = "_")),
+    cols = tidyr::all_of(paste(col_names, "persistence_block", sep = "_")),
     names_sep = "_"
   )
   
@@ -179,10 +184,10 @@ bake.step_vpd_vpb <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_vpd_vpb <- function(
+print.step_vpd_persistence_block <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  title <- "Persistence block of "
+  title <- "persistence block of "
   
   print_step(
     untr_obj = x$terms,
@@ -196,14 +201,14 @@ print.step_vpd_vpb <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_vpd_vpb <- function(x, ...) {
+required_pkgs.step_vpd_persistence_block <- function(x, ...) {
   c("TDAvec", "tdarec")
 }
 
-#' @rdname step_vpd_vpb
+#' @rdname step_vpd_persistence_block
 #' @usage NULL
 #' @export
-tidy.step_vpd_vpb <- function(x, ...) {
+tidy.step_vpd_persistence_block <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
       terms = unname(x$columns),
@@ -222,15 +227,15 @@ tidy.step_vpd_vpb <- function(x, ...) {
 
 #' @rdname tunable_tdavec
 #' @export
-tunable.step_vpd_vpb <- function(x, ...) {
+tunable.step_vpd_persistence_block <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "block_size"),
+    name = c("hom_degree", "xseq", "xother", "yseq", "yother", "block_size"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "block_size", range = c(unknown(), unknown()))
     ),
     source = "recipe",
-    component = "step_vpd_vpb",
+    component = "step_vpd_persistence_block",
     component_id = x$id
   )
 }

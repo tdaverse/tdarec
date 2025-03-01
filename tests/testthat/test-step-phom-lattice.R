@@ -113,7 +113,11 @@ test_that("within-step and without-step calculations agree", {
   phom_test <- bake(phom_train, new_data = dat)
   # not equal to result using link-join method
   expect_error(expect_equal(phom_test$img_phom, manual_calc))
-  manual_calc <- lapply(dat$img, ripserr::cubical, method = "cp")
+  manual_calc <- if (.ripserr_version < "0.2.0") {
+    lapply(dat$img, ripserr::cubical, method = 1)
+  } else {
+    lapply(dat$img, ripserr::cubical, method = "cp")
+  }
   expect_equal(phom_test$img_phom, manual_calc)
   
 })

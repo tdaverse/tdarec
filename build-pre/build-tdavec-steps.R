@@ -115,25 +115,45 @@ param_preprocesses <- list(
     "x[paste0(\"y\", c(\"seq\", \"min\", \"max\", \"len\", \"by\"))] <- ",
     "  reconcile_scale_seq(x, training[, col_names, drop = FALSE], \"y\")"
   ),
-  # TODO: pre-process `num_levels`
-  num_levels = c(),
-  # TODO: pre-process `dist_power`
-  dist_power = c(),
-  # TODO: pre-process `img_sigma`
+  # TODO: pre-process remaining parameters
+  # ComplexPolynomial
+  num_coef = c(),
+  poly_type = c(),
+  # PersistenceBlock
+  # calibrate to PD range
+  block_size = c(),
+  # PersistenceImage
+  # calibrate to PD range
   img_sigma = c(),
-  # TODO: pre-process `block_size`
-  block_size = c()
+  # PersistenceLandscape
+  # calibrate to number of levels
+  num_levels = c(),
+  generalized = c(),
+  # calibrate to PD range
+  weight_func = c(),
+  bandwidth = c(),
+  # PersistenceSilhouette
+  weight_power = c(),
+  # TemplateFunction
+  tent_delta = c(),
+  num_bins = c(),
+  tent_offset = c(),
+  # TropicalCoordinates
+  # calibrate to PD size
+  num_bars = c()
 )
 
 # generate title and description
 build_title_descr <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
-  fn_title <- tdavec_content |> 
+  fn_sname <- vec_sname(fn)
+  fn_title <- tdavec_renames |> 
     filter(name == fn) |> 
-    pull(step_title) |> first()
+    pull(rename) |> 
+    snakecase::to_title_case() |> 
+    paste("Vectorization of Persistent Homology")
   fn_title_doc <- paste0("@title ", fn_title)
   fn_descr <- c(
-    paste0("@description The function `step_vpd_", fn_abbr, "()` creates"),
+    paste0("@description The function `step_vpd_", fn_sname, "()` creates"),
     "  a _specification_ of a recipe step that will convert",
     "  a list-column of 3-column matrices of persistence data",
     "  to a list-column of 1-row matrices of vectorizations."
@@ -144,15 +164,16 @@ build_title_descr <- function(fn) {
     as.list() |> c(list("\n\n")) |> 
     do.call(what = glue::glue)
 }
-# build_title_descr("computeNL")
-# build_title_descr("computeTC")
+# build_title_descr("computeNormalizedLife")
+# build_title_descr("computeTropicalCoordinates")
 
 # generate details
 build_details <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
-  fn_name <- tdavec_content |> 
+  fn_sname <- vec_sname(fn)
+  fn_name <- tdavec_renames |> 
     filter(name == fn) |> 
-    pull(full_name) |> first() |> 
+    pull(rename) |> 
+    snakecase::to_title_case() |> 
     tolower() |> capitalize_proper_names()
   fn_line <- c(
     paste0("The ", fn_name, " vectorization deploys"),
@@ -202,11 +223,11 @@ build_details <- function(fn) {
     as.list() |> c(list("\n")) |> 
     do.call(what = glue::glue)
 }
-# build_details("computePI")
+# build_details("computePersistenceImage")
 
 # generate parameter documentation
 build_param_docs <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -231,7 +252,7 @@ build_param_docs <- function(fn) {
   
   do.call(what = glue::glue, args = fn_param_docs)
 }
-# build_param_docs("computePL")
+# build_param_docs("computePersistenceLandscape")
 
 # generate importation and inheritance instructions
 # (include argument for `do.call()` in source code generation)
@@ -247,19 +268,19 @@ build_import_inherit <- function(fn) {
 
 # generate link to example file
 build_ex <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_hname <- gsub("\\_", "-", vec_sname(fn))
   fn_line <- 
-    glue::glue("@example inst/examples/{build_prefix}-step-vpd-{fn_abbr}.R")
+    glue::glue("@example inst/examples/{build_prefix}-ex-step-vpd-{fn_hname}.R")
   
   glue::glue(doc_wrap(fn_line), "\n\n")
 }
-# build_ex("computePS")
+# build_ex("computePersistenceSilhouette")
 
 #' Generate step functions.
 
 # generate `step_*()`
 build_step <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -275,7 +296,7 @@ build_step <- function(fn) {
   # TODO: Can't this be done using `paste0()`?
   glue::glue(
     doc_wrap("@export"),
-    "step_vpd_{fn_abbr} <- function(\n",
+    "step_vpd_{fn_sname} <- function(\n",
     "    recipe,\n",
     "    ...,\n",
     # standard inputs
@@ -287,15 +308,15 @@ build_step <- function(fn) {
     "    columns = NULL,\n",
     "    keep_original_cols = TRUE,\n",
     "    skip = FALSE,\n",
-    "    id = rand_id(\"vpd_{fn_abbr}\")\n",
+    "    id = rand_id(\"vpd_{fn_sname}\")\n",
     ") {{\n",
     # ensure that required packages are installed
-    "  recipes_pkg_check(required_pkgs.step_vpd_{fn_abbr}())\n",
+    "  recipes_pkg_check(required_pkgs.step_vpd_{fn_sname}())\n",
     "  \n",
     # output the step addition
     "  add_step(\n",
     "    recipe,\n",
-    "    step_vpd_{fn_abbr}_new(\n",
+    "    step_vpd_{fn_sname}_new(\n",
     "      terms = rlang::enquos(...),\n",
     "      trained = trained,\n",
     "      role = role,\n",
@@ -310,11 +331,11 @@ build_step <- function(fn) {
     "\n\n"
   )
 }
-# build_step("computeVPB")
+# build_step("computePersistenceBlock")
 
 # generate `step_*_new()`
 build_step_new <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -328,7 +349,7 @@ build_step_new <- function(fn) {
   )
   
   glue::glue(
-    "step_vpd_{fn_abbr}_new <- function(\n",
+    "step_vpd_{fn_sname}_new <- function(\n",
     # standard inputs
     "    terms,\n",
     "    role, trained,\n",
@@ -340,7 +361,7 @@ build_step_new <- function(fn) {
     ") {{\n",
     # output the step
     "  step(\n",
-    "    subclass = \"vpd_{fn_abbr}\",\n",
+    "    subclass = \"vpd_{fn_sname}\",\n",
     "    terms = terms,\n",
     "    role = role,\n",
     "    trained = trained,\n",
@@ -354,11 +375,11 @@ build_step_new <- function(fn) {
     "\n\n"
   )
 }
-# build_step_new("computePES")
+# build_step_new("computePersistentEntropy")
 
 # generate `prep.step_vpd_*()`
 build_prep <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -373,7 +394,7 @@ build_prep <- function(fn) {
   
   glue::glue(
     doc_wrap("@export"),
-    "prep.step_vpd_{fn_abbr} <- function(x, training, info = NULL, ...) {{\n",
+    "prep.step_vpd_{fn_sname} <- function(x, training, info = NULL, ...) {{\n",
     # extract columns and ensure they are lists of 3-column numeric tables
     "  col_names <- recipes_eval_select(x$terms, training, info)\n",
     # ensure that columns are list-columns of 3-column persistence diagrams
@@ -384,7 +405,7 @@ build_prep <- function(fn) {
     "  \n",
     "{fn_preproc}",
     # output prepped step
-    "  step_vpd_{fn_abbr}_new(\n",
+    "  step_vpd_{fn_sname}_new(\n",
     "    terms = col_names,\n",
     "    role = x$role,\n",
     "    trained = TRUE,\n",
@@ -398,11 +419,11 @@ build_prep <- function(fn) {
     "\n\n"
   )
 }
-# build_prep("computePL")
+# build_prep("computePersistenceLandscape")
 
 # generate `bake.step_vpd_*()`
 build_bake <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -413,7 +434,7 @@ build_bake <- function(fn) {
   
   glue::glue(
     doc_wrap("@export"),
-    "bake.step_vpd_{fn_abbr} <- function(object, new_data, ...) {{\n",
+    "bake.step_vpd_{fn_sname} <- function(object, new_data, ...) {{\n",
     "  col_names <- names(object$columns)\n",
     "  check_new_data(col_names, object, new_data)\n",
     # remove troublesome 'AsIs' class (and any other non-'list' classes)
@@ -428,24 +449,25 @@ build_bake <- function(fn) {
     "  for (col_name in col_names) {{\n",
     "    col_vpd <- purrr::map(\n",
     "      new_data[[col_name]],\n",
-    "      \\(d) TDAvec::{fn}(\n",
+    "      \\(d) as.vector(TDAvec::{fn}(\n",
     "        as.matrix(d),\n",
     "{fn_compute}",
-    "      )\n",
+    "      ))\n",
     "    )\n",
     # col_vpd <- lapply(col_vpd, matrix, nrow = 1L)\n",
     "    col_vpd <- purrr::map(\n",
     "      col_vpd,\n",
     "      \\(v) as.data.frame(matrix(\n",
+    "        # NB: `v` may be a matrix.\n",
     "        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))\n",
     "      ))\n",
     "    )\n",
-    "    vph_data[[paste(col_name, \"{fn_abbr}\", sep = \"_\")]] <- col_vpd\n",
+    "    vph_data[[paste(col_name, \"{fn_sname}\", sep = \"_\")]] <- col_vpd\n",
     "  }}\n",
     # unnest data-framed matrices to ensure commensurate columns
     "  vph_data <- tidyr::unnest(\n",
     "    vph_data,\n",
-    "    cols = tidyr::all_of(paste(col_names, \"{fn_abbr}\", sep = \"_\")),\n",
+    "    cols = tidyr::all_of(paste(col_names, \"{fn_sname}\", sep = \"_\")),\n",
     "    names_sep = \"_\"\n",
     "  )\n",
     "  \n",
@@ -457,19 +479,20 @@ build_bake <- function(fn) {
     "\n\n"
   )
 }
-# build_bake("computeECC")
+# build_bake("computeEulerCharacteristic")
 
 # generate `print.step_vpd_*()`
 build_print <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
-  fn_name <- tdavec_content |> 
+  fn_sname <- vec_sname(fn)
+  fn_name <- tdavec_renames |> 
     filter(name == fn) |> 
-    pull(full_name) |> first() |> 
-    snakecase::to_sentence_case() |> capitalize_proper_names()
+    pull(rename) |> 
+    snakecase::to_title_case() |> 
+    tolower() |> capitalize_proper_names()
   
   glue::glue(
     doc_wrap("@export"),
-    "print.step_vpd_{fn_abbr} <- function(\n",
+    "print.step_vpd_{fn_sname} <- function(\n",
     "    x, width = max(20, options()$width - 35), ...\n",
     ") {{\n",
     "  title <- \"{fn_name} of \"\n",
@@ -491,32 +514,32 @@ build_print <- function(fn) {
     "\n\n"
   )
 }
-# build_print("computePES")
+# build_print("computePersistentEntropy")
 
 # generate `required_pkgs.step_vpd_*()`
 build_req <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   
   glue::glue(
     doc_wrap("@rdname required_pkgs.tdarec"),
     doc_wrap("@export"),
-    "required_pkgs.step_vpd_{fn_abbr} <- function(x, ...) {{\n",
+    "required_pkgs.step_vpd_{fn_sname} <- function(x, ...) {{\n",
     "  c(\"TDAvec\", \"tdarec\")\n",
     "}}\n",
     "\n\n"
   )
 }
-# build_req("computePL")
+# build_req("computeComplexPolynomial")
 
 # generate `tidy.step_vpd_*()`
 build_tidy <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   
   glue::glue(
-    doc_wrap("@rdname step_vpd_{fn_abbr}"),
+    doc_wrap("@rdname step_vpd_{fn_sname}"),
     doc_wrap("@usage NULL"),
     doc_wrap("@export"),
-    "tidy.step_vpd_{fn_abbr} <- function(x, ...) {{\n",
+    "tidy.step_vpd_{fn_sname} <- function(x, ...) {{\n",
     "  if (is_trained(x)) {{\n",
     "    res <- tibble::tibble(\n",
     "      terms = unname(x$columns),\n",
@@ -535,11 +558,11 @@ build_tidy <- function(fn) {
     "\n\n"
   )
 }
-# build_tidy("computeNL")
+# build_tidy("computeTropicalCoordinates")
 
 # generate `tunable.step_vpd_*()`
 build_tunable <- function(fn) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -565,7 +588,7 @@ build_tunable <- function(fn) {
   glue::glue(
     doc_wrap("@rdname tunable_tdavec"),
     doc_wrap("@export"),
-    "tunable.step_vpd_{fn_abbr} <- function(x, ...) {{\n",
+    "tunable.step_vpd_{fn_sname} <- function(x, ...) {{\n",
     "  tibble::tibble(\n",
     # argument name
     "    name = c({fn_params_string}),\n",
@@ -576,7 +599,7 @@ build_tunable <- function(fn) {
     # source of tuning value
     "    source = \"recipe\",\n",
     # sub-source of tuning value
-    "    component = \"step_vpd_{fn_abbr}\",\n",
+    "    component = \"step_vpd_{fn_sname}\",\n",
     # unique identifier
     "    component_id = x$id\n",
     "  )\n",
@@ -584,19 +607,19 @@ build_tunable <- function(fn) {
     "\n\n"
   )
 }
-# build_tunable("computeBetti")
-# build_tunable("computePL")
-# build_tunable("computeTF")
+# build_tunable("computeBettiCurve")
+# build_tunable("computePersistenceLandscape")
+# build_tunable("computeTemplateFunction")
 
 #' WRITING
 
 #' Write step source code.
 
 for (fn in tdavec_functions$name) {
-  fn_abbr <- abbr_vec(fn)
+  fn_hname <- gsub("\\_", "-", vec_sname(fn))
   
   # initialize file
-  step_file <- here::here(glue::glue("R/{build_prefix}-step-vpd-{fn_abbr}.R"))
+  step_file <- here::here(glue::glue("R/{build_prefix}-step-vpd-{fn_hname}.R"))
   cat(build_warning, file = step_file, append = FALSE)
   
   # populate with elements
@@ -637,7 +660,8 @@ ex_param_vals <- c(
 
 # write example files from template (overwrites existing files)
 for (fn in tdavec_functions$name) {
-  fn_abbr <- abbr_vec(fn)
+  fn_sname <- vec_sname(fn)
+  fn_hname <- gsub("\\_", "-", fn_sname)
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -648,12 +672,13 @@ for (fn in tdavec_functions$name) {
   fn_param_vals <- 
     paste0(fn_params, " = ", ex_param_vals[fn_params], collapse = ", ")
   
-  ex_file <- 
-    here::here(glue::glue("inst/examples/{build_prefix}-step-vpd-{fn_abbr}.R"))
+  glue::glue("inst/examples/{build_prefix}-ex-step-vpd-{fn_hname}.R") |> 
+    here::here() ->
+    ex_file
   cat(build_warning, file = ex_file, append = FALSE)
   
   readLines("man/ex/step-vpd-ex-template2.R") |> 
-    gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_abbr)) |> 
+    gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_sname)) |> 
     gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
     write(file = ex_file, append = FALSE)
 }

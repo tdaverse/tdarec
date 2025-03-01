@@ -4,7 +4,7 @@
 #'
 #' @details
 #' The persistence surface vectorization deploys
-#' [TDAvec::computePL()].
+#' [TDAvec::computePersistenceLandscape()].
 #' See there for definitions and references.
 #'
 #' @inheritParams dials::Laplace

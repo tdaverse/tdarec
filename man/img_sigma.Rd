@@ -21,7 +21,7 @@ Parameters related to vectorized persistence surfaces (images).
 }
 \details{
 The persistence surface vectorization deploys
-\code{\link[TDAvec:computePI]{TDAvec::computePI()}}.
+\code{\link[TDAvec:computePersistenceImage]{TDAvec::computePersistenceImage()}}.
 See there for definitions and references.
 
 \strong{FIXME:} Current default parameter ranges are \emph{ad hoc}.

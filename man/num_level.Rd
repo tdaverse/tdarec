@@ -56,7 +56,7 @@ Parameters related to vectorized persistence landscapes.
 }
 \details{
 The persistence surface vectorization deploys
-\code{\link[TDAvec:computePL]{TDAvec::computePL()}}.
+\code{\link[TDAvec:computePersistenceLandscape]{TDAvec::computePersistenceLandscape()}}.
 See there for definitions and references.
 }
 \examples{
