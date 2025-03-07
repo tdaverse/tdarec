@@ -2,33 +2,9 @@
 % Please edit documentation in R/param-num-level.R
 \name{num_level}
 \alias{num_level}
-\alias{get_level_range}
-\alias{max_pairs}
-\alias{max_pairs.default}
-\alias{max_pairs.matrix}
-\alias{max_pairs.data.frame}
-\alias{max_pairs.diagram}
-\alias{max_pairs.PHom}
-\alias{max_pairs.persistence}
 \title{Persistence Landscape parameters}
 \usage{
 num_level(range = c(1L, unknown()), trans = NULL)
-
-get_level_range(object, x, hom_degrees = NULL, ...)
-
-max_pairs(x, hom_degrees)
-
-\method{max_pairs}{default}(x, hom_degrees)
-
-\method{max_pairs}{matrix}(x, hom_degrees)
-
-\method{max_pairs}{data.frame}(x, hom_degrees)
-
-\method{max_pairs}{diagram}(x, hom_degrees)
-
-\method{max_pairs}{PHom}(x, hom_degrees)
-
-\method{max_pairs}{persistence}(x, hom_degrees)
 }
 \arguments{
 \item{range}{A two-element vector holding the \emph{defaults} for the smallest and
@@ -39,17 +15,6 @@ these values should be in the \emph{transformed units}.}
 \code{scales::transform_log10()} or \code{scales::transform_reciprocal()}. If not provided,
 the default is used which matches the units used in \code{range}. If no
 transformation, \code{NULL}.}
-
-\item{object}{A \code{param} object or a list of \code{param} objects.}
-
-\item{x}{The predictor data. In some cases (see below) this should only
-include numeric data.}
-
-\item{hom_degrees}{Integer vector of homological degrees.}
-
-\item{...}{Other arguments to pass to the underlying parameter
-finalizer functions. For example, for \code{get_rbf_range()}, the dots are passed
-along to \code{\link[kernlab:sigest]{kernlab::sigest()}}.}
 }
 \description{
 Parameters related to vectorized persistence landscapes.
@@ -68,9 +33,9 @@ data.frame(dist = I(list(eurodist, UScitiesD))) |>
 (lev_man <- num_level(range = c(1, 24)))
 grid_regular(lev_man)
 
-(lev_dat <- num_level() |> get_level_range(x = pd_data))
+(lev_dat <- num_level() |> get_pairs_max(x = pd_data))
 grid_regular(lev_dat)
 
-(lev_hom <- num_level() |> get_level_range(x = pd_data, hom_degrees = seq(2L)))
+(lev_hom <- num_level() |> get_pairs_max(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(lev_hom)
 }

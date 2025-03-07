@@ -4,7 +4,7 @@
 \alias{img_sigma}
 \title{Persistence Surface parameters}
 \usage{
-img_sigma(range = c(-6, 2), trans = transform_log10())
+img_sigma(range = c(unknown(), unknown()), trans = transform_log10())
 }
 \arguments{
 \item{range}{A two-element vector holding the \emph{defaults} for the smallest and
@@ -23,8 +23,6 @@ Parameters related to vectorized persistence surfaces (images).
 The persistence surface vectorization deploys
 \code{\link[TDAvec:computePersistenceImage]{TDAvec::computePersistenceImage()}}.
 See there for definitions and references.
-
-\strong{FIXME:} Current default parameter ranges are \emph{ad hoc}.
 }
 \examples{
 data.frame(dist = I(list(eurodist, UScitiesD))) |> 
@@ -34,4 +32,11 @@ data.frame(dist = I(list(eurodist, UScitiesD))) |>
 
 (sig_man <- img_sigma(range = c(-1, 1)))
 grid_regular(sig_man)
+
+# FIXME: Preclude infinite values.
+(sig_hom <- img_sigma() |> get_persistence_range(x = pd_data, hom_degree = 0))
+grid_regular(sig_hom)
+
+(sig_hom <- img_sigma() |> get_persistence_range(x = pd_data, hom_degree = 1))
+grid_regular(sig_hom)
 }

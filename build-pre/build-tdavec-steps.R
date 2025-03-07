@@ -570,7 +570,8 @@ build_tunable <- function(fn) {
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
     strsplit("\\|") |> unlist() |> unname()
   fn_ranges_values <- dial_ranges_values[fn_dials] |> 
-    lapply(\(x) ifelse(is.na(x), "unknown()", x)) |> 
+    lapply(\(x) vapply(x, deparse, "")) |> 
+    lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 
     sapply(paste0, collapse = ", ")
   fn_param_class <- type_class[dial_types[fn_dials]] |> unname()
   fn_scope_param <- c(quant = "range", qual = "values")[fn_param_class]

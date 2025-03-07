@@ -18,6 +18,7 @@
 #' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
 #' homological degree of interest in most practical applications).
 #'
+#' @include vpd-finalizers.R
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
 #' @param max_dim Bound on the maximum dimension determined from the data.
@@ -75,45 +76,3 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
   
   dials::range_set(object, rngs)
 }
-
-# determine the dimension of a data set for purposes of persistent homology
-
-# FIXME: should be informed by engine & method, e.g. `ripserr::vietoris_rips()`
-# versus `ripserr::cubical()` treat a 2-column matrix as a coordinate matrix and
-# as a 2D image, respectively
-
-# FIXME: This is designed for input data but should also apply to persistence
-# data.
-
-#' @rdname hom_degree
-#' @export
-ph_dim <- function(x) {
-  UseMethod("ph_dim")
-}
-
-#' @rdname hom_degree
-#' @export
-ph_dim.default <- function(x) ncol(as.matrix(x))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.matrix <- function(x) ncol(x)
-
-#' @rdname hom_degree
-#' @export
-ph_dim.array <- 
-  function(x) if (is.matrix(x)) ph_dim.default(x) else length(dim(x))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.data.frame <- function(x) ncol(x)
-
-#' @rdname hom_degree
-#' @export
-ph_dim.dist <- function(x) as.integer(attr(x, "Size"))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.ts <- ph_dim.default
-
-check_param <- getFromNamespace("check_param", "dials")

@@ -109,7 +109,6 @@ tdavec_args |>
 arg_params <- c(
   homDim = "hom_degree",
   maxhomDim = "max_hom_degree",
-  # TODO: Revisit this choice closer to release.
   scaleSeq = "xseq",
   xSeq = "xseq",
   ySeq = "yseq",
@@ -301,25 +300,33 @@ dial_types <- c(
   tent_offset    = "double",
   block_size     = "double"
 )
-# CHOICE: assign defaults to new dials
+# CHOICE: assign defaults to new dials & o/w note how to determine from data
+# NOTE: Finalizers are written in `R/vpd-finalizers.R`.
 dial_ranges_values <- list(
-  hom_degree = c("0L", NA),
-  max_hom_degree = c("0L", NA),
+  # highest degree
+  hom_degree = c(0L, NA_integer_),
+  max_hom_degree = c(0L, NA_integer_),
   evaluate = c("intervals", "points"),
-  num_coef = c("1L", NA),
+  # number of features
+  num_coef = c(1L, NA_integer_),
   poly_type = c("R", "S", "T"),
-  # TODO: Ensure bounds are consistent with transformations.
-  img_sigma = c(NA, NA),
-  num_levels = c("1L", NA),
+  # maximum persistence
+  img_sigma = c(NA_real_, NA_real_),
+  # number of features
+  num_levels = c(1L, NA_integer_),
   # generalized = c(FALSE, TRUE),
-  bandwidth = c(NA, NA),
+  # TODO: Consult Berry, Chen, Cisewski-Kehe, & Fasy (2020).
+  bandwidth = c(NA_real_, NA_real_),
   weight_power = c("1", "2"),
-  num_bars = c("1L", NA),
-  tent_delta = c(NA, NA),
-  num_bins = c("1L", NA),
-  tent_offset = c(NA, NA),
-  # TODO: Learn range from diagram radius to some orders of magnitude smaller.
-  block_size = c(NA, NA)
+  # number of features
+  num_bars = c(1L, NA_integer_),
+  # TODO: Consult Perea, Munch, & Khasawneh (2023).
+  tent_delta = c(NA_real_, NA_real_),
+  # TODO: Consult Perea, Munch, & Khasawneh (2023).
+  num_bins = c(1L, NA_integer_),
+  # TODO: Consult Perea, Munch, & Khasawneh (2023).
+  tent_offset = c(NA_real_, NA_real_),
+  block_size = c(0, 1)
 )
 # dial range endpoints
 dial_inclusive <- list(
