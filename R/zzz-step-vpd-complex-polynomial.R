@@ -209,7 +209,7 @@ tunable.step_vpd_complex_polynomial <- function(x, ...) {
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "num_coef", range = c(1L, unknown())),
-      list(pkg = "tdarec", fun = "poly_type", values = c(R, S, T))
+      list(pkg = "tdarec", fun = "poly_type", values = c("R", "S", "T"))
     ),
     source = "recipe",
     component = "step_vpd_complex_polynomial",

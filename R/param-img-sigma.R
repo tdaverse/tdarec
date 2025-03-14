@@ -13,13 +13,15 @@
 #' @inheritParams step_phom_degree
 #' @example inst/examples/ex-param-img-sigma.R
 #' @export
-img_sigma <- function(range = c(unknown(), unknown()), trans = transform_log10()) {
+img_sigma <- function(
+    range = c(unknown(), unknown()), trans = transform_log10()
+) {
   new_quant_param(
     type = "double",
     range = range,
     inclusive = c(TRUE, TRUE),
     trans = trans,
     label = c(img_sigma = "Persistence Surface blur"),
-    finalize = get_persistence_range
+    finalize = get_pers_frac_range
   )
 }

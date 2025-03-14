@@ -1,18 +1,16 @@
 #' @title (Maximum) topological dimension or homological degree
-#' 
-#' @description
-#' The degree of the homology group to vectorize, or the degree at which to stop
-#' vectorizing.
 #'
-#' @details
-#' Topological features have whole number dimensions that determine the
+#' @description The degree of the homology group to vectorize, or the degree at
+#' which to stop vectorizing.
+#'
+#' @details Topological features have whole number dimensions that determine the
 #' degrees of homology that encode them. Any finite point cloud will have finite
 #' topological dimension, but most practical applications exploit features of
 #' degree at most 3.
 #'
 #' Steps may vectorize features of a single degree (`hom_degree()`) or of
 #' degrees zero through some maximum (`max_hom_degree()`).
-#' 
+#'
 #' In case the (maximum) degree is not provided, `get_hom_range()` queries each
 #' list-column for the maximum dimension of its point cloud and returns the
 #' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
@@ -21,6 +19,7 @@
 #' @include vpd-finalizers.R
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
+#' @inheritParams vpd-finalizers
 #' @param max_dim Bound on the maximum dimension determined from the data.
 #' @example inst/examples/ex-param-hom-degree.R
 #' @export

@@ -219,7 +219,7 @@ tunable.step_vpd_euler_characteristic_curve <- function(x, ...) {
     name = c("xseq", "xother", "max_hom_degree", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "evaluate", values = c(intervals, points))
+      list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
     ),
     source = "recipe",
     component = "step_vpd_euler_characteristic_curve",

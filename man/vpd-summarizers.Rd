@@ -16,13 +16,13 @@
 \alias{pairs_max.diagram}
 \alias{pairs_max.PHom}
 \alias{pairs_max.persistence}
-\alias{persistence_range}
-\alias{persistence_range.default}
-\alias{persistence_range.matrix}
-\alias{persistence_range.data.frame}
-\alias{persistence_range.diagram}
-\alias{persistence_range.PHom}
-\alias{persistence_range.persistence}
+\alias{pers_range}
+\alias{pers_range.default}
+\alias{pers_range.matrix}
+\alias{pers_range.data.frame}
+\alias{pers_range.diagram}
+\alias{pers_range.PHom}
+\alias{pers_range.persistence}
 \alias{union_range}
 \alias{union_range.default}
 \alias{union_range.matrix}
@@ -60,19 +60,19 @@ pairs_max(x, hom_degrees)
 
 \method{pairs_max}{persistence}(x, hom_degrees)
 
-persistence_range(x, hom_degree)
+pers_range(x, hom_degree)
 
-\method{persistence_range}{default}(x, hom_degree)
+\method{pers_range}{default}(x, hom_degree)
 
-\method{persistence_range}{matrix}(x, hom_degree)
+\method{pers_range}{matrix}(x, hom_degree)
 
-\method{persistence_range}{data.frame}(x, hom_degree)
+\method{pers_range}{data.frame}(x, hom_degree)
 
-\method{persistence_range}{diagram}(x, hom_degree)
+\method{pers_range}{diagram}(x, hom_degree)
 
-\method{persistence_range}{PHom}(x, hom_degree)
+\method{pers_range}{PHom}(x, hom_degree)
 
-\method{persistence_range}{persistence}(x, hom_degree)
+\method{pers_range}{persistence}(x, hom_degree)
 
 union_range(x, hom_degree)
 
@@ -88,6 +88,11 @@ union_range(x, hom_degree)
 
 \method{union_range}{persistence}(x, hom_degree)
 }
+\arguments{
+\item{x}{Persistence data in a recognizable format.}
+
+\item{hom_degree, hom_degrees}{Integer (vector) of homological degree(s).}
+}
 \description{
 These miscellaneous functions are used by various
 \verb{get_*_range()} functions to \link[dials:finalize]{finalize} hyperparameter
@@ -101,7 +106,7 @@ The functions compute the following summaries:
 Dimension of a data set for purposes of PH
 \item \code{pairs_max()}:
 Maximum number of persistent pairs of any degree
-\item \code{persistence_range()}:
+\item \code{pers_range()}:
 Range of positive finite persistence for a given degree
 \item \code{union_range()}:
 Union of birth--death ranges for a given degree

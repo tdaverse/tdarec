@@ -216,7 +216,7 @@ tunable.step_vpd_normalized_life_curve <- function(x, ...) {
     name = c("hom_degree", "xseq", "xother", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "evaluate", values = c(intervals, points))
+      list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
     ),
     source = "recipe",
     component = "step_vpd_normalized_life_curve",

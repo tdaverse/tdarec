@@ -5,15 +5,20 @@
 #'   on a data set and heuristics used in inaugural studies.
 #' 
 #' @name vpd-finalizers
+#' @inheritParams vpd-summarizers
+#' @inheritParams dials::finalize
+#' @param ... Other arguments to pass to the underlying parameter finalizer
+#'   functions.
 #' @inherit dials::finalize return
 
 #' @rdname vpd-finalizers
 #' @export
-get_persistence_range <- function(object, x, hom_degree = NULL, ...) {
+get_pers_frac_range <- function(
+    object, x, hom_degree = NULL, log_vals = TRUE, frac = c(1/100, 1/10), ...
+) {
   check_param(object)
   
   rngs <- dials::range_get(object, original = FALSE)
-  # TODO: Account for partial user specifications?
   if (! dials::is_unknown(rngs$lower) && ! dials::is_unknown(rngs$upper)) {
     return(object)
   }
@@ -24,30 +29,31 @@ get_persistence_range <- function(object, x, hom_degree = NULL, ...) {
   }
   
   # calculate maximum within-dimension persistence
-  x_persistence_ranges <- sapply(
+  x_pers_ranges <- sapply(
     x,
     function(l) {
       val <- 
-        sapply(l, persistence_range, hom_degree = hom_degree, simplify = TRUE)
+        sapply(l, pers_range, hom_degree = hom_degree, simplify = TRUE)
       range(val[is.finite(val)])
     },
     simplify = TRUE
   )
-  x_persistence_range <- range(x_persistence_ranges)
+  x_pers_range <- range(setdiff(x_pers_ranges, 0)) * frac
   
   # set the range based on the maximum observed and a fixed scale factor smaller
-  # FIXME: Do this transformation in the standard way.
-  if (! dials::is_unknown(rngs$lower)) {
-    rngs[1L] <- log(x_persistence_range[1L])
+  if (dials::is_unknown(rngs$lower)) {
+    rngs[1L] <- 
+      if (log_vals) log10(x_pers_range[1L]) else x_pers_range[1L]
   }
-  if (! dials::is_unknown(rngs$upper)) {
-    rngs[2L] <- log(x_persistence_range[2L])
+  if (dials::is_unknown(rngs$upper)) {
+    rngs[2L] <- 
+      if (log_vals) log10(x_pers_range[2L]) else x_pers_range[2L]
   }
-  
-  # if (object$type == "integer" & is.null(object$trans)) {
-  #   rngs <- as.integer(rngs)
-  # }
-  
+
+  if (object$type == "integer" & is.null(object$trans)) {
+    rngs <- as.integer(rngs)
+  }
+
   dials::range_set(object, rngs)
 }
 

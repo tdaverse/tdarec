@@ -25,7 +25,7 @@
 \alias{tunable.step_vpd_persistent_entropy_summary}
 \alias{tunable.step_vpd_tent_template_functions}
 \alias{tunable.step_vpd_tropical_coordinates}
-\title{\code{tunable()} methods for {tdavec}}
+\title{\code{tunable()} methods for tdavec package}
 \usage{
 \method{tunable}{step_vpd_algebraic_functions}(x, ...)
 
@@ -62,8 +62,9 @@
 A tibble object.
 }
 \description{
-These functions define what parameters \emph{can} be tuned for specific steps.
-They also define the recommended objects from the {dials} package that can be
-used to generate new parameter values and other characteristics.
+These functions define what parameters \emph{can} be tuned for
+specific steps. They also define the recommended objects from
+\link[dials:dials-package]{dials} that can be used to generate new parameter
+values and other characteristics.
 }
 \keyword{internal}

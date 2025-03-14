@@ -84,14 +84,15 @@ Vietoris--Rips, Čech, or alpha) along an increasing distance threshold.
 
 Ripser is a highly efficient implementation of PH on a point cloud (a
 finite metric space) via the Vietoris--Rips filtration and is ported to R
-through the {ripserr} package. The {TDA} package calls the Dionysus, PHAT,
-and GUDHI libraries to compute PH via Vietoris--Rips and alpha filtrations.
-The \code{filtration} parameter controls the choice of filtration while the
-\code{engine} parameter allows the user to manually select an implementation.
+through \code{\link[ripserr:ripserr]{ripserr}}. \code{\link[TDA:TDA-package]{TDA}}
+calls the Dionysus, PHAT, and GUDHI libraries to compute PH via
+Vietoris--Rips and alpha filtrations. The \code{filtration} parameter controls
+the choice of filtration while the \code{engine} parameter allows the user to
+manually select an implementation.
 
 Both engines accept data sets in distance matrix, coordinate matrix, and
-data frame formats. While {ripserr} computes PH for time series data, this
-is not currently supported in {tdarec}.
+data frame formats. While \strong{ripserr} computes PH for time series data,
+this is not currently supported in \strong{tdarec}.
 
 The \code{max_hom_degree} argument determines the highest-dimensional features
 to be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} can be

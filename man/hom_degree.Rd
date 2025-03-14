@@ -37,8 +37,8 @@ transformation, \code{NULL}.}
 \item{max_dim}{Bound on the maximum dimension determined from the data.}
 }
 \description{
-The degree of the homology group to vectorize, or the degree at which to stop
-vectorizing.
+The degree of the homology group to vectorize, or the degree at
+which to stop vectorizing.
 }
 \details{
 Topological features have whole number dimensions that determine the

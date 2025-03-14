@@ -12,7 +12,9 @@
 #' @inheritParams step_phom_degree
 #' @example inst/examples/ex-param-num-level.R
 #' @export
-num_level <- function(range = c(1L, unknown()), trans = NULL) {
+num_level <- function(
+    range = c(1L, unknown()), trans = NULL
+) {
   new_quant_param(
     type = "integer",
     range = range,

@@ -11,13 +11,15 @@
 #'         Dimension of a data set for purposes of PH
 #'   \item `pairs_max()`:
 #'         Maximum number of persistent pairs of any degree
-#'   \item `persistence_range()`:
+#'   \item `pers_range()`:
 #'         Range of positive finite persistence for a given degree
 #'   \item `union_range()`:
 #'         Union of birth--death ranges for a given degree
 #' }
 #' 
 #' @name vpd-summarizers
+#' @param x Persistence data in a recognizable format.
+#' @param hom_degree,hom_degrees Integer (vector) of homological degree(s).
 NULL
 
 check_param <- getFromNamespace("check_param", "dials")
@@ -111,19 +113,19 @@ pairs_max.persistence <- function(x, hom_degrees) {
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range <- function(x, hom_degree) {
-  UseMethod("persistence_range")
+pers_range <- function(x, hom_degree) {
+  UseMethod("pers_range")
 }
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.default <- function(x, hom_degree) {
+pers_range.default <- function(x, hom_degree) {
   stop("Unrecognized persistent homology class.")
 }
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.matrix <- function(x, hom_degree) {
+pers_range.matrix <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     val <- abs(x[, 3L] - x[, 2L])
     range(val[is.finite(val)])
@@ -136,7 +138,7 @@ persistence_range.matrix <- function(x, hom_degree) {
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.data.frame <- function(x, hom_degree) {
+pers_range.data.frame <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     val <- abs(x[[3L]] - x[[2L]])
     range(val[is.finite(val)])
@@ -149,17 +151,17 @@ persistence_range.data.frame <- function(x, hom_degree) {
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.diagram <- 
-  function(x, hom_degree) persistence_range.matrix(unclass(x), hom_degree)
+pers_range.diagram <- 
+  function(x, hom_degree) pers_range.matrix(unclass(x), hom_degree)
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.PHom <- 
-  function(x, hom_degree) persistence_range.data.frame(x, hom_degree)
+pers_range.PHom <- 
+  function(x, hom_degree) pers_range.data.frame(x, hom_degree)
 
 #' @rdname vpd-summarizers
 #' @export
-persistence_range.persistence <- function(x, hom_degree) {
+pers_range.persistence <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     range(sapply(x$pairs, function(y) {
       val <- abs(y[, 2L] - y[, 1L])
