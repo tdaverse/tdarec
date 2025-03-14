@@ -1,25 +1,25 @@
 #' @title (Maximum) topological dimension or homological degree
-#' 
-#' @description
-#' The degree of the homology group to vectorize, or the degree at which to stop
-#' vectorizing.
 #'
-#' @details
-#' Topological features have whole number dimensions that determine the
+#' @description The degree of the homology group to vectorize, or the degree at
+#' which to stop vectorizing.
+#'
+#' @details Topological features have whole number dimensions that determine the
 #' degrees of homology that encode them. Any finite point cloud will have finite
 #' topological dimension, but most practical applications exploit features of
 #' degree at most 3.
 #'
 #' Steps may vectorize features of a single degree (`hom_degree()`) or of
 #' degrees zero through some maximum (`max_hom_degree()`).
-#' 
+#'
 #' In case the (maximum) degree is not provided, `get_hom_range()` queries each
 #' list-column for the maximum dimension of its point cloud and returns the
 #' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
 #' homological degree of interest in most practical applications).
 #'
+#' @include vpd-finalizers.R
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
+#' @inheritParams vpd-finalizers
 #' @param max_dim Bound on the maximum dimension determined from the data.
 #' @example inst/examples/ex-param-hom-degree.R
 #' @export
@@ -75,45 +75,3 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
   
   dials::range_set(object, rngs)
 }
-
-# determine the dimension of a data set for purposes of persistent homology
-
-# FIXME: should be informed by engine & method, e.g. `ripserr::vietoris_rips()`
-# versus `ripserr::cubical()` treat a 2-column matrix as a coordinate matrix and
-# as a 2D image, respectively
-
-# FIXME: This is designed for input data but should also apply to persistence
-# data.
-
-#' @rdname hom_degree
-#' @export
-ph_dim <- function(x) {
-  UseMethod("ph_dim")
-}
-
-#' @rdname hom_degree
-#' @export
-ph_dim.default <- function(x) ncol(as.matrix(x))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.matrix <- function(x) ncol(x)
-
-#' @rdname hom_degree
-#' @export
-ph_dim.array <- 
-  function(x) if (is.matrix(x)) ph_dim.default(x) else length(dim(x))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.data.frame <- function(x) ncol(x)
-
-#' @rdname hom_degree
-#' @export
-ph_dim.dist <- function(x) as.integer(attr(x, "Size"))
-
-#' @rdname hom_degree
-#' @export
-ph_dim.ts <- ph_dim.default
-
-check_param <- getFromNamespace("check_param", "dials")

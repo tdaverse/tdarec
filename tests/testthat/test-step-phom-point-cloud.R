@@ -1,27 +1,31 @@
-dat <- data.frame(dataset = I(list(eurodist, mtcars, Nile)))
+dat <- data.frame(
+  dists = I(list(eurodist, UScitiesD)),
+  dataframes = I(list(cars, mtcars))
+)
+if (.ripserr_version >= "0.2.0") dat$timeseries <- I(list(Nile, LakeHuron))
 
 test_that("`step_phom_point_cloud()` accepts multiple data classes", {
-  rec <- recipe(~ dataset, data = dat) |> 
-    step_phom_point_cloud(dataset)
+  rec <- recipe(~ ., data = dat) |> 
+    step_phom_point_cloud(everything())
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
 test_that("`prep()` requires at least one variable", {
-  rec <- recipe(~ dataset, data = dat) |> 
+  rec <- recipe(~ ., data = dat) |> 
     step_phom_point_cloud()
   expect_error(prep(rec, training = dat), "name")
 })
 
 test_that("`prep()` checks names", {
-  dat2 <- transform(dat, dataset_phom = 0)
+  dat2 <- transform(dat, dists_phom = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
-    step_phom_point_cloud(dataset)
+    step_phom_point_cloud(dists)
   expect_message(prep(rec2, training = dat2), "[Nn]ew names")
 })
 
 test_that("`tunable()` return standard names", {
-  rec <- recipe(~ dataset, data = dat) |> 
-    step_phom_point_cloud(dataset)
+  rec <- recipe(~ dists, data = dat) |> 
+    step_phom_point_cloud(dists)
   tun <- tunable(rec$steps[[1]])
   expect_equal(
     names(tun),
@@ -95,7 +99,11 @@ test_that("within-step and without-step calculations agree", {
     step_phom_point_cloud(sample, max_hom_degree = 2, id = "")
   phom_train <- prep(phom_extract, training = sphere_train)
   phom_test <- bake(phom_train, new_data = sphere_test)
-  manual_calc <- lapply(sphere_test$sample, ripserr::vietoris_rips, max_dim = 2)
+  manual_calc <- if (.ripserr_version < "0.2.0") {
+    lapply(sphere_test$sample, ripserr::vietoris_rips, dim = 2)
+  } else {
+    lapply(sphere_test$sample, ripserr::vietoris_rips, max_dim = 2)
+  }
   expect_equal(phom_test$sample_phom, manual_calc)
   
 })

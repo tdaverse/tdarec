@@ -4,11 +4,11 @@
 #'   step that will induce Gaussian blur in numerical arrays. The input and
 #'   output must be list-columns.
 #'
-#' @details
-#' Additional details...
-#' 
+#' @details The gaussian blur step deploys [blur()]. See there for definitions
+#'   and references.
+#'
 #' **TODO:** Explain the importance of blur for PH of image data.
-#' 
+#'
 #' @section Tuning Parameters:
 #'
 #' ```{r, echo=FALSE, results="asis"}

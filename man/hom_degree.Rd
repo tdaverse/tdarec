@@ -5,13 +5,6 @@
 \alias{hom_degree}
 \alias{max_hom_degree}
 \alias{get_hom_range}
-\alias{ph_dim}
-\alias{ph_dim.default}
-\alias{ph_dim.matrix}
-\alias{ph_dim.array}
-\alias{ph_dim.data.frame}
-\alias{ph_dim.dist}
-\alias{ph_dim.ts}
 \title{(Maximum) topological dimension or homological degree}
 \usage{
 get_blur_range(object, x, ...)
@@ -21,20 +14,6 @@ hom_degree(range = c(0L, unknown()), trans = NULL)
 max_hom_degree(range = c(0L, unknown()), trans = NULL)
 
 get_hom_range(object, x, max_dim = 2L, ...)
-
-ph_dim(x)
-
-\method{ph_dim}{default}(x)
-
-\method{ph_dim}{matrix}(x)
-
-\method{ph_dim}{array}(x)
-
-\method{ph_dim}{data.frame}(x)
-
-\method{ph_dim}{dist}(x)
-
-\method{ph_dim}{ts}(x)
 }
 \arguments{
 \item{object}{A \code{param} object or a list of \code{param} objects.}
@@ -58,8 +37,8 @@ transformation, \code{NULL}.}
 \item{max_dim}{Bound on the maximum dimension determined from the data.}
 }
 \description{
-The degree of the homology group to vectorize, or the degree at which to stop
-vectorizing.
+The degree of the homology group to vectorize, or the degree at
+which to stop vectorizing.
 }
 \details{
 Topological features have whole number dimensions that determine the

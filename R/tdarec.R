@@ -26,16 +26,16 @@ required_pkgs.step_tdarec <- function(x, ...) {
 
 # installed version of {ripserr}, or `NULL` if not installed
 .onLoad <- function(...) {
-  run_on_load()
+  rlang::run_on_load()
 }
-on_load(
+rlang::on_load(
   .ripserr_version <-
     if ("ripserr" %in% rownames(utils::installed.packages())) {
       utils::packageVersion("ripserr")
     } else NA_character_
 )
 # to check that the ripserr engine can handle input data
-on_load({
+rlang::on_load({
   # Vietoris-Rips filtration
   .ripserr_vietoris_rips_classes <- if (.ripserr_version == "0.1.1") {
     # https://github.com/cran/ripserr/blob/

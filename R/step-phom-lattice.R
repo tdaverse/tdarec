@@ -15,7 +15,8 @@
 #'   function from a cubical mesh to a finite value range.
 #'
 #'   Cubical Ripser is an efficient implementation of cubical PH and is ported
-#'   to R through the {ripserr} package. It accepts numerical arrays.
+#'   to R through [`ripserr`][ripserr::ripserr-package]. It accepts numerical
+#'   arrays.
 #'
 #'   The `value_max` argument bounds the value range along which PH is computed.
 #'   Cubical Ripser is implemented using both of two methods, link-join and
