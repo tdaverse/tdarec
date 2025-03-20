@@ -130,14 +130,14 @@ param_preprocesses <- list(
   num_levels = c(),
   generalized = c(),
   # calibrate to PD range
-  weight_func = c(),
+  weight_func_pl = c(),
   bandwidth = c(),
   # PersistenceSilhouette
   weight_power = c(),
   # TemplateFunction
-  tent_delta = c(),
+  tent_radius = c(),
   num_bins = c(),
-  tent_offset = c(),
+  tent_shift = c(),
   # TropicalCoordinates
   # calibrate to PD size
   num_bars = c()
@@ -186,7 +186,9 @@ build_details <- function(fn) {
   fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
     strsplit("\\|") |> unlist() |> unname()
-  fn_bullets <- param_bullets[fn_dials]
+  fn_bullets <- dial_titles[fn_dials] |> 
+    gsub(pattern = "Number of ", replacement = "# ") |> 
+    gsub(pattern = "\\?$", replacement = "")
   fn_type <- dial_types[fn_dials]
   fn_defaults <- 
     subset(param_defaults, fun == fn, c(param, default)) |> deframe()
@@ -678,7 +680,7 @@ for (fn in tdavec_functions$name) {
     ex_file
   cat(build_warning, file = ex_file, append = FALSE)
   
-  readLines("man/ex/step-vpd-ex-template2.R") |> 
+  readLines("man/template/template-ex-step-vpd2.R") |> 
     gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_sname)) |> 
     gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
     write(file = ex_file, append = FALSE)

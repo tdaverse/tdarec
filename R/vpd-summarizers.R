@@ -11,9 +11,11 @@
 #'         Dimension of a data set for purposes of PH
 #'   \item `pairs_max()`:
 #'         Maximum number of persistent pairs of any degree
+#'   \item `birth_range()`:
+#'         Range of finite birth values for a given degree
 #'   \item `pers_range()`:
 #'         Range of positive finite persistence for a given degree
-#'   \item `union_range()`:
+#'   \item `life_support()`:
 #'         Union of birth--death ranges for a given degree
 #' }
 #' 
@@ -113,6 +115,65 @@ pairs_max.persistence <- function(x, hom_degrees) {
 
 #' @rdname vpd-summarizers
 #' @export
+birth_range <- function(x, hom_degree) {
+  UseMethod("birth_range")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.default <- function(x, hom_degree) {
+  stop("Unrecognized persistent homology class.")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.matrix <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    range(x[is.finite(x[, 2L]), 2L])
+  } else {
+    deg <- x[, 1L] == hom_degree
+    range(x[deg, 2L][is.finite(x[deg, 2L])])
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.data.frame <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    range(x[[2L]][is.finite(x[[2L]])])
+  } else {
+    deg <- x[[1L]] == hom_degree
+    range(x[[2L]][deg][is.finite(x[[2L]][deg])])
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.diagram <- 
+  function(x, hom_degree) birth_range.matrix(unclass(x), hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.PHom <- 
+  function(x, hom_degree) birth_range.data.frame(x, hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+birth_range.persistence <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    range(sapply(x$pairs, function(y) {
+      range(y[is.finite(y[, 1L]), 1L])
+    }, simplify = TRUE))
+  } else {
+    val <- x$pairs[[hom_degree + 1L]][, 1L]
+    range(val[is.finite(val)])
+  }
+}
+
+
+
+#' @rdname vpd-summarizers
+#' @export
 pers_range <- function(x, hom_degree) {
   UseMethod("pers_range")
 }
@@ -176,19 +237,19 @@ pers_range.persistence <- function(x, hom_degree) {
 
 #' @rdname vpd-summarizers
 #' @export
-union_range <- function(x, hom_degree) {
-  UseMethod("union_range")
+life_support <- function(x, hom_degree) {
+  UseMethod("life_support")
 }
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.default <- function(x, hom_degree) {
+life_support.default <- function(x, hom_degree) {
   stop("Unrecognized persistent homology class.")
 }
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.matrix <- function(x, hom_degree) {
+life_support.matrix <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     range(as.vector(x[, c(2L, 3L)]))
   } else {
@@ -198,7 +259,7 @@ union_range.matrix <- function(x, hom_degree) {
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.data.frame <- function(x, hom_degree) {
+life_support.data.frame <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     range(c(x[[2L]], x[[3L]]))
   } else {
@@ -209,17 +270,17 @@ union_range.data.frame <- function(x, hom_degree) {
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.diagram <- 
-  function(x, hom_degree) union_range.matrix(unclass(x), hom_degree)
+life_support.diagram <- 
+  function(x, hom_degree) life_support.matrix(unclass(x), hom_degree)
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.PHom <- 
-  function(x, hom_degree) union_range.data.frame(x, hom_degree)
+life_support.PHom <- 
+  function(x, hom_degree) life_support.data.frame(x, hom_degree)
 
 #' @rdname vpd-summarizers
 #' @export
-union_range.persistence <- function(x, hom_degree) {
+life_support.persistence <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     range(do.call(c, x$pairs))
   } else {
