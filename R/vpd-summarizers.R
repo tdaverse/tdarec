@@ -13,6 +13,10 @@
 #'         Maximum number of persistent pairs of any degree
 #'   \item `birth_range()`:
 #'         Range of finite birth values for a given degree
+#'   \item `pers_max()`:
+#'         Maximum positive finite persistence for a given degree
+#'   \item `pers_min()`:
+#'         Minimum positive finite persistence for a given degree
 #'   \item `pers_range()`:
 #'         Range of positive finite persistence for a given degree
 #'   \item `life_support()`:
@@ -25,6 +29,8 @@
 NULL
 
 check_param <- getFromNamespace("check_param", "dials")
+
+subset_positive_finite <- function(x) x[is.finite(x) & x > 0]
 
 # FIXME: should be informed by engine & method, e.g. `ripserr::vietoris_rips()`
 # versus `ripserr::cubical()` treat a 2-column matrix as a coordinate matrix and
@@ -170,7 +176,119 @@ birth_range.persistence <- function(x, hom_degree) {
   }
 }
 
+#' @rdname vpd-summarizers
+#' @export
+pers_max <- function(x, hom_degree) {
+  UseMethod("pers_max")
+}
 
+#' @rdname vpd-summarizers
+#' @export
+pers_max.default <- function(x, hom_degree) {
+  stop("Unrecognized persistent homology class.")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_max.matrix <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    max(subset_positive_finite(x[, 3L] - x[, 2L]))
+  } else {
+    deg <- x[, 1L] == hom_degree
+    max(subset_positive_finite(x[deg, 3L] - x[deg, 2L]))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_max.data.frame <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    max(subset_positive_finite(x[[3L]] - x[[2L]]))
+  } else {
+    deg <- x[[1L]] == hom_degree
+    max(subset_positive_finite(x[[3L]][deg] - x[[2L]][deg]))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_max.diagram <- 
+  function(x, hom_degree) pers_max.matrix(unclass(x), hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+pers_max.PHom <- 
+  function(x, hom_degree) pers_max.data.frame(x, hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+pers_max.persistence <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    max(sapply(x$pairs, function(y) {
+      max(subset_positive_finite(y[, 2L] - y[, 1L]))
+    }, simplify = TRUE))
+  } else {
+    max(subset_positive_finite(x$pairs[[hom_degree + 1L]][, 2L] -
+                                 x$pairs[[hom_degree + 1L]][, 1L]))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min <- function(x, hom_degree) {
+  UseMethod("pers_min")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.default <- function(x, hom_degree) {
+  stop("Unrecognized persistent homology class.")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.matrix <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    min(subset_positive_finite(x[, 3L] - x[, 2L]))
+  } else {
+    deg <- x[, 1L] == hom_degree
+    min(subset_positive_finite(x[deg, 3L] - x[deg, 2L]))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.data.frame <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    min(subset_positive_finite(x[[3L]] - x[[2L]]))
+  } else {
+    deg <- x[[1L]] == hom_degree
+    min(subset_positive_finite(x[[3L]][deg] - x[[2L]][deg]))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.diagram <- 
+  function(x, hom_degree) pers_min.matrix(unclass(x), hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.PHom <- 
+  function(x, hom_degree) pers_min.data.frame(x, hom_degree)
+
+#' @rdname vpd-summarizers
+#' @export
+pers_min.persistence <- function(x, hom_degree) {
+  if (is.null(hom_degree)) {
+    min(sapply(x$pairs, function(y) {
+      min(subset_positive_finite(y[, 2L] - y[, 1L]))
+    }, simplify = TRUE))
+  } else {
+    min(subset_positive_finite(x$pairs[[hom_degree + 1L]][, 2L] -
+                                 x$pairs[[hom_degree + 1L]][, 1L]))
+  }
+}
 
 #' @rdname vpd-summarizers
 #' @export
@@ -188,12 +306,10 @@ pers_range.default <- function(x, hom_degree) {
 #' @export
 pers_range.matrix <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
-    val <- abs(x[, 3L] - x[, 2L])
-    range(val[is.finite(val)])
+    range(subset_positive_finite(abs(x[, 3L] - x[, 2L])))
   } else {
     deg <- x[, 1L] == hom_degree
-    val <- abs(x[deg, 3L] - x[deg, 2L])
-    range(val[is.finite(val)])
+    range(subset_positive_finite(abs(x[deg, 3L] - x[deg, 2L])))
   }
 }
 
@@ -201,12 +317,10 @@ pers_range.matrix <- function(x, hom_degree) {
 #' @export
 pers_range.data.frame <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
-    val <- abs(x[[3L]] - x[[2L]])
-    range(val[is.finite(val)])
+    range(subset_positive_finite(abs(x[[3L]] - x[[2L]])))
   } else {
     deg <- x[[1L]] == hom_degree
-    val <- abs(x[[3L]][deg] - x[[2L]][deg])
-    range(val[is.finite(val)])
+    range(subset_positive_finite(abs(x[[3L]][deg] - x[[2L]][deg])))
   }
 }
 
@@ -225,13 +339,11 @@ pers_range.PHom <-
 pers_range.persistence <- function(x, hom_degree) {
   if (is.null(hom_degree)) {
     range(sapply(x$pairs, function(y) {
-      val <- abs(y[, 2L] - y[, 1L])
-      range(val[is.finite(val)])
+      range(subset_positive_finite(abs(y[, 2L] - y[, 1L])))
     }, simplify = TRUE))
   } else {
-    val <-
-      abs(x$pairs[[hom_degree + 1L]][, 2L] - x$pairs[[hom_degree + 1L]][, 1L])
-    range(val[is.finite(val)])
+    range(subset_positive_finite(abs(x$pairs[[hom_degree + 1L]][, 2L] -
+                                       x$pairs[[hom_degree + 1L]][, 1L])))
   }
 }
 

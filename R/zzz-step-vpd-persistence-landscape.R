@@ -27,8 +27,8 @@
 #'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
 #'   \item `xother`: NA (type: NA, default: `NA`)
 #'   \item `num_levels`: # Levels or envelopes (type: integer, default: `6L`)
-#'   \item `generalized`: Use generalized functions? (type: logical, default: `FALSE`)
-#'   \item `weight_func`: NA (type: NA, default: `"triangle"`)
+#'   \item `generalized`: NA (type: NA, default: `FALSE`)
+#'   \item `weight_func_pl`: Kernel distance weight function (type: character, default: `"triangle"`)
 #'   \item `bandwidth`: Kernel bandwidth (type: double, default: `0.1`)
 #' }
 #' 
@@ -46,7 +46,7 @@
 #'   then additional levels of zeros will be included.
 #' @param generalized
 #'   Logical indicator to compute generalized functions.
-#' @param weight_func
+#' @param weight_func_pl
 #'   A _single_ character for the type of kernel function
 #'   used to compute generalized landscapes.
 #' @param bandwidth
@@ -67,7 +67,7 @@ step_vpd_persistence_landscape <- function(
     xseq = NULL, xmin = NULL, xmax = NULL, xlen = NULL, xby = NULL,
     num_levels = 6L,
     generalized = FALSE,
-    weight_func = "triangle",
+    weight_func_pl = "triangle",
     bandwidth = 0.1,
     columns = NULL,
     keep_original_cols = TRUE,
@@ -86,7 +86,7 @@ step_vpd_persistence_landscape <- function(
       xseq = xseq, xmin = xmin, xmax = xmax, xlen = xlen, xby = xby,
       num_levels = num_levels,
       generalized = generalized,
-      weight_func = weight_func,
+      weight_func_pl = weight_func_pl,
       bandwidth = bandwidth,
       columns = columns,
       keep_original_cols = keep_original_cols,
@@ -103,7 +103,7 @@ step_vpd_persistence_landscape_new <- function(
     xseq, xmin, xmax, xlen, xby,
     num_levels,
     generalized,
-    weight_func,
+    weight_func_pl,
     bandwidth,
     columns, keep_original_cols,
     skip, id
@@ -117,7 +117,7 @@ step_vpd_persistence_landscape_new <- function(
     xseq = xseq, xmin = xmin, xmax = xmax, xlen = xlen, xby = xby,
     num_levels = num_levels,
     generalized = generalized,
-    weight_func = weight_func,
+    weight_func_pl = weight_func_pl,
     bandwidth = bandwidth,
     columns = columns,
     keep_original_cols = keep_original_cols,
@@ -148,7 +148,7 @@ prep.step_vpd_persistence_landscape <- function(x, training, info = NULL, ...) {
     xseq = x$xseq, xmin = x$xmin, xmax = x$xmax, xlen = x$xlen, xby = x$xby,
     num_levels = x$num_levels,
     generalized = x$generalized,
-    weight_func = x$weight_func,
+    weight_func_pl = x$weight_func_pl,
     bandwidth = x$bandwidth,
     columns = col_names,
     keep_original_cols = get_keep_original_cols(x),
@@ -173,7 +173,7 @@ bake.step_vpd_persistence_landscape <- function(object, new_data, ...) {
         scaleSeq = object$xseq,
         k = object$num_levels,
         generalized = object$generalized,
-        kernel = object$weight_func,
+        kernel = object$weight_func_pl,
         h = object$bandwidth
       ))
     )
@@ -244,11 +244,11 @@ tidy.step_vpd_persistence_landscape <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_landscape <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "num_levels", "generalized", "weight_func", "bandwidth"),
+    name = c("hom_degree", "xseq", "xother", "num_levels", "generalized", "weight_func_pl", "bandwidth"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "num_levels", range = c(1L, unknown())),
-      list(pkg = "tdarec", fun = "generalized", values = c()),
+      list(pkg = "tdarec", fun = "weight_func_pl", values = c("triangle", "epanechnikov", "tricubic")),
       list(pkg = "tdarec", fun = "bandwidth", range = c(unknown(), unknown()))
     ),
     source = "recipe",

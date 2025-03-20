@@ -135,7 +135,7 @@ param_preprocesses <- list(
   # PersistenceSilhouette
   weight_power = c(),
   # TemplateFunction
-  tent_radius = c(),
+  tent_size = c(),
   num_bins = c(),
   tent_shift = c(),
   # TropicalCoordinates

@@ -129,7 +129,7 @@ arg_params <- c(
   # PersistenceSilhouette
   p = "weight_power",
   # TemplateFunction
-  delta = "tent_radius",
+  delta = "tent_size",
   d = "num_bins",
   epsilon = "tent_shift",
   # TropicalCoordinates
@@ -207,7 +207,7 @@ param_docs <- list(
   num_bins = c(
     "The number of bins along each axis in the discretization grid."
   ),
-  tent_radius = c(
+  tent_size = c(
     "The length of the increment used to discretize tent template functions."
   ),
   tent_shift = c(
@@ -230,7 +230,7 @@ list(
   # missing or disfavored original defaults
   img_sigma = 1,
   num_levels = 6L, weight_func_pl = "triangle", bandwidth = 0.1,
-  num_bins = 10L, tent_radius = NULL, tent_shift = NULL
+  num_bins = 10L, tent_size = NULL, tent_shift = NULL
 ) |> 
   sapply(deparse) |> 
   enframe(name = "param", value = "default") |> 
@@ -267,7 +267,7 @@ tdavec_preps <- list(
       simplify = TRUE
     )
     x$tent_shift <- x_pers_ranges[1L, ] / 2
-    x$tent_radius <-
+    x$tent_size <-
       pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, ] - x$tent_shift) /
       x$num_bins
   })
@@ -300,7 +300,7 @@ c(
   # TODO: Replace with `dials::kernel_offset()`?
   tent_shift = "tent_shift",
   # TODO: Rename `kernel_radius()`?
-  tent_radius = "tent_radius",
+  tent_size = "tent_size",
   # PersistenceBlock
   block_size = "block_size"
 ) |> 
@@ -325,7 +325,7 @@ dial_titles <- c(
   weight_power = "Exponent weight",
   num_bars = "Number of Bars (persistence pairs)",
   num_bins = "Discretization grid bins",
-  tent_radius = "Discretization grid increment",
+  tent_size = "Discretization grid increment",
   tent_shift = "Discretization grid shift",
   block_size = "Square side length scaling factor"
 )
@@ -346,7 +346,7 @@ dial_descriptions <- c(
   weight_power = "The exponent of the weights.",
   num_bars = "The number of persistence pairs used in computations.",
   num_bins = "The number of bins into which to partition grid axes.",
-  tent_radius = "The increment size for tent template functions.",
+  tent_size = "The increment size for tent template functions.",
   tent_shift = "The positive shift for tent template functions.",
   block_size = "The side length scaling parameter for persistence blocks."
 )
@@ -374,7 +374,7 @@ dial_types <- c(
   weight_power   = "double",
   num_bars       = "integer",
   num_bins       = "integer",
-  tent_radius     = "double",
+  tent_size     = "double",
   tent_shift    = "double",
   block_size     = "double"
 )
@@ -402,7 +402,7 @@ dial_ranges_values <- list(
   num_bars = c(1L, NA_integer_),
   num_bins = c(2L, 20L),
   # fix to maximum ( birth | persistence + tent_shift ) / num_bins
-  tent_radius = c(NA_real_, NA_real_),
+  tent_size = c(NA_real_, NA_real_),
   # finalize to minimum persistence (fractions)
   tent_shift = c(NA_real_, NA_real_),
   block_size = c(0, 1)
@@ -414,10 +414,11 @@ dial_inclusive <- list(
   num_coef = c(TRUE, TRUE),
   img_sigma = c(TRUE, TRUE),
   num_levels = c(TRUE, TRUE),
+  bandwidth = c(TRUE, TRUE),
   weight_power = c(TRUE, TRUE),
   num_bars = c(TRUE, TRUE),
   num_bins = c(TRUE, TRUE),
-  tent_radius = c(TRUE, TRUE),
+  tent_size = c(TRUE, TRUE),
   tent_shift = c(TRUE, TRUE),
   block_size = c(TRUE, TRUE)
 )
@@ -427,7 +428,7 @@ dial_transforms <- list(
   img_sigma = expr(transform_log10()),
   bandwidth = expr(transform_log10()),
   # TODO: Revisit this choice. Compare to publication. Harmonize with endpoints.
-  tent_radius = expr(transform_log10()),
+  tent_size = expr(transform_log10()),
   tent_shift = expr(transform_log10()),
   block_size = expr(transform_log10())
 )
@@ -445,7 +446,7 @@ dial_finalizers <- c(
 )
 
 # CHOICE: example ranges of dials (tailor to 'zzz-ex-vpd-param.R')
-dial_range_examples <- list(
+dial_range_value_examples <- list(
   # hom_degree = c(0L, 2L),
   # max_hom_degree = c(1L, 2L),
   num_coef = c(1L, 3L),
@@ -459,7 +460,7 @@ dial_range_examples <- list(
   num_bars = c(1L, 3L),
   num_bins = c(5L, 10L),
   # fix to maximum ( birth | persistence + tent_shift ) / num_bins
-  tent_radius = c(1000, 1300),
+  tent_size = c(1000, 1300),
   # finalize to minimum persistence (fractions)
   tent_shift = c(100, 200),
   block_size = c(0, .5)

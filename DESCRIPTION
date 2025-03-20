@@ -47,8 +47,6 @@ Collate:
     'param-blur-sigma.R'
     'vpd-finalizers.R'
     'param-hom-degree.R'
-    'param-img-sigma.R'
-    'param-num-level.R'
     'step-blur.R'
     'step-phom-degree.R'
     'step-phom-lattice.R'
@@ -70,3 +68,4 @@ Collate:
     'zzz-step-vpd-persistent-entropy-summary.R'
     'zzz-step-vpd-tent-template-functions.R'
     'zzz-step-vpd-tropical-coordinates.R'
+    'zzz-vpd-param.R'

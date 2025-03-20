@@ -11,9 +11,9 @@ step_vpd_tent_template_functions(
   role = "predictor",
   trained = FALSE,
   hom_degree = 0L,
-  tent_delta = 0.1,
-  num_bins = 12L,
-  tent_offset = 0,
+  tent_size = NULL,
+  num_bins = 10L,
+  tent_shift = NULL,
   columns = NULL,
   keep_original_cols = TRUE,
   skip = FALSE,
@@ -36,11 +36,11 @@ preprocessing have been estimated.}
 
 \item{hom_degree}{The homological degree of the features to be transformed.}
 
-\item{tent_delta}{The length of the increment used to discretize tent template functions.}
+\item{tent_size}{The length of the increment used to discretize tent template functions.}
 
 \item{num_bins}{The number of bins along each axis in the discretization grid.}
 
-\item{tent_offset}{The vertical shift applied to the discretization grid.}
+\item{tent_shift}{The vertical shift applied to the discretization grid.}
 
 \item{columns}{A character string of the selected variable names. This field
 is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
@@ -88,9 +88,9 @@ See there for definitions and references.
 This step has 4 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{tent_delta}: Discretization grid increment (type: double, default: \code{0.1})
-\item \code{num_bins}: Discretization grid bins (type: integer, default: \code{12L})
-\item \code{tent_offset}: Discretization grid offset (type: double, default: \code{0})
+\item \code{tent_size}: Discretization grid increment (type: double, default: \code{NULL})
+\item \code{num_bins}: Discretization grid bins (type: integer, default: \code{10L})
+\item \code{tent_shift}: Discretization grid shift (type: double, default: \code{NULL})
 }
 }
 

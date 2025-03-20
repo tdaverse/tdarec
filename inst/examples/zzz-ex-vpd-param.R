@@ -10,7 +10,7 @@ grid_regular(nc_man)
 
 # `poly_type` for `step_vpn_complex_polynomial()`
 
-(pt_man <- poly_type(range = c("R", "S")))
+(pt_man <- poly_type(values = c("R", "S")))
 grid_regular(pt_man)
 
 # `img_sigma` for `step_vpn_persistence_image()`
@@ -31,7 +31,7 @@ grid_regular(nl_man)
 
 # `weight_func_pl` for `step_vpn_persistence_landscape()`
 
-(wfp_man <- weight_func_pl(range = c("triangle", "tricubic")))
+(wfp_man <- weight_func_pl(values = c("triangle", "tricubic")))
 grid_regular(wfp_man)
 
 # `bandwidth` for `step_vpn_persistence_landscape()`
@@ -71,16 +71,16 @@ grid_regular(ts_dat)
 (ts_hom <- tent_shift() |> get_pers_min_mult(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(ts_hom)
 
-# `tent_radius` for `step_vpn_tent_template_functions()`
+# `tent_size` for `step_vpn_tent_template_functions()`
 
-(tr_man <- tent_radius(range = c(1000, 1300), trans = NULL))
-grid_regular(tr_man)
+(ts_man <- tent_size(range = c(1000, 1300), trans = NULL))
+grid_regular(ts_man)
 
-(tr_dat <- tent_radius() |> NULL(x = pd_data))
-grid_regular(tr_dat)
+(ts_dat <- tent_size() |> NULL(x = pd_data))
+grid_regular(ts_dat)
 
-(tr_hom <- tent_radius() |> NULL(x = pd_data, hom_degrees = seq(2L)))
-grid_regular(tr_hom)
+(ts_hom <- tent_size() |> NULL(x = pd_data, hom_degrees = seq(2L)))
+grid_regular(ts_hom)
 
 # `block_size` for `step_vpn_persistence_block()`
 

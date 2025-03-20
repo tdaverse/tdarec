@@ -16,6 +16,27 @@
 \alias{pairs_max.diagram}
 \alias{pairs_max.PHom}
 \alias{pairs_max.persistence}
+\alias{birth_range}
+\alias{birth_range.default}
+\alias{birth_range.matrix}
+\alias{birth_range.data.frame}
+\alias{birth_range.diagram}
+\alias{birth_range.PHom}
+\alias{birth_range.persistence}
+\alias{pers_max}
+\alias{pers_max.default}
+\alias{pers_max.matrix}
+\alias{pers_max.data.frame}
+\alias{pers_max.diagram}
+\alias{pers_max.PHom}
+\alias{pers_max.persistence}
+\alias{pers_min}
+\alias{pers_min.default}
+\alias{pers_min.matrix}
+\alias{pers_min.data.frame}
+\alias{pers_min.diagram}
+\alias{pers_min.PHom}
+\alias{pers_min.persistence}
 \alias{pers_range}
 \alias{pers_range.default}
 \alias{pers_range.matrix}
@@ -23,13 +44,13 @@
 \alias{pers_range.diagram}
 \alias{pers_range.PHom}
 \alias{pers_range.persistence}
-\alias{union_range}
-\alias{union_range.default}
-\alias{union_range.matrix}
-\alias{union_range.data.frame}
-\alias{union_range.diagram}
-\alias{union_range.PHom}
-\alias{union_range.persistence}
+\alias{life_support}
+\alias{life_support.default}
+\alias{life_support.matrix}
+\alias{life_support.data.frame}
+\alias{life_support.diagram}
+\alias{life_support.PHom}
+\alias{life_support.persistence}
 \title{Summarize topological data}
 \usage{
 ph_dim(x)
@@ -60,6 +81,48 @@ pairs_max(x, hom_degrees)
 
 \method{pairs_max}{persistence}(x, hom_degrees)
 
+birth_range(x, hom_degree)
+
+\method{birth_range}{default}(x, hom_degree)
+
+\method{birth_range}{matrix}(x, hom_degree)
+
+\method{birth_range}{data.frame}(x, hom_degree)
+
+\method{birth_range}{diagram}(x, hom_degree)
+
+\method{birth_range}{PHom}(x, hom_degree)
+
+\method{birth_range}{persistence}(x, hom_degree)
+
+pers_max(x, hom_degree)
+
+\method{pers_max}{default}(x, hom_degree)
+
+\method{pers_max}{matrix}(x, hom_degree)
+
+\method{pers_max}{data.frame}(x, hom_degree)
+
+\method{pers_max}{diagram}(x, hom_degree)
+
+\method{pers_max}{PHom}(x, hom_degree)
+
+\method{pers_max}{persistence}(x, hom_degree)
+
+pers_min(x, hom_degree)
+
+\method{pers_min}{default}(x, hom_degree)
+
+\method{pers_min}{matrix}(x, hom_degree)
+
+\method{pers_min}{data.frame}(x, hom_degree)
+
+\method{pers_min}{diagram}(x, hom_degree)
+
+\method{pers_min}{PHom}(x, hom_degree)
+
+\method{pers_min}{persistence}(x, hom_degree)
+
 pers_range(x, hom_degree)
 
 \method{pers_range}{default}(x, hom_degree)
@@ -74,19 +137,19 @@ pers_range(x, hom_degree)
 
 \method{pers_range}{persistence}(x, hom_degree)
 
-union_range(x, hom_degree)
+life_support(x, hom_degree)
 
-\method{union_range}{default}(x, hom_degree)
+\method{life_support}{default}(x, hom_degree)
 
-\method{union_range}{matrix}(x, hom_degree)
+\method{life_support}{matrix}(x, hom_degree)
 
-\method{union_range}{data.frame}(x, hom_degree)
+\method{life_support}{data.frame}(x, hom_degree)
 
-\method{union_range}{diagram}(x, hom_degree)
+\method{life_support}{diagram}(x, hom_degree)
 
-\method{union_range}{PHom}(x, hom_degree)
+\method{life_support}{PHom}(x, hom_degree)
 
-\method{union_range}{persistence}(x, hom_degree)
+\method{life_support}{persistence}(x, hom_degree)
 }
 \arguments{
 \item{x}{Persistence data in a recognizable format.}
@@ -106,9 +169,15 @@ The functions compute the following summaries:
 Dimension of a data set for purposes of PH
 \item \code{pairs_max()}:
 Maximum number of persistent pairs of any degree
+\item \code{birth_range()}:
+Range of finite birth values for a given degree
+\item \code{pers_max()}:
+Maximum positive finite persistence for a given degree
+\item \code{pers_min()}:
+Minimum positive finite persistence for a given degree
 \item \code{pers_range()}:
 Range of positive finite persistence for a given degree
-\item \code{union_range()}:
+\item \code{life_support()}:
 Union of birth--death ranges for a given degree
 }
 }

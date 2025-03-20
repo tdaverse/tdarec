@@ -40,7 +40,7 @@
 #' The parameter `tent_shift` is passed to `epsilon` in
 #' [TDAvec::computeTemplateFunction()].
 #' 
-#' The parameter `tent_radius` is passed to `delta` in
+#' The parameter `tent_size` is passed to `delta` in
 #' [TDAvec::computeTemplateFunction()].
 #' 
 #' The parameter `block_size` is passed to `tau` in
@@ -72,13 +72,11 @@ num_coef <- function(
 #' @name vpd-dials
 #' @export
 poly_type <- function(
-    range = c("R", "S", "T"), trans = NULL
+    values = c("R", "S", "T"), trans = NULL
 ) {
   new_qual_param(
     type = "character",
-    range = range,
-    inclusive = NULL,
-    trans = trans,
+    values = values,
     label = c(poly_type = "Type of polynomial"),
     finalize = NULL
   )
@@ -117,13 +115,11 @@ num_levels <- function(
 #' @name vpd-dials
 #' @export
 weight_func_pl <- function(
-    range = c("triangle", "epanechnikov", "tricubic"), trans = NULL
+    values = c("triangle", "epanechnikov", "tricubic"), trans = NULL
 ) {
   new_qual_param(
     type = "character",
-    range = range,
-    inclusive = NULL,
-    trans = trans,
+    values = values,
     label = c(weight_func_pl = "Kernel distance weight function"),
     finalize = NULL
   )
@@ -137,7 +133,7 @@ bandwidth <- function(
   new_quant_param(
     type = "double",
     range = range,
-    inclusive = NULL,
+    inclusive = c(TRUE, TRUE),
     trans = trans,
     label = c(bandwidth = "Kernel bandwidth"),
     finalize = get_pers_max_frac
@@ -147,7 +143,7 @@ bandwidth <- function(
 #' @name vpd-dials
 #' @export
 weight_power <- function(
-    range = c("1", "2"), trans = NULL
+    range = c(1, 2), trans = NULL
 ) {
   new_quant_param(
     type = "double",
@@ -206,7 +202,7 @@ tent_shift <- function(
 
 #' @name vpd-dials
 #' @export
-tent_radius <- function(
+tent_size <- function(
     range = c(unknown(), unknown()), trans = transform_log10()
 ) {
   new_quant_param(
@@ -214,7 +210,7 @@ tent_radius <- function(
     range = range,
     inclusive = c(TRUE, TRUE),
     trans = trans,
-    label = c(tent_radius = "Discretization grid increment"),
+    label = c(tent_size = "Discretization grid increment"),
     finalize = NULL
   )
 }

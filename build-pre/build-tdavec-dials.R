@@ -157,13 +157,14 @@ for (dl in param_dials) {
   
   # recover fields
   dl_name <- dl
-  dl_range <- dial_ranges_values[[dl]] |> 
+  dl_range_value <- dial_ranges_values[[dl]] |> 
     lapply(\(x) vapply(x, deparse, "")) |> 
     lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 
     (\(s) paste0("c(", paste0(s, collapse = ", "), ")"))()
   dl_trans <- dial_transforms[[dl]] |> deparse()
   dl_class <- type_class[[dial_types[[dl]]]]
   dl_type <- dial_types[[dl]] |> deparse()
+  dl_scope = if (dl_class == "qual") "values" else "range"
   dl_incl <- dial_inclusive[[dl]] |> deparse()
   dl_bullet <- dial_titles[[dl]] |> 
     gsub(pattern = "Number of ", replacement = "# ") |> 
@@ -178,29 +179,37 @@ for (dl in param_dials) {
     snakecase::to_upper_camel_case() |> 
     gsub(pattern = "[a-z\\_]", replacement = "") |> 
     tolower()
-  dl_range_ex <- dial_range_examples[[dl]] |> 
+  dl_range_value_ex <- dial_range_value_examples[[dl]] |> 
     lapply(\(x) vapply(x, deparse, "")) |> 
     lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 
     (\(s) paste0("c(", paste0(s, collapse = ", "), ")"))()
   
   # append source code
-  readLines("man/template/template-param.R") |> 
+  param_fill <- readLines("man/template/template-param.R") |> 
     gsub(pattern = "\\{dial_name\\}", replacement = dl_name) |> 
-    gsub(pattern = "\\{dial_range\\}", replacement = dl_range) |> 
+    gsub(pattern = "\\{dial_range_value\\}", replacement = dl_range_value) |> 
     gsub(pattern = "\\{dial_trans\\}", replacement = dl_trans) |> 
     gsub(pattern = "\\{dial_class\\}", replacement = dl_class) |> 
     gsub(pattern = "\\{dial_type\\}", replacement = dl_type) |> 
     gsub(pattern = "\\{dial_inclusive\\}", replacement = dl_incl) |> 
     gsub(pattern = "\\{dial_bullet\\}", replacement = dl_bullet) |> 
     gsub(pattern = "\\{dial_finalizer\\}", replacement = dl_fin) |> 
-    write(file = r_file, append = TRUE)
+    gsub(pattern = "\\{dial_scope\\}", replacement = dl_scope)
+  # if qual, remove quant-only lines
+  if (dl_class == "qual") {
+    rm_lines <- 
+      ( grepl("(inclusive|trans) = ", param_fill) ) &
+      ( seq_along(param_fill) > grep("new_qual_param", param_fill) )
+    param_fill <- param_fill[! rm_lines]
+  }
+  write(param_fill, file = r_file, append = TRUE)
   
   # example 1 (all)
   example_1 <- glue::glue(
     paste0(
       "# `{dl_name}` for {dl_steps}\n",
       "\n",
-      "({dl_abbr}_man <- {dl_name}(range = {dl_range_ex}",
+      "({dl_abbr}_man <- {dl_name}({dl_scope} = {dl_range_value_ex}",
       if (dl_trans == "NULL") "" else ", trans = NULL", "))\n"
     ),
     "grid_regular({dl_abbr}_man)\n",
