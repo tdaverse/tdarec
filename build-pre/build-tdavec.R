@@ -241,7 +241,7 @@ list(
   max_hom_degree = Inf,
   # missing or disfavored original defaults
   img_sigma = 1,
-  num_levels = 6L, weight_func_pl = "triangle", bandwidth = 0.1,
+  num_levels = 6L, weight_func_pl = "triangle", bandwidth = NULL,
   num_bins = 10L, tent_size = NULL, tent_shift = NULL
 ) |> 
   sapply(deparse) |> 

@@ -27,7 +27,7 @@
 #'   \item `num_levels`: # Levels or envelopes (type: integer, default: `6L`)
 #'   \item `generalized`: NA (type: NA, default: `FALSE`)
 #'   \item `weight_func_pl`: Kernel distance weight function (type: character, default: `"triangle"`)
-#'   \item `bandwidth`: Kernel bandwidth (type: double, default: `0.1`)
+#'   \item `bandwidth`: Kernel bandwidth (type: double, default: `NULL`)
 #' }
 #' 
 #' @param hom_degree
@@ -66,7 +66,7 @@ step_vpd_persistence_landscape <- function(
     num_levels = 6L,
     generalized = FALSE,
     weight_func_pl = "triangle",
-    bandwidth = 0.1,
+    bandwidth = NULL,
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,

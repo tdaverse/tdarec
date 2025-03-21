@@ -19,7 +19,7 @@ step_vpd_persistence_landscape(
   num_levels = 6L,
   generalized = FALSE,
   weight_func_pl = "triangle",
-  bandwidth = 0.1,
+  bandwidth = NULL,
   columns = NULL,
   keep_original_cols = TRUE,
   skip = FALSE,
@@ -108,7 +108,7 @@ This step has 5 tuning parameters:
 \item \code{num_levels}: # Levels or envelopes (type: integer, default: \code{6L})
 \item \code{generalized}: NA (type: NA, default: \code{FALSE})
 \item \code{weight_func_pl}: Kernel distance weight function (type: character, default: \code{"triangle"})
-\item \code{bandwidth}: Kernel bandwidth (type: double, default: \code{0.1})
+\item \code{bandwidth}: Kernel bandwidth (type: double, default: \code{NULL})
 }
 }
 
