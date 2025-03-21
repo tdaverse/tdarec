@@ -223,7 +223,7 @@ tidy.step_vpd_persistence_block <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_block <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "yseq", "yother", "block_size"),
+    name = c("hom_degree", "block_size"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "block_size", range = c(0, 1))

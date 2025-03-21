@@ -209,7 +209,7 @@ tidy.step_vpd_persistent_entropy_summary <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistent_entropy_summary <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "evaluate"),
+    name = c("hom_degree", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))

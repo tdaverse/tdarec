@@ -213,7 +213,7 @@ tidy.step_vpd_euler_characteristic_curve <- function(x, ...) {
 #' @export
 tunable.step_vpd_euler_characteristic_curve <- function(x, ...) {
   tibble::tibble(
-    name = c("xseq", "xother", "max_hom_degree", "evaluate"),
+    name = c("max_hom_degree", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))

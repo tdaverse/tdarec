@@ -248,7 +248,7 @@ tidy.step_vpd_persistence_landscape <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_landscape <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "num_levels", "generalized", "weight_func_pl", "bandwidth"),
+    name = c("hom_degree", "num_levels", "generalized", "weight_func_pl", "bandwidth"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "num_levels", range = c(1L, unknown())),
