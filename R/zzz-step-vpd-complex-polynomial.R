@@ -105,8 +105,6 @@ prep.step_vpd_complex_polynomial <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   
-  
-  
   step_vpd_complex_polynomial_new(
     terms = col_names,
     role = x$role,

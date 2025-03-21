@@ -96,7 +96,7 @@ custom_params_compute <- function(args) {
 # custom_params_elt(c("homDim", "scaleSeq", "tau"))
 # custom_params_compute(c("homDim", "scaleSeq", "tau"))
 
-# preprocessing code for each parameter
+# preprocessing code for common parameters
 param_preprocesses <- list(
   # no pre-processing for homological degree (defalts to `0L`)
   hom_degree = c(),
@@ -114,33 +114,33 @@ param_preprocesses <- list(
   yseq = c(
     "x[paste0(\"y\", c(\"seq\", \"min\", \"max\", \"len\", \"by\"))] <- ",
     "  reconcile_scale_seq(x, training[, col_names, drop = FALSE], \"y\")"
-  ),
-  # TODO: pre-process remaining parameters
-  # ComplexPolynomial
-  num_coef = c(),
-  poly_type = c(),
-  # PersistenceBlock
-  # calibrate to PD range
-  block_size = c(),
-  # PersistenceImage
-  # calibrate to PD range
-  img_sigma = c(),
-  # PersistenceLandscape
-  # calibrate to number of levels
-  num_levels = c(),
-  generalized = c(),
-  # calibrate to PD range
-  weight_func_pl = c(),
-  bandwidth = c(),
-  # PersistenceSilhouette
-  weight_power = c(),
-  # TemplateFunction
-  tent_size = c(),
-  num_bins = c(),
-  tent_shift = c(),
-  # TropicalCoordinates
-  # calibrate to PD size
-  num_bars = c()
+  )
+  # # TODO: pre-process remaining parameters
+  # # ComplexPolynomial
+  # num_coef = c(),
+  # poly_type = c(),
+  # # PersistenceBlock
+  # # calibrate to PD range
+  # block_size = c(),
+  # # PersistenceImage
+  # # calibrate to PD range
+  # img_sigma = c(),
+  # # PersistenceLandscape
+  # # calibrate to number of levels
+  # num_levels = c(),
+  # generalized = c(),
+  # # calibrate to PD range
+  # weight_func_pl = c(),
+  # bandwidth = c(),
+  # # PersistenceSilhouette
+  # weight_power = c(),
+  # # TemplateFunction
+  # tent_size = c(),
+  # num_bins = c(),
+  # tent_shift = c(),
+  # # TropicalCoordinates
+  # # calibrate to PD size
+  # num_bars = c()
 )
 
 # generate title and description
@@ -389,10 +389,18 @@ build_prep <- function(fn) {
     "    ", custom_params_elt(fn_args), ",\n",
     collapse = ""
   )
-  fn_preproc <- param_preprocesses[arg_params[fn_args]] |> 
+  fn_preproc1 <- param_preprocesses[arg_params[fn_args]] |> 
     lapply(\(v) c(v, "")) |> 
+    setdiff(list("")) |> 
     unlist() |> unname() |> 
     (\(l) paste0("  ", l, "\n", collapse = ""))()
+  fn_name <- gsub("^compute", "", fn)
+  fn_preproc2 <- if (! fn_name %in% names(tdavec_preps)) "" else 
+    tdavec_preps[[fn_name]] |> 
+    deparse() |> 
+    (\(s) s[seq(2L, length(s) - 1L)])() |> 
+    gsub("^  ", "", x = _) |> 
+    (\(s) paste0(s, "\n", collapse = ""))() |> paste0("\n")
   
   glue::glue(
     doc_wrap("@export"),
@@ -405,7 +413,8 @@ build_prep <- function(fn) {
     # remove troublesome 'AsIs' class (and any other non-'list' classes)
     "  for (col_name in col_names) class(training[[col_name]]) <- \"list\"\n",
     "  \n",
-    "{fn_preproc}",
+    "{fn_preproc1}",
+    "{fn_preproc2}",
     # output prepped step
     "  step_vpd_{fn_sname}_new(\n",
     "    terms = col_names,\n",

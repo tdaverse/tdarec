@@ -32,6 +32,18 @@ lsf.str("package:TDAvec") |>
   mutate(args = map(fun, formals)) |> 
   print() -> tdavec_functions
 
+# # CHOICE: convenience wrappers for {TDAvec} functions
+# computeClassicalPersistenceLandscape <- function(
+#     D, homDim, scaleSeq, k = 1L
+# ) {
+#   computePersistenceLandscape(D, homDim, scaleSeq, k, FALSE)
+# }
+# computeGeneralizedPersistenceLandscape <- function(
+#     D, homDim, scaleSeq, k = 1L, kernel = "triangle", h = NULL
+# ) {
+#   computePersistenceLandscape(D, homDim, scaleSeq, k, TRUE, kernel, h)
+# }
+
 # tabulate original argument defaults
 tdavec_functions |> 
   select(fun = name, args) |> 
@@ -244,32 +256,51 @@ tdavec_defaults |>
   print(n = Inf) -> param_defaults
 
 # CHOICE: express preparations of parameters
-# TODO: Incorporate these into the `prep.step_vpd_*()` code.
+# FIXME: Ensure that proper parameters are tuned,
+# e.g. only `num_levels` when `generalized = FALSE`.
 tdavec_preps <- list(
+  # generalized persistence landscapes
+  PersistenceLandscape = expression({
+    # `generalized` should be determined from the presence of `bandwidth`
+    if (is.null(x$bandwidth)) {
+      if (! isFALSE(x$generalized))
+        warning("`bandwidth` is `NULL` so `generalized` is set to `FALSE`.")
+      x$generalized = FALSE
+    } else {
+      if (! isTRUE(x$generalized))
+        warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
+      x$generalized = TRUE
+    }
+  }),
   # tent function radius and shift
   TemplateFunction = expression({
-    x_pers_ranges <- sapply(
-      x,
-      function(l) {
-        val <- 
-          sapply(l, pers_range, hom_degree = x$hom_degree, simplify = TRUE)
-        range(val[is.finite(val)])
-      },
-      simplify = TRUE
-    )
-    x_birth_ranges <- sapply(
-      x,
-      function(l) {
-        val <- 
-          sapply(l, birth_range, hom_degree = x$hom_degree, simplify = TRUE)
-        range(val[is.finite(val)])
-      },
-      simplify = TRUE
-    )
-    x$tent_shift <- x_pers_ranges[1L, ] / 2
-    x$tent_size <-
-      pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, ] - x$tent_shift) /
-      x$num_bins
+    # `num_bins` is required; `tent_*` params may be derived therefrom
+    if (is.null(x$tent_shift) | is.null(x$tent_size)) {
+      x_pers_ranges <- sapply(
+        x,
+        function(l) {
+          val <- 
+            sapply(l, pers_range, hom_degree = x$hom_degree, simplify = TRUE)
+          range(val[is.finite(val)])
+        },
+        simplify = TRUE
+      )
+    }
+    if (is.null(x$tent_size)) {
+      x_birth_ranges <- sapply(
+        x,
+        function(l) {
+          val <- 
+            sapply(l, birth_range, hom_degree = x$hom_degree, simplify = TRUE)
+          range(val[is.finite(val)])
+        },
+        simplify = TRUE
+      )
+    }
+    if (is.null(x$tent_shift)) x$tent_shift <- x_pers_ranges[1L, ] / 2
+    if (is.null(x$tent_size)) x$tent_size <-
+        pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, ] - x$tent_shift) /
+        x$num_bins
   })
 )
 

@@ -97,7 +97,6 @@ prep.step_vpd_tropical_coordinates <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   
-  
   step_vpd_tropical_coordinates_new(
     terms = col_names,
     role = x$role,

@@ -132,14 +132,20 @@ prep.step_vpd_persistence_landscape <- function(x, training, info = NULL, ...) {
   check_phom_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
-  
   x[paste0("x", c("seq", "min", "max", "len", "by"))] <- 
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "x")
   
-  
-  
-  
-  
+  if (is.null(x$bandwidth)) {
+      if (!isTRUE(x$generalized)) 
+          warning("`bandwidth` is provided, so `generalized` is set to `TRUE`.")
+      x$generalized = TRUE
+  }
+  else {
+      if (!isFALSE(x$generalized)) 
+          warning("`bandwidth` is provided, so `generalized` is set to `FALSE`.")
+      x$generalized = FALSE
+  }
+
   step_vpd_persistence_landscape_new(
     terms = col_names,
     role = x$role,

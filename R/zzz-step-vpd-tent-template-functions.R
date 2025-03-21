@@ -111,9 +111,26 @@ prep.step_vpd_tent_template_functions <- function(x, training, info = NULL, ...)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   
-  
-  
-  
+  if (is.null(x$tent_shift) | is.null(x$tent_size)) {
+      x_pers_ranges <- sapply(x, function(l) {
+          val <- sapply(l, pers_range, hom_degree = x$hom_degree, 
+              simplify = TRUE)
+          range(val[is.finite(val)])
+      }, simplify = TRUE)
+  }
+  if (is.null(x$tent_size)) {
+      x_birth_ranges <- sapply(x, function(l) {
+          val <- sapply(l, birth_range, hom_degree = x$hom_degree, 
+              simplify = TRUE)
+          range(val[is.finite(val)])
+      }, simplify = TRUE)
+  }
+  if (is.null(x$tent_shift)) 
+      x$tent_shift <- x_pers_ranges[1L, ]/2
+  if (is.null(x$tent_size)) 
+      x$tent_size <- pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, 
+          ] - x$tent_shift)/x$num_bins
+
   step_vpd_tent_template_functions_new(
     terms = col_names,
     role = x$role,
