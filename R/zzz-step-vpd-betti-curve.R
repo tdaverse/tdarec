@@ -110,10 +110,8 @@ prep.step_vpd_betti_curve <- function(x, training, info = NULL, ...) {
   check_phom_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
-  
   x[paste0("x", c("seq", "min", "max", "len", "by"))] <- 
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "x")
-  
   
   step_vpd_betti_curve_new(
     terms = col_names,

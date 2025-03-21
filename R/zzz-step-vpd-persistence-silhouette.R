@@ -117,11 +117,8 @@ prep.step_vpd_persistence_silhouette <- function(x, training, info = NULL, ...) 
   check_phom_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
-  
   x[paste0("x", c("seq", "min", "max", "len", "by"))] <- 
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "x")
-  
-  
   
   step_vpd_persistence_silhouette_new(
     terms = col_names,
@@ -226,7 +223,7 @@ tunable.step_vpd_persistence_silhouette <- function(x, ...) {
     name = c("hom_degree", "xseq", "xother", "weight_power", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "weight_power", range = c("1", "2")),
+      list(pkg = "tdarec", fun = "weight_power", range = c(1, 2)),
       list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
     ),
     source = "recipe",

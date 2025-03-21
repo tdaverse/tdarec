@@ -117,7 +117,6 @@ prep.step_vpd_euler_characteristic_curve <- function(x, training, info = NULL, .
     x$max_hom_degree <-
       get_max_hom_degree(training[, col_names, drop = FALSE])
   
-  
   step_vpd_euler_characteristic_curve_new(
     terms = col_names,
     role = x$role,

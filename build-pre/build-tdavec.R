@@ -32,6 +32,18 @@ lsf.str("package:TDAvec") |>
   mutate(args = map(fun, formals)) |> 
   print() -> tdavec_functions
 
+# # CHOICE: convenience wrappers for {TDAvec} functions
+# computeClassicalPersistenceLandscape <- function(
+#     D, homDim, scaleSeq, k = 1L
+# ) {
+#   computePersistenceLandscape(D, homDim, scaleSeq, k, FALSE)
+# }
+# computeGeneralizedPersistenceLandscape <- function(
+#     D, homDim, scaleSeq, k = 1L, kernel = "triangle", h = NULL
+# ) {
+#   computePersistenceLandscape(D, homDim, scaleSeq, k, TRUE, kernel, h)
+# }
+
 # tabulate original argument defaults
 tdavec_functions |> 
   select(fun = name, args) |> 
@@ -123,15 +135,15 @@ arg_params <- c(
   # PersistenceLandscape
   k = "num_levels",
   generalized = "generalized",
-  kernel = "weight_func",
+  kernel = "weight_func_pl",
   h = "bandwidth",
   # TODO: Check that the silhouette function uses this as a distance power.
   # PersistenceSilhouette
   p = "weight_power",
   # TemplateFunction
-  delta = "tent_delta",
+  delta = "tent_size",
   d = "num_bins",
-  epsilon = "tent_offset",
+  epsilon = "tent_shift",
   # TropicalCoordinates
   r = "num_bars"
 )
@@ -186,9 +198,9 @@ param_docs <- list(
   generalized = c(
     "Logical indicator to compute generalized functions."
   ),
-  # TODO: Inherit iff the choices are exactly the same.
-  # weight_func = c("parsnip::nearest_neighbor"),
-  weight_func = c(
+  # TODO: Replace with `dials::weight_func()` iff choices agree.
+  # weight_func_pl = c("parsnip::nearest_neighbor"),
+  weight_func_pl = c(
     "A _single_ character for the type of kernel function",
     "used to compute generalized landscapes."
   ),
@@ -204,13 +216,13 @@ param_docs <- list(
     "Number of bars (persistent pairs) over which to maximize...."
   ),
   # TemplateFunction
-  tent_delta = c(
-    "The length of the increment used to discretize tent template functions."
-  ),
   num_bins = c(
     "The number of bins along each axis in the discretization grid."
   ),
-  tent_offset = c(
+  tent_size = c(
+    "The length of the increment used to discretize tent template functions."
+  ),
+  tent_shift = c(
     "The vertical shift applied to the discretization grid."
   ),
   # PersistenceBlock
@@ -222,14 +234,15 @@ param_docs <- list(
 )
 
 # CHOICE: assign param default values (omit to inherit from original args)
+# NOTE: If default should be learned (e.g. `mtry`) then set it equal to `NA`.
 list(
   # consistent behavior across all steps
   hom_degree = 0L,
   max_hom_degree = Inf,
   # missing or disfavored original defaults
   img_sigma = 1,
-  num_levels = 6L, bandwidth = 0.1,
-  tent_delta = 0.1, num_bins = 12L, tent_offset = 0
+  num_levels = 6L, weight_func_pl = "triangle", bandwidth = 0.1,
+  num_bins = 10L, tent_size = NULL, tent_shift = NULL
 ) |> 
   sapply(deparse) |> 
   enframe(name = "param", value = "default") |> 
@@ -242,36 +255,131 @@ tdavec_defaults |>
   select(-contains("default_")) |> 
   print(n = Inf) -> param_defaults
 
-# # CHOICE: assign dials to parameters
-# param_dials <- c(
-#   hom_degree = "hom_degree",
-#   max_hom_degree = "hom_degree",
-#   # TODO: Revisit this name.
-#   num_levels = "num_levels",
-#   weight_power = "weight_power",
-#   img_sigma = "img_sigma",
-#   block_size = "block_size"
-# )
+# CHOICE: express preparations of parameters
+# FIXME: Ensure that proper parameters are tuned,
+# e.g. only `num_levels` when `generalized = FALSE`.
+tdavec_preps <- list(
+  # generalized persistence landscapes
+  PersistenceLandscape = expression({
+    # `generalized` should be determined from the presence of `bandwidth`
+    if (is.null(x$bandwidth)) {
+      if (! isFALSE(x$generalized))
+        warning("`bandwidth` is `NULL` so `generalized` is set to `FALSE`.")
+      x$generalized = FALSE
+    } else {
+      if (! isTRUE(x$generalized))
+        warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
+      x$generalized = TRUE
+    }
+  }),
+  # tent function radius and shift
+  TemplateFunction = expression({
+    # `num_bins` is required; `tent_*` params may be derived therefrom
+    if (is.null(x$tent_shift) | is.null(x$tent_size)) {
+      x_pers_ranges <- sapply(
+        x,
+        function(l) {
+          val <- 
+            sapply(l, pers_range, hom_degree = x$hom_degree, simplify = TRUE)
+          range(val[is.finite(val)])
+        },
+        simplify = TRUE
+      )
+    }
+    if (is.null(x$tent_size)) {
+      x_birth_ranges <- sapply(
+        x,
+        function(l) {
+          val <- 
+            sapply(l, birth_range, hom_degree = x$hom_degree, simplify = TRUE)
+          range(val[is.finite(val)])
+        },
+        simplify = TRUE
+      )
+    }
+    if (is.null(x$tent_shift)) x$tent_shift <- x_pers_ranges[1L, ] / 2
+    if (is.null(x$tent_size)) x$tent_size <-
+        pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, ] - x$tent_shift) /
+        x$num_bins
+  })
+)
 
-# list (tunable) parameters
-param_bullets <- c(
+# data set of dials (tunable parameters) for which to generate source code;
+# mostly those that are specific to a single vectorization method
+# NOTE: Currently assumes that each dial is a param.
+c(
+  # hom_degree = "hom_degree",
+  # max_hom_degree = "max_hom_degree",
+  # ComplexPolynomial
+  num_coef = "num_coef",
+  poly_type = "poly_type",
+  # PersistenceImage
+  img_sigma = "img_sigma",
+  # PersistenceLandscape (`generalized = FALSE`)
+  num_levels = "num_levels",
+  # PersistenceLandscape (`generalized = TRUE`)
+  # TODO: Replace with `dials::weight_func()` iff choices agree.
+  weight_func_pl = "weight_func_pl",
+  bandwidth = "bandwidth",
+  # PersistenceSilhouette
+  weight_power = "weight_power",
+  # TropicalCoordinates
+  num_bars = "num_bars",
+  # TemplateFunction
+  # TODO: Replace with `dials::num_breaks()`.
+  num_bins = "num_bins",
+  # TODO: Replace with `dials::kernel_offset()`?
+  tent_shift = "tent_shift",
+  # TODO: Rename `kernel_radius()`?
+  tent_size = "tent_size",
+  # PersistenceBlock
+  block_size = "block_size"
+) |> 
+  # enframe(name = NULL, value = "param") |> 
+  # mutate(dial = param) |> 
+  print() -> param_dials
+
+# title (tunable) parameters
+dial_titles <- c(
   hom_degree = "Homological degree",
   max_hom_degree = "Highest homological degree",
   xseq = "Discretization intervals",
   yseq = "2D discretization intervals",
   evaluate = "Evaluation method",
-  num_coef = "# Polynomial coefficients",
+  num_coef = "Number of Polynomial coefficients",
   poly_type = "Type of polynomial",
   img_sigma = "Convolved Gaussian standard deviation",
-  num_levels = "# Levels or envelopes",
-  generalized = "Use generalized functions?",
+  num_levels = "Number of Levels or envelopes",
+  # generalized = "Use generalized functions?",
+  weight_func_pl = "Kernel distance weight function",
   bandwidth = "Kernel bandwidth",
   weight_power = "Exponent weight",
-  num_bars = "# Bars (persistence pairs)",
-  tent_delta = "Discretization grid increment",
+  num_bars = "Number of Bars (persistence pairs)",
   num_bins = "Discretization grid bins",
-  tent_offset = "Discretization grid offset",
+  tent_size = "Discretization grid increment",
+  tent_shift = "Discretization grid shift",
   block_size = "Square side length scaling factor"
+)
+# describe tunable parameters
+dial_descriptions <- c(
+  hom_degree = "The homological degree of persistent features.",
+  max_hom_degree = "The highest homological degree of persistent features.",
+  xseq = "Discretization intervals along the abscissa (birth).",
+  yseq = "Discretization intervals along the ordinate (death or persistence).",
+  evaluate = "How to evaluate functions to obtain vectorizations.",
+  num_coef = "The number of complex polynomial coefficients.",
+  poly_type = "The type of complex polynomial.",
+  img_sigma = "The standard deviation of the Gaussian convolved with points.",
+  num_levels = "The number of levels or envelopes.",
+  # generalized = "Whether to use alternative kernels and bandwidths.",
+  weight_func_pl = "The distance weight function of a generalized kernel.",
+  bandwidth = "The bandwidth of a generalized kernel.",
+  weight_power = "The exponent of the weights.",
+  num_bars = "The number of persistence pairs used in computations.",
+  num_bins = "The number of bins into which to partition grid axes.",
+  tent_size = "The increment size for tent template functions.",
+  tent_shift = "The positive shift for tent template functions.",
+  block_size = "The side length scaling parameter for persistence blocks."
 )
 
 # categorize new dials by input type & as quantitative or qualitative
@@ -291,41 +399,43 @@ dial_types <- c(
   poly_type      = "character",
   img_sigma      = "double",
   num_levels     = "integer",
-  generalized    = "logical",
+  # generalized    = "logical",
+  weight_func_pl = "character",
   bandwidth      = "double",
   weight_power   = "double",
   num_bars       = "integer",
-  tent_delta     = "double",
   num_bins       = "integer",
-  tent_offset    = "double",
+  tent_size     = "double",
+  tent_shift    = "double",
   block_size     = "double"
 )
-# CHOICE: assign defaults to new dials & o/w note how to determine from data
+# CHOICE: assign defaults to new dials & o/w note how to finalize from data
 # NOTE: Finalizers are written in `R/vpd-finalizers.R`.
 dial_ranges_values <- list(
-  # highest degree
+  # finalize to highest degree
   hom_degree = c(0L, NA_integer_),
+  # finalize to highest degree
   max_hom_degree = c(0L, NA_integer_),
   evaluate = c("intervals", "points"),
-  # number of features
+  # finalize to number of features
   num_coef = c(1L, NA_integer_),
   poly_type = c("R", "S", "T"),
-  # maximum persistence
+  # finalize to maximum persistence (fractions)
   img_sigma = c(NA_real_, NA_real_),
-  # number of features
+  # finalize to number of features
   num_levels = c(1L, NA_integer_),
   # generalized = c(FALSE, TRUE),
-  # TODO: Consult Berry, Chen, Cisewski-Kehe, & Fasy (2020).
+  weight_func_pl = c("triangle", "epanechnikov", "tricubic"),
+  # finalize to maximum persistence (fractions)
   bandwidth = c(NA_real_, NA_real_),
-  weight_power = c("1", "2"),
-  # number of features
+  weight_power = c(1, 2),
+  # finalize to number of features
   num_bars = c(1L, NA_integer_),
-  # TODO: Consult Perea, Munch, & Khasawneh (2023).
-  tent_delta = c(NA_real_, NA_real_),
-  # TODO: Consult Perea, Munch, & Khasawneh (2023).
-  num_bins = c(1L, NA_integer_),
-  # TODO: Consult Perea, Munch, & Khasawneh (2023).
-  tent_offset = c(NA_real_, NA_real_),
+  num_bins = c(2L, 20L),
+  # fix to maximum ( birth | persistence + tent_shift ) / num_bins
+  tent_size = c(NA_real_, NA_real_),
+  # finalize to minimum persistence (fractions)
+  tent_shift = c(NA_real_, NA_real_),
   block_size = c(0, 1)
 )
 # dial range endpoints
@@ -335,24 +445,57 @@ dial_inclusive <- list(
   num_coef = c(TRUE, TRUE),
   img_sigma = c(TRUE, TRUE),
   num_levels = c(TRUE, TRUE),
+  bandwidth = c(TRUE, TRUE),
   weight_power = c(TRUE, TRUE),
   num_bars = c(TRUE, TRUE),
-  tent_delta = c(TRUE, TRUE),
   num_bins = c(TRUE, TRUE),
-  tent_offset = c(TRUE, TRUE),
+  tent_size = c(TRUE, TRUE),
+  tent_shift = c(TRUE, TRUE),
   block_size = c(TRUE, TRUE)
 )
 # dial transformations
 dial_transforms <- list(
   # hom_degree = NULL,
   img_sigma = expr(transform_log10()),
+  bandwidth = expr(transform_log10()),
   # TODO: Revisit this choice. Compare to publication. Harmonize with endpoints.
-  tent_delta = expr(transform_log10()),
-  tent_offset = expr(transform_log10()),
+  tent_size = expr(transform_log10()),
+  tent_shift = expr(transform_log10()),
   block_size = expr(transform_log10())
 )
 
+# CHOICE: finalizer for each dial
+dial_finalizers <- c(
+  # hom_degree = "get_hom_range",
+  # max_hom_degree = "get_hom_range",
+  num_coef = "get_pairs_max",
+  img_sigma = "get_pers_max_frac",
+  num_levels = "get_pairs_max",
+  bandwidth = "get_pers_max_frac",
+  num_bars = "get_pairs_max",
+  tent_shift = "get_pers_min_mult"
+)
 
+# CHOICE: example ranges of dials (tailor to 'zzz-ex-vpd-param.R')
+dial_range_value_examples <- list(
+  # hom_degree = c(0L, 2L),
+  # max_hom_degree = c(1L, 2L),
+  num_coef = c(1L, 3L),
+  poly_type = c("R", "S"),
+  img_sigma = c(100, 400),
+  # finalize to number of features
+  num_levels = c(1L, 6L),
+  weight_func_pl = c("triangle", "tricubic"),
+  bandwidth = c(500, 1500),
+  weight_power = c(1, 3),
+  num_bars = c(1L, 3L),
+  num_bins = c(5L, 10L),
+  # fix to maximum ( birth | persistence + tent_shift ) / num_bins
+  tent_size = c(1000, 1300),
+  # finalize to minimum persistence (fractions)
+  tent_shift = c(100, 200),
+  block_size = c(0, .5)
+)
 
 #' HELPERS
 

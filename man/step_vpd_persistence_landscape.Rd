@@ -18,7 +18,7 @@ step_vpd_persistence_landscape(
   xby = NULL,
   num_levels = 6L,
   generalized = FALSE,
-  weight_func = "triangle",
+  weight_func_pl = "triangle",
   bandwidth = 0.1,
   columns = NULL,
   keep_original_cols = TRUE,
@@ -54,7 +54,7 @@ then additional levels of zeros will be included.}
 
 \item{generalized}{Logical indicator to compute generalized functions.}
 
-\item{weight_func}{A \emph{single} character for the type of kernel function
+\item{weight_func_pl}{A \emph{single} character for the type of kernel function
 used to compute generalized landscapes.}
 
 \item{bandwidth}{The bandwidth of a kernel function.}
@@ -108,8 +108,8 @@ This step has 7 tuning parameters:
 \item \code{xseq}: Discretization intervals (type: NA, default: \code{NA})
 \item \code{xother}: NA (type: NA, default: \code{NA})
 \item \code{num_levels}: # Levels or envelopes (type: integer, default: \code{6L})
-\item \code{generalized}: Use generalized functions? (type: logical, default: \code{FALSE})
-\item \code{weight_func}: NA (type: NA, default: \code{"triangle"})
+\item \code{generalized}: NA (type: NA, default: \code{FALSE})
+\item \code{weight_func_pl}: Kernel distance weight function (type: character, default: \code{"triangle"})
 \item \code{bandwidth}: Kernel bandwidth (type: double, default: \code{0.1})
 }
 }
@@ -117,6 +117,18 @@ This step has 7 tuning parameters:
 \examples{
 library(recipes)
 
+# inspect vectorized features
+volc_dat <- data.frame(image = I(list(volcano / 10)))
+recipe(~ image, data = volc_dat) |> 
+  step_phom_lattice(image, method = "link_join") |> 
+  step_vpd_persistence_landscape(image_phom, hom_degree = 1, num_levels = 3) |> 
+  print() -> volc_rec
+print(volc_rec)
+volc_rec |> 
+  prep(training = volc_dat) |> 
+  bake(new_data = volc_dat)
+
+# dimension-reduce using vectorized features
 data(permeability_qsar, package = "modeldata")
 permeability_qsar |> 
   transform(perm_cut = cut(permeability, breaks = seq(0, 60, 10))) |> 
@@ -130,11 +142,11 @@ recipe(perm_cut ~ chem_fp, data = perm_dat) |>
   print() -> perm_rec
 perm_est <- prep(perm_rec, training = perm_dat)
 perm_res <- bake(perm_est, new_data = perm_dat)
-
+# inspect results
 tidy(perm_rec)
 tidy(perm_rec, number = 2)
 tidy(perm_est, number = 2)
-
+# visualize results
 with(perm_res, {
   plot(PC1, PC2, type = "n", asp = 1)
   text(PC1, PC2, labels = perm_cut)

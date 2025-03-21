@@ -24,18 +24,18 @@
 #' This step has 4 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `tent_delta`: Discretization grid increment (type: double, default: `0.1`)
-#'   \item `num_bins`: Discretization grid bins (type: integer, default: `12L`)
-#'   \item `tent_offset`: Discretization grid offset (type: double, default: `0`)
+#'   \item `tent_size`: Discretization grid increment (type: double, default: `NULL`)
+#'   \item `num_bins`: Discretization grid bins (type: integer, default: `10L`)
+#'   \item `tent_shift`: Discretization grid shift (type: double, default: `NULL`)
 #' }
 #' 
 #' @param hom_degree
 #'   The homological degree of the features to be transformed.
-#' @param tent_delta
+#' @param tent_size
 #'   The length of the increment used to discretize tent template functions.
 #' @param num_bins
 #'   The number of bins along each axis in the discretization grid.
-#' @param tent_offset
+#' @param tent_shift
 #'   The vertical shift applied to the discretization grid.
 
 #' @import recipes
@@ -50,9 +50,9 @@ step_vpd_tent_template_functions <- function(
     role = "predictor",
     trained = FALSE,
     hom_degree = 0L,
-    tent_delta = 0.1,
-    num_bins = 12L,
-    tent_offset = 0,
+    tent_size = NULL,
+    num_bins = 10L,
+    tent_shift = NULL,
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
@@ -67,9 +67,9 @@ step_vpd_tent_template_functions <- function(
       trained = trained,
       role = role,
       hom_degree = hom_degree,
-      tent_delta = tent_delta,
+      tent_size = tent_size,
       num_bins = num_bins,
-      tent_offset = tent_offset,
+      tent_shift = tent_shift,
       columns = columns,
       keep_original_cols = keep_original_cols,
       skip = skip,
@@ -82,9 +82,9 @@ step_vpd_tent_template_functions_new <- function(
     terms,
     role, trained,
     hom_degree,
-    tent_delta,
+    tent_size,
     num_bins,
-    tent_offset,
+    tent_shift,
     columns, keep_original_cols,
     skip, id
 ) {
@@ -94,9 +94,9 @@ step_vpd_tent_template_functions_new <- function(
     role = role,
     trained = trained,
     hom_degree = hom_degree,
-    tent_delta = tent_delta,
+    tent_size = tent_size,
     num_bins = num_bins,
-    tent_offset = tent_offset,
+    tent_shift = tent_shift,
     columns = columns,
     keep_original_cols = keep_original_cols,
     skip = skip,
@@ -111,17 +111,34 @@ prep.step_vpd_tent_template_functions <- function(x, training, info = NULL, ...)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   
-  
-  
-  
+  if (is.null(x$tent_shift) | is.null(x$tent_size)) {
+      x_pers_ranges <- sapply(x, function(l) {
+          val <- sapply(l, pers_range, hom_degree = x$hom_degree, 
+              simplify = TRUE)
+          range(val[is.finite(val)])
+      }, simplify = TRUE)
+  }
+  if (is.null(x$tent_size)) {
+      x_birth_ranges <- sapply(x, function(l) {
+          val <- sapply(l, birth_range, hom_degree = x$hom_degree, 
+              simplify = TRUE)
+          range(val[is.finite(val)])
+      }, simplify = TRUE)
+  }
+  if (is.null(x$tent_shift)) 
+      x$tent_shift <- x_pers_ranges[1L, ]/2
+  if (is.null(x$tent_size)) 
+      x$tent_size <- pmax(x_birth_ranges[2L, ], x_pers_ranges[2L, 
+          ] - x$tent_shift)/x$num_bins
+
   step_vpd_tent_template_functions_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
     hom_degree = x$hom_degree,
-    tent_delta = x$tent_delta,
+    tent_size = x$tent_size,
     num_bins = x$num_bins,
-    tent_offset = x$tent_offset,
+    tent_shift = x$tent_shift,
     columns = col_names,
     keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
@@ -142,9 +159,9 @@ bake.step_vpd_tent_template_functions <- function(object, new_data, ...) {
       \(d) as.vector(TDAvec::computeTemplateFunction(
         as.matrix(d),
         homDim = object$hom_degree,
-        delta = object$tent_delta,
+        delta = object$tent_size,
         d = object$num_bins,
-        epsilon = object$tent_offset
+        epsilon = object$tent_shift
       ))
     )
     col_vpd <- purrr::map(
@@ -214,12 +231,12 @@ tidy.step_vpd_tent_template_functions <- function(x, ...) {
 #' @export
 tunable.step_vpd_tent_template_functions <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "tent_delta", "num_bins", "tent_offset"),
+    name = c("hom_degree", "tent_size", "num_bins", "tent_shift"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "tent_delta", range = c(unknown(), unknown())),
-      list(pkg = "tdarec", fun = "num_bins", range = c(1L, unknown())),
-      list(pkg = "tdarec", fun = "tent_offset", range = c(unknown(), unknown()))
+      list(pkg = "tdarec", fun = "tent_size", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "num_bins", range = c(2L, 20L)),
+      list(pkg = "tdarec", fun = "tent_shift", range = c(unknown(), unknown()))
     ),
     source = "recipe",
     component = "step_vpd_tent_template_functions",

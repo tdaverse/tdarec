@@ -2,25 +2,38 @@
 % Please edit documentation in R/vpd-finalizers.R
 \name{vpd-finalizers}
 \alias{vpd-finalizers}
-\alias{get_pers_frac_range}
 \alias{get_pairs_max}
+\alias{get_pers_max_frac}
+\alias{get_pers_min_mult}
 \title{Finalizers for persistent homology vectorizations}
 \usage{
-get_pers_frac_range(
+get_pairs_max(object, x, hom_degrees = NULL, ...)
+
+get_pers_max_frac(
   object,
   x,
   hom_degree = NULL,
   log_vals = TRUE,
-  frac = c(1/100, 1/10),
+  frac = 1/100,
   ...
 )
 
-get_pairs_max(object, x, hom_degrees = NULL, ...)
+get_pers_min_mult(
+  object,
+  x,
+  hom_degree = NULL,
+  log_vals = TRUE,
+  mult = 100,
+  ...
+)
 }
 \arguments{
 \item{object}{A \code{param} object or a list of \code{param} objects.}
 
 \item{x}{Persistence data in a recognizable format.}
+
+\item{...}{Other arguments to pass to the underlying parameter finalizer
+functions.}
 
 \item{hom_degree, hom_degrees}{Integer (vector) of homological degree(s).}
 
@@ -29,9 +42,6 @@ get_pairs_max(object, x, hom_degrees = NULL, ...)
 \item{frac}{A double for the fraction of the data to be used for the upper
 bound. For \code{get_n_frac_range()} and \code{get_batch_sizes()}, a vector of two
 fractional values are required.}
-
-\item{...}{Other arguments to pass to the underlying parameter finalizer
-functions.}
 }
 \value{
 An updated \code{param} object or a list of updated \code{param} objects depending
@@ -41,4 +51,16 @@ on what is provided in \code{object}.
 These functions take a persistent homology vectorization
 parameter object and modify the \code{\link[dials:unknown]{dials::unknown()}} parts of \code{ranges} based
 on a data set and heuristics used in inaugural studies.
+}
+\details{
+\code{get_pairs_max()} sets the upper bound to the maximum number of persistent
+pairs.
+
+\code{get_pers_max_frac()} sets both bounds to fractions of the maximum finite
+persistence (lifespan). A single number is used as the lower bound fraction
+and takes the upper bound fraction to be 1.
+
+\code{get_pers_min_mult()} sets both bounds to multiples of the minimum positive
+persistence (lifespan). A single number is used as the upper bound multiple
+and takes the lower bound multiple to be 1.
 }

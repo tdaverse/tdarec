@@ -11,9 +11,9 @@ step_vpd_tent_template_functions(
   role = "predictor",
   trained = FALSE,
   hom_degree = 0L,
-  tent_delta = 0.1,
-  num_bins = 12L,
-  tent_offset = 0,
+  tent_size = NULL,
+  num_bins = 10L,
+  tent_shift = NULL,
   columns = NULL,
   keep_original_cols = TRUE,
   skip = FALSE,
@@ -36,11 +36,11 @@ preprocessing have been estimated.}
 
 \item{hom_degree}{The homological degree of the features to be transformed.}
 
-\item{tent_delta}{The length of the increment used to discretize tent template functions.}
+\item{tent_size}{The length of the increment used to discretize tent template functions.}
 
 \item{num_bins}{The number of bins along each axis in the discretization grid.}
 
-\item{tent_offset}{The vertical shift applied to the discretization grid.}
+\item{tent_shift}{The vertical shift applied to the discretization grid.}
 
 \item{columns}{A character string of the selected variable names. This field
 is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
@@ -88,15 +88,27 @@ See there for definitions and references.
 This step has 4 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{tent_delta}: Discretization grid increment (type: double, default: \code{0.1})
-\item \code{num_bins}: Discretization grid bins (type: integer, default: \code{12L})
-\item \code{tent_offset}: Discretization grid offset (type: double, default: \code{0})
+\item \code{tent_size}: Discretization grid increment (type: double, default: \code{NULL})
+\item \code{num_bins}: Discretization grid bins (type: integer, default: \code{10L})
+\item \code{tent_shift}: Discretization grid shift (type: double, default: \code{NULL})
 }
 }
 
 \examples{
 library(recipes)
 
+# inspect vectorized features
+volc_dat <- data.frame(image = I(list(volcano / 10)))
+recipe(~ image, data = volc_dat) |> 
+  step_phom_lattice(image, method = "link_join") |> 
+  step_vpd_tent_template_functions(image_phom, hom_degree = 1) |> 
+  print() -> volc_rec
+print(volc_rec)
+volc_rec |> 
+  prep(training = volc_dat) |> 
+  bake(new_data = volc_dat)
+
+# dimension-reduce using vectorized features
 data(permeability_qsar, package = "modeldata")
 permeability_qsar |> 
   transform(perm_cut = cut(permeability, breaks = seq(0, 60, 10))) |> 
@@ -110,11 +122,11 @@ recipe(perm_cut ~ chem_fp, data = perm_dat) |>
   print() -> perm_rec
 perm_est <- prep(perm_rec, training = perm_dat)
 perm_res <- bake(perm_est, new_data = perm_dat)
-
+# inspect results
 tidy(perm_rec)
 tidy(perm_rec, number = 2)
 tidy(perm_est, number = 2)
-
+# visualize results
 with(perm_res, {
   plot(PC1, PC2, type = "n", asp = 1)
   text(PC1, PC2, labels = perm_cut)

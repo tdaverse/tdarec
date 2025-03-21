@@ -22,6 +22,7 @@ required_pkgs.step_tdarec <- function(x, ...) {
 #' @import recipes
 #' @name tdarec
 #' @importFrom rlang on_load run_on_load
+#' @importFrom dials new_qual_param new_quant_param unknown
 "_PACKAGE"
 
 # installed version of {ripserr}, or `NULL` if not installed
