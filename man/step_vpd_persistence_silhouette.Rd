@@ -95,11 +95,9 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 5 tuning parameters:
+This step has 3 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{xseq}: Discretization intervals (type: NA, default: \code{NA})
-\item \code{xother}: NA (type: NA, default: \code{NA})
 \item \code{weight_power}: Exponent weight (type: double, default: \code{1})
 \item \code{evaluate}: Evaluation method (type: character, default: \code{"intervals"})
 }

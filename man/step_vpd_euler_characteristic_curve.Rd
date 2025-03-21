@@ -92,10 +92,8 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 4 tuning parameters:
+This step has 2 tuning parameters:
 \itemize{
-\item \code{xseq}: Discretization intervals (type: NA, default: \code{NA})
-\item \code{xother}: NA (type: NA, default: \code{NA})
 \item \code{max_hom_degree}: Highest homological degree (type: integer, default: \code{Inf})
 \item \code{evaluate}: Evaluation method (type: character, default: \code{"intervals"})
 }

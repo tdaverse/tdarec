@@ -21,11 +21,9 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 5 tuning parameters:
+#' This step has 3 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
-#'   \item `xother`: NA (type: NA, default: `NA`)
 #'   \item `weight_power`: Exponent weight (type: double, default: `1`)
 #'   \item `evaluate`: Evaluation method (type: character, default: `"intervals"`)
 #' }

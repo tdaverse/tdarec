@@ -185,14 +185,17 @@ build_details <- function(fn) {
     pull(args) |> first() |> names() |> setdiff("D")
   fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
-    strsplit("\\|") |> unlist() |> unname()
+    strsplit("\\|") |> unlist() |> unname() |> 
+    # FIXME: Enable tuning by resolution.
+    setdiff(c("xseq", "xother", "yseq", "yother"))
   fn_bullets <- dial_titles[fn_dials] |> 
     gsub(pattern = "Number of ", replacement = "# ") |> 
     gsub(pattern = "\\?$", replacement = "")
   fn_type <- dial_types[fn_dials]
-  fn_defaults <- 
-    subset(param_defaults, fun == fn, c(param, default)) |> deframe()
-  fn_defaults <- fn_defaults[fn_dials]
+  fn_defaults <- param_defaults |> 
+    subset(fun == fn, c(param, default)) |> 
+    deframe() |> 
+    (\(x) x[fn_dials])()
   
   fn_tunables <- paste0(
     "This step has ", length(fn_dials),

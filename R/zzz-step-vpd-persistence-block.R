@@ -21,13 +21,9 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 6 tuning parameters:
+#' This step has 2 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
-#'   \item `xother`: NA (type: NA, default: `NA`)
-#'   \item `yseq`: 2D discretization intervals (type: NA, default: `NA`)
-#'   \item `yother`: NA (type: NA, default: `NA`)
 #'   \item `block_size`: Square side length scaling factor (type: double, default: `0.3`)
 #' }
 #' 
