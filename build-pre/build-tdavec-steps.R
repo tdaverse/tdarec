@@ -582,7 +582,9 @@ build_tunable <- function(fn) {
     pull(args) |> first() |> names() |> setdiff("D")
   fn_dials <- arg_params[fn_args] |> 
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
-    strsplit("\\|") |> unlist() |> unname()
+    strsplit("\\|") |> unlist() |> unname() |> 
+    # FIXME: Enable tuning by resolution.
+    setdiff(c("xseq", "xother", "yseq", "yother"))
   fn_ranges_values <- dial_ranges_values[fn_dials] |> 
     lapply(\(x) vapply(x, deparse, "")) |> 
     lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 

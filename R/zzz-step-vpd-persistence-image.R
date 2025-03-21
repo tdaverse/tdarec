@@ -222,7 +222,7 @@ tidy.step_vpd_persistence_image <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_image <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "yseq", "yother", "img_sigma"),
+    name = c("hom_degree", "img_sigma"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "img_sigma", range = c(unknown(), unknown()))

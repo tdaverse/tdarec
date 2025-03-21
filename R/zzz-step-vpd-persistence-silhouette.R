@@ -218,7 +218,7 @@ tidy.step_vpd_persistence_silhouette <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_silhouette <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "xseq", "xother", "weight_power", "evaluate"),
+    name = c("hom_degree", "weight_power", "evaluate"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "weight_power", range = c(1, 2)),
