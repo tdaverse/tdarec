@@ -102,13 +102,9 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 6 tuning parameters:
+This step has 2 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{xseq}: Discretization intervals (type: NA, default: \code{NA})
-\item \code{xother}: NA (type: NA, default: \code{NA})
-\item \code{yseq}: 2D discretization intervals (type: NA, default: \code{NA})
-\item \code{yother}: NA (type: NA, default: \code{NA})
 \item \code{block_size}: Square side length scaling factor (type: double, default: \code{0.3})
 }
 }

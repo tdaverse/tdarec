@@ -148,7 +148,7 @@ arg_params <- c(
   r = "num_bars"
 )
 
-# document parameters
+# document tunable parameters
 param_docs <- list(
   hom_degree = c(
     "The homological degree of the features to be transformed."
@@ -343,8 +343,8 @@ c(
 dial_titles <- c(
   hom_degree = "Homological degree",
   max_hom_degree = "Highest homological degree",
-  xseq = "Discretization intervals",
-  yseq = "2D discretization intervals",
+  # xseq = "Discretization intervals",
+  # yseq = "2D discretization intervals",
   evaluate = "Evaluation method",
   num_coef = "Number of Polynomial coefficients",
   poly_type = "Type of polynomial",
@@ -364,8 +364,8 @@ dial_titles <- c(
 dial_descriptions <- c(
   hom_degree = "The homological degree of persistent features.",
   max_hom_degree = "The highest homological degree of persistent features.",
-  xseq = "Discretization intervals along the abscissa (birth).",
-  yseq = "Discretization intervals along the ordinate (death or persistence).",
+  # xseq = "Discretization intervals along the abscissa (birth).",
+  # yseq = "Discretization intervals along the ordinate (death or persistence).",
   evaluate = "How to evaluate functions to obtain vectorizations.",
   num_coef = "The number of complex polynomial coefficients.",
   poly_type = "The type of complex polynomial.",

@@ -21,11 +21,9 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 7 tuning parameters:
+#' This step has 5 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
-#'   \item `xother`: NA (type: NA, default: `NA`)
 #'   \item `num_levels`: # Levels or envelopes (type: integer, default: `6L`)
 #'   \item `generalized`: NA (type: NA, default: `FALSE`)
 #'   \item `weight_func_pl`: Kernel distance weight function (type: character, default: `"triangle"`)
@@ -136,14 +134,14 @@ prep.step_vpd_persistence_landscape <- function(x, training, info = NULL, ...) {
     reconcile_scale_seq(x, training[, col_names, drop = FALSE], "x")
   
   if (is.null(x$bandwidth)) {
-      if (!isTRUE(x$generalized)) 
-          warning("`bandwidth` is provided, so `generalized` is set to `TRUE`.")
-      x$generalized = TRUE
+      if (!isFALSE(x$generalized)) 
+          warning("`bandwidth` is `NULL` so `generalized` is set to `FALSE`.")
+      x$generalized = FALSE
   }
   else {
-      if (!isFALSE(x$generalized)) 
-          warning("`bandwidth` is provided, so `generalized` is set to `FALSE`.")
-      x$generalized = FALSE
+      if (!isTRUE(x$generalized)) 
+          warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
+      x$generalized = TRUE
   }
 
   step_vpd_persistence_landscape_new(

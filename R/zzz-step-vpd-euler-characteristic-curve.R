@@ -21,10 +21,8 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 4 tuning parameters:
+#' This step has 2 tuning parameters:
 #' \itemize{
-#'   \item `xseq`: Discretization intervals (type: NA, default: `NA`)
-#'   \item `xother`: NA (type: NA, default: `NA`)
 #'   \item `max_hom_degree`: Highest homological degree (type: integer, default: `Inf`)
 #'   \item `evaluate`: Evaluation method (type: character, default: `"intervals"`)
 #' }
