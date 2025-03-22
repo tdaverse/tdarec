@@ -724,7 +724,6 @@ keep_scales <- function(x, scales) {
   )
   x[! rm_lines]
 }
-# FIXME: This has not yet been ... tested. ;)
 # write test files from template (overwrites existing files)
 for (fn in tdavec_functions$name) {
   fn_sname <- vec_sname(fn)

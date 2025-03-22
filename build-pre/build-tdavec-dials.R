@@ -121,6 +121,7 @@ cat(
 
 #' Populate the source and example files with code.
 
+# FIXME: Stop `NULL` from being treated as a finalizer.
 for (dl in param_autotuners) {
   
   # recover fields
