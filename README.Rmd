@@ -76,7 +76,7 @@ recipe(embedding ~ sample, data = klein_train) |>
     sample, max_hom_degree = tune("vr_degree"),
     keep_original_cols = FALSE
   ) |> 
-  step_vpd_ecc(
+  step_vpd_euler_characteristic_curve(
     sample_phom, xseq = scale_seq,
     keep_original_cols = FALSE
   ) |> 

@@ -50,8 +50,8 @@ library(tidyverse)
 #> ✔ dplyr     1.1.4     ✔ readr     2.1.5
 #> ✔ forcats   1.0.0     ✔ stringr   1.5.1
 #> ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-#> ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
-#> ✔ purrr     1.0.2     
+#> ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+#> ✔ purrr     1.0.4     
 #> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 #> ✖ dplyr::filter() masks stats::filter()
 #> ✖ dplyr::lag()    masks stats::lag()
@@ -59,10 +59,10 @@ library(tidyverse)
 library(tidymodels)
 #> ── Attaching packages ────────────────────────────────────── tidymodels 1.2.0 ──
 #> ✔ broom        1.0.7     ✔ rsample      1.2.1
-#> ✔ dials        1.3.0     ✔ tune         1.2.1
+#> ✔ dials        1.4.0     ✔ tune         1.2.1
 #> ✔ infer        1.0.7     ✔ workflows    1.1.4
 #> ✔ modeldata    1.4.0     ✔ workflowsets 1.1.0
-#> ✔ parsnip      1.2.1     ✔ yardstick    1.3.1
+#> ✔ parsnip      1.3.1     ✔ yardstick    1.3.2
 #> ✔ recipes      1.1.0     
 #> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
 #> ✖ scales::discard() masks purrr::discard()
@@ -71,7 +71,7 @@ library(tidymodels)
 #> ✖ dplyr::lag()      masks stats::lag()
 #> ✖ yardstick::spec() masks readr::spec()
 #> ✖ recipes::step()   masks stats::step()
-#> • Search for functions across packages at https://www.tidymodels.org/find/
+#> • Learn how to get started at https://www.tidymodels.org/start/
 library(tdarec)
 
 # generate samples from two embeddings
@@ -114,7 +114,7 @@ recipe(embedding ~ sample, data = klein_train) |>
     sample, max_hom_degree = tune("vr_degree"),
     keep_original_cols = FALSE
   ) |> 
-  step_vpd_ecc(
+  step_vpd_euler_characteristic_curve(
     sample_phom, xseq = scale_seq,
     keep_original_cols = FALSE
   ) |> 
@@ -129,7 +129,7 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> 
 #> ── Operations
 #> Persistent features from a Rips filtration of sample
-#> Euler characteristic curves of sample_phom
+#> • Euler characteristic curve of: sample_phom
 
 # specify a classification model
 logistic_reg(penalty = tune(), mixture = 1) |> 
