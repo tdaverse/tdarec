@@ -21,11 +21,10 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 5 tuning parameters:
+#' This step has 4 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
 #'   \item `num_levels`: # Levels or envelopes (type: integer, default: `6L`)
-#'   \item `generalized`: NA (type: NA, default: `FALSE`)
 #'   \item `weight_func_pl`: Kernel distance weight function (type: character, default: `"triangle"`)
 #'   \item `bandwidth`: Kernel bandwidth (type: double, default: `NULL`)
 #' }
@@ -248,7 +247,7 @@ tidy.step_vpd_persistence_landscape <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_landscape <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "num_levels", "generalized", "weight_func_pl", "bandwidth"),
+    name = c("hom_degree", "num_levels", "weight_func_pl", "bandwidth"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
       list(pkg = "tdarec", fun = "num_levels", range = c(1L, unknown())),

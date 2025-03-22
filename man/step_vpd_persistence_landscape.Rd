@@ -102,11 +102,10 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 5 tuning parameters:
+This step has 4 tuning parameters:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
 \item \code{num_levels}: # Levels or envelopes (type: integer, default: \code{6L})
-\item \code{generalized}: NA (type: NA, default: \code{FALSE})
 \item \code{weight_func_pl}: Kernel distance weight function (type: character, default: \code{"triangle"})
 \item \code{bandwidth}: Kernel bandwidth (type: double, default: \code{NULL})
 }

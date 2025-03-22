@@ -92,10 +92,9 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 2 tuning parameters:
+This step has 1 tuning parameter:
 \itemize{
 \item \code{max_hom_degree}: Highest homological degree (type: integer, default: \code{Inf})
-\item \code{evaluate}: Evaluation method (type: character, default: \code{"intervals"})
 }
 }
 

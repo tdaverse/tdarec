@@ -21,11 +21,10 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 3 tuning parameters:
+#' This step has 2 tuning parameters:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
 #'   \item `weight_power`: Exponent weight (type: double, default: `1`)
-#'   \item `evaluate`: Evaluation method (type: character, default: `"intervals"`)
 #' }
 #' 
 #' @param hom_degree
@@ -218,11 +217,10 @@ tidy.step_vpd_persistence_silhouette <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_silhouette <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "weight_power", "evaluate"),
+    name = c("hom_degree", "weight_power"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "weight_power", range = c(1, 2)),
-      list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
+      list(pkg = "tdarec", fun = "weight_power", range = c(1, 2))
     ),
     source = "recipe",
     component = "step_vpd_persistence_silhouette",

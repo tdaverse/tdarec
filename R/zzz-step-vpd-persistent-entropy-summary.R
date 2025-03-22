@@ -21,10 +21,9 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 2 tuning parameters:
+#' This step has 1 tuning parameter:
 #' \itemize{
 #'   \item `hom_degree`: Homological degree (type: integer, default: `0L`)
-#'   \item `evaluate`: Evaluation method (type: character, default: `"intervals"`)
 #' }
 #' 
 #' @param hom_degree
@@ -209,10 +208,9 @@ tidy.step_vpd_persistent_entropy_summary <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistent_entropy_summary <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "evaluate"),
+    name = c("hom_degree"),
     call_info = list(
-      list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
+      list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown()))
     ),
     source = "recipe",
     component = "step_vpd_persistent_entropy_summary",

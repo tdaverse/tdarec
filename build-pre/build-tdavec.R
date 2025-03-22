@@ -304,12 +304,11 @@ tdavec_preps <- list(
   })
 )
 
-# data set of dials (tunable parameters) for which to generate source code;
-# mostly those that are specific to a single vectorization method
+# data set of dials (tunable parameters)
 # NOTE: Currently assumes that each dial is a param.
 c(
-  # hom_degree = "hom_degree",
-  # max_hom_degree = "max_hom_degree",
+  hom_degree = "hom_degree",
+  max_hom_degree = "max_hom_degree",
   # ComplexPolynomial
   num_coef = "num_coef",
   poly_type = "poly_type",
@@ -338,6 +337,14 @@ c(
   # enframe(name = NULL, value = "param") |> 
   # mutate(dial = param) |> 
   print() -> param_dials
+# dials for which to generate source code;
+# mostly those that are specific to a single vectorization method
+param_dials |> 
+  (\(s) s[! s %in% c("generalized")])() |> 
+  print() -> param_tuners
+param_tuners |> 
+  (\(s) s[! s %in% c("hom_degree", "max_hom_degree")])() |> 
+  print() -> param_autotuners
 
 # title (tunable) parameters
 dial_titles <- c(
@@ -455,7 +462,6 @@ dial_inclusive <- list(
 )
 # dial transformations
 dial_transforms <- list(
-  # hom_degree = NULL,
   img_sigma = expr(transform_log10()),
   bandwidth = expr(transform_log10()),
   # TODO: Revisit this choice. Compare to publication. Harmonize with endpoints.
@@ -465,9 +471,9 @@ dial_transforms <- list(
 )
 
 # CHOICE: finalizer for each dial
-dial_finalizers <- c(
-  # hom_degree = "get_hom_range",
-  # max_hom_degree = "get_hom_range",
+dial_finalizers <- list(
+  hom_degree = "get_hom_range",
+  max_hom_degree = "get_hom_range",
   num_coef = "get_pairs_max",
   img_sigma = "get_pers_max_frac",
   num_levels = "get_pairs_max",
@@ -478,8 +484,8 @@ dial_finalizers <- c(
 
 # CHOICE: example ranges of dials (tailor to 'zzz-ex-vpd-param.R')
 dial_range_value_examples <- list(
-  # hom_degree = c(0L, 2L),
-  # max_hom_degree = c(1L, 2L),
+  hom_degree = c(0L, 2L),
+  max_hom_degree = c(1L, 2L),
   num_coef = c(1L, 3L),
   poly_type = c("R", "S"),
   img_sigma = c(100, 400),
@@ -498,6 +504,12 @@ dial_range_value_examples <- list(
 )
 
 #' HELPERS
+
+param_args <- names(arg_params)
+names(param_args) <- arg_params
+
+dial_params <- names(param_dials)
+names(dial_params) <- param_dials
 
 #' Format text.
 

@@ -92,10 +92,9 @@ See there for definitions and references.
 \section{Tuning Parameters}{
 
 
-This step has 2 tuning parameters:
+This step has 1 tuning parameter:
 \itemize{
 \item \code{hom_degree}: Homological degree (type: integer, default: \code{0L})
-\item \code{evaluate}: Evaluation method (type: character, default: \code{"intervals"})
 }
 }
 

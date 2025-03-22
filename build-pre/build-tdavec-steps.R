@@ -187,7 +187,8 @@ build_details <- function(fn) {
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
     strsplit("\\|") |> unlist() |> unname() |> 
     # FIXME: Enable tuning by resolution.
-    setdiff(c("xseq", "xother", "yseq", "yother"))
+    setdiff(c("xseq", "xother", "yseq", "yother")) |> 
+    intersect(param_tuners)
   fn_bullets <- dial_titles[fn_dials] |> 
     gsub(pattern = "Number of ", replacement = "# ") |> 
     gsub(pattern = "\\?$", replacement = "")
@@ -584,7 +585,8 @@ build_tunable <- function(fn) {
     gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
     strsplit("\\|") |> unlist() |> unname() |> 
     # FIXME: Enable tuning by resolution.
-    setdiff(c("xseq", "xother", "yseq", "yother"))
+    setdiff(c("xseq", "xother", "yseq", "yother")) |> 
+    intersect(param_tuners)
   fn_ranges_values <- dial_ranges_values[fn_dials] |> 
     lapply(\(x) vapply(x, deparse, "")) |> 
     lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 
@@ -692,10 +694,75 @@ for (fn in tdavec_functions$name) {
   glue::glue("inst/examples/{build_prefix}-ex-step-vpd-{fn_hname}.R") |> 
     here::here() ->
     ex_file
-  cat(build_warning, file = ex_file, append = FALSE)
+  cat("", file = ex_file, append = FALSE)
   
   readLines("man/template/template-ex-step-vpd2.R") |> 
     gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_sname)) |> 
     gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
-    write(file = ex_file, append = FALSE)
+    write(file = ex_file, append = TRUE)
+}
+
+#' Write unit tests.
+
+# test parameter passes
+test_param_vals <- c(
+  hom_degree = 0L,
+  max_hom_degree = 0L,
+  img_sigma = 10,
+  num_levels = 3L,
+  dist_power = 2,
+  block_size = .5
+)
+
+# rm appropriate lines from template (as vector of character strings)
+keep_scales <- function(x, scales) {
+  rm_lines <- switch(
+    scales,
+    none = grepl("(x|y|scale)Seq|(x|y)seq", x),
+    x = grepl("(x|y)Seq|yseq", x),
+    xy = grepl("scaleSeq", x)
+  )
+  x[! rm_lines]
+}
+# FIXME: This has not yet been ... tested. ;)
+# write test files from template (overwrites existing files)
+for (fn in tdavec_functions$name) {
+  fn_sname <- vec_sname(fn)
+  fn_hname <- gsub("\\_", "-", fn_sname)
+  fn_args <- tdavec_functions |> 
+    filter(name == fn) |> 
+    pull(args) |> first() |> names() |> setdiff("D")
+  fn_scales <- if ("scaleSeq" %in% fn_args) {
+    "x"
+  } else if (all(c("xSeq", "ySeq") %in% fn_args)) {
+    "xy"
+  } else {
+    "none"
+  }
+  fn_test_params <- arg_params[fn_args] |> 
+    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
+    strsplit("\\|") |> unlist() |> unname() |> 
+    intersect(names(test_param_vals))
+  fn_param_vals <- 
+    paste0(fn_test_params, " = ", test_param_vals[fn_test_params], collapse = ", ")
+  fn_arg_vals <- param_args[fn_test_params] |> 
+    paste0(" = ", test_param_vals[fn_test_params], collapse = ", ")
+  fn_params <- arg_params[fn_args] |> 
+    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
+    strsplit("\\|") |> unlist() |> unname() |> 
+    intersect(param_tuners) |> deparse()
+  
+  glue::glue("tests/testthat/{build_prefix}-test-step-vpd-{fn_hname}.R") |> 
+    here::here() ->
+    test_file
+  cat(build_warning, file = test_file, append = FALSE)
+  
+  readLines("man/template/template-test-step-vpd.R") |> 
+    gsub(pattern = "\\{orig_fun\\}", replacement = fn) |> 
+    gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_sname)) |> 
+    gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
+    gsub(pattern = "\\{arg_vals\\}", replacement = fn_arg_vals) |> 
+    gsub(pattern = "\\{fun_params\\}", replacement = fn_params) |> 
+    keep_scales(scales = fn_scales) |> 
+    write(file = test_file, append = TRUE)
 }

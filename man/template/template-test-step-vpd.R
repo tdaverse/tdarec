@@ -1,0 +1,56 @@
+dist_train <- data.frame(
+  dist = I(list(eurodist))
+)
+dist_test <- data.frame(
+  dist = I(list(UScitiesD))
+)
+dist_rec <- recipe(~ ., data = dist_train) |> 
+  step_phom_point_cloud(everything(), keep_original_cols = FALSE)
+scale_seq <- seq(0, 5000, 100)
+
+test_that("`step_vpd_()` agrees with raw function", {
+  
+  pl_rec <- dist_rec |> 
+    step_vpd_(
+      everything(),
+      xseq = scale_seq,
+      yseq = scale_seq,
+      {param_vals},
+      keep_original_cols = FALSE
+    )
+  
+  pl_prep <- prep(pl_rec, training = dist_train)
+  
+  pl_pred <- bake(pl_prep, new_data = dist_test) |> 
+    unlist() |> unname()
+  
+  pl_exp <- dist_test$dist[[1L]] |> 
+    ripserr::vietoris_rips() |> as.matrix() |> 
+    TDAvec::{orig_fun}(
+      scaleSeq = scale_seq,
+      xSeq = scale_seq,
+      ySeq = scale_seq,
+      {arg_vals}
+    ) |> 
+    as.vector()
+  
+  expect_equal(pl_pred, pl_exp)
+})
+
+test_that("`tunable()` returns standard names", {
+  
+  pl_rec <- dist_rec |> 
+    step_vpd_(everything(), keep_original_cols = FALSE)
+  tun <- tunable(pl_rec$steps[[2]])
+  
+  expect_equal(
+    names(tun),
+    c("name", "call_info", "source", "component", "component_id")
+  )
+  expect_equal(
+    tun$name,
+    {fun_params}
+  )
+  expect_equal(unique(tun$source), "recipe")
+  expect_true(is.list(tun$call_info))
+})

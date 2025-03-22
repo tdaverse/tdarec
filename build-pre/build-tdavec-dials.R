@@ -28,38 +28,6 @@ build_warning <- glue::glue(
 # source building utilities
 source(here::here("build-pre/build-tdavec.R"))
 
-#' EXPRESSIONS
-
-#' Generate expressions to fill in the template.
-
-param_args <- names(arg_params)
-names(param_args) <- arg_params
-
-dial_params <- names(param_dials)
-names(dial_params) <- param_dials
-
-#' FINALIZERS
-
-#' Set a finalizer for each dial and check that it exists.
-
-# CHOICE: finalizer for each dial (`list` so that absence yields `NULL`)
-dial_finalizers <- list(
-  # hom_degree = "get_hom_range",
-  # max_hom_degree = "get_hom_range",
-  num_coef = "get_pairs_max",
-  img_sigma = "get_pers_max_frac",
-  num_levels = "get_pairs_max",
-  bandwidth = "get_pers_max_frac",
-  num_bars = "get_pairs_max",
-  tent_shift = "get_pers_min_mult"
-)
-# # stop if not all finalizers exist (only after loading the package)
-# dial_finalizers |> 
-#   unique() |> 
-#   vapply(exists, FALSE) |> 
-#   all() |> 
-#   stopifnot()
-
 #' WRITING
 
 #' Initialize the source and example files.
@@ -88,7 +56,7 @@ frontmatter <- glue::glue(
 )
 
 details <- list(doc_wrap("@details"), doc_wrap(""))
-for (dl in param_dials) {
+for (dl in param_autotuners) {
   
   # recover fields
   dl_name <- dl
@@ -153,7 +121,7 @@ cat(
 
 #' Populate the source and example files with code.
 
-for (dl in param_dials) {
+for (dl in param_autotuners) {
   
   # recover fields
   dl_name <- dl

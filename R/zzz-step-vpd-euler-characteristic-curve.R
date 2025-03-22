@@ -21,10 +21,9 @@
 #' 
 #' @section Tuning Parameters:
 #' 
-#' This step has 2 tuning parameters:
+#' This step has 1 tuning parameter:
 #' \itemize{
 #'   \item `max_hom_degree`: Highest homological degree (type: integer, default: `Inf`)
-#'   \item `evaluate`: Evaluation method (type: character, default: `"intervals"`)
 #' }
 #' 
 #' @param xseq
@@ -213,10 +212,9 @@ tidy.step_vpd_euler_characteristic_curve <- function(x, ...) {
 #' @export
 tunable.step_vpd_euler_characteristic_curve <- function(x, ...) {
   tibble::tibble(
-    name = c("max_hom_degree", "evaluate"),
+    name = c("max_hom_degree"),
     call_info = list(
-      list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, unknown())),
-      list(pkg = "tdarec", fun = "evaluate", values = c("intervals", "points"))
+      list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, unknown()))
     ),
     source = "recipe",
     component = "step_vpd_euler_characteristic_curve",
