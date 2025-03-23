@@ -12,8 +12,6 @@
 \alias{num_bars}
 \alias{num_bins}
 \alias{tent_shift}
-\alias{tent_size}
-\alias{block_size}
 \title{Tune Vectorizations of Persistent Homology}
 \usage{
 num_coef(range = c(1L, unknown()), trans = NULL)
@@ -38,10 +36,6 @@ num_bars(range = c(1L, unknown()), trans = NULL)
 num_bins(range = c(2L, 20L), trans = NULL)
 
 tent_shift(range = c(unknown(), unknown()), trans = transform_log10())
-
-tent_size(range = c(unknown(), unknown()), trans = transform_log10())
-
-block_size(range = c(0, 1), trans = transform_log10())
 }
 \arguments{
 \item{range}{A two-element vector holding the \emph{defaults} for the smallest and
@@ -87,12 +81,6 @@ The parameter \code{num_bins} is passed to \code{d} in
 
 The parameter \code{tent_shift} is passed to \code{epsilon} in
 \code{\link[TDAvec:computeTemplateFunction]{TDAvec::computeTemplateFunction()}}.
-
-The parameter \code{tent_size} is passed to \code{delta} in
-\code{\link[TDAvec:computeTemplateFunction]{TDAvec::computeTemplateFunction()}}.
-
-The parameter \code{block_size} is passed to \code{tau} in
-\code{\link[TDAvec:computePersistenceBlock]{TDAvec::computePersistenceBlock()}}.
 }
 \examples{
 data.frame(dist = I(list(eurodist, UScitiesD))) |>
@@ -167,27 +155,5 @@ grid_regular(ts_dat)
 
 (ts_hom <- tent_shift() |> get_pers_min_mult(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(ts_hom)
-
-# `tent_size` for `step_vpn_tent_template_functions()`
-
-(ts_man <- tent_size(range = c(1000, 1300), trans = NULL))
-grid_regular(ts_man)
-
-(ts_dat <- tent_size() |> NULL(x = pd_data))
-grid_regular(ts_dat)
-
-(ts_hom <- tent_size() |> NULL(x = pd_data, hom_degrees = seq(2L)))
-grid_regular(ts_hom)
-
-# `block_size` for `step_vpn_persistence_block()`
-
-(bs_man <- block_size(range = c(0, 0.5), trans = NULL))
-grid_regular(bs_man)
-
-(bs_dat <- block_size() |> NULL(x = pd_data))
-grid_regular(bs_dat)
-
-(bs_hom <- block_size() |> NULL(x = pd_data, hom_degrees = seq(2L)))
-grid_regular(bs_hom)
 
 }

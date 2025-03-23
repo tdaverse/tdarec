@@ -342,8 +342,9 @@ c(
 param_dials |> 
   (\(s) s[! s %in% c("generalized")])() |> 
   print() -> param_tuners
+no_autotuners <- c("hom_degree", "max_hom_degree", "tent_size", "block_size")
 param_tuners |> 
-  (\(s) s[! s %in% c("hom_degree", "max_hom_degree")])() |> 
+  (\(s) s[! s %in% no_autotuners])() |> 
   print() -> param_autotuners
 
 # title (tunable) parameters

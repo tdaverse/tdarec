@@ -40,12 +40,6 @@
 #' The parameter `tent_shift` is passed to `epsilon` in
 #' [TDAvec::computeTemplateFunction()].
 #' 
-#' The parameter `tent_size` is passed to `delta` in
-#' [TDAvec::computeTemplateFunction()].
-#' 
-#' The parameter `block_size` is passed to `tau` in
-#' [TDAvec::computePersistenceBlock()].
-#' 
 #' @name vpd-dials
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
@@ -197,36 +191,6 @@ tent_shift <- function(
     trans = trans,
     label = c(tent_shift = "Discretization grid shift"),
     finalize = get_pers_min_mult
-  )
-}
-
-#' @name vpd-dials
-#' @export
-tent_size <- function(
-    range = c(unknown(), unknown()), trans = transform_log10()
-) {
-  new_quant_param(
-    type = "double",
-    range = range,
-    inclusive = c(TRUE, TRUE),
-    trans = trans,
-    label = c(tent_size = "Discretization grid increment"),
-    finalize = NULL
-  )
-}
-
-#' @name vpd-dials
-#' @export
-block_size <- function(
-    range = c(0, 1), trans = transform_log10()
-) {
-  new_quant_param(
-    type = "double",
-    range = range,
-    inclusive = c(TRUE, TRUE),
-    trans = trans,
-    label = c(block_size = "Square side length scaling factor"),
-    finalize = NULL
   )
 }
 

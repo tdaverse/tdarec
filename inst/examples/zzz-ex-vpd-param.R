@@ -71,25 +71,3 @@ grid_regular(ts_dat)
 (ts_hom <- tent_shift() |> get_pers_min_mult(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(ts_hom)
 
-# `tent_size` for `step_vpn_tent_template_functions()`
-
-(ts_man <- tent_size(range = c(1000, 1300), trans = NULL))
-grid_regular(ts_man)
-
-(ts_dat <- tent_size() |> NULL(x = pd_data))
-grid_regular(ts_dat)
-
-(ts_hom <- tent_size() |> NULL(x = pd_data, hom_degrees = seq(2L)))
-grid_regular(ts_hom)
-
-# `block_size` for `step_vpn_persistence_block()`
-
-(bs_man <- block_size(range = c(0, 0.5), trans = NULL))
-grid_regular(bs_man)
-
-(bs_dat <- block_size() |> NULL(x = pd_data))
-grid_regular(bs_dat)
-
-(bs_hom <- block_size() |> NULL(x = pd_data, hom_degrees = seq(2L)))
-grid_regular(bs_hom)
-
