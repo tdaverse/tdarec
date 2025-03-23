@@ -12,7 +12,7 @@ step_blur(
   trained = FALSE,
   xmin = 0,
   xmax = 1,
-  sigma = 1,
+  blur_sigma = 1,
   columns = NULL,
   keep_original_cols = FALSE,
   skip = FALSE,
@@ -33,7 +33,7 @@ the original variables will be used as \emph{predictors} in a model.}
 \item{trained}{A logical to indicate if the quantities for
 preprocessing have been estimated.}
 
-\item{xmin, xmax, sigma}{Parameters passed to \code{\link[=blur]{blur()}}.}
+\item{xmin, xmax, blur_sigma}{Parameters passed to \code{\link[=blur]{blur()}}.}
 
 \item{columns}{A character string of the selected variable names. This field
 is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
@@ -70,7 +70,7 @@ and references.
 
 This step has 1 tuning parameter(s):
 \itemize{
-\item \code{sigma}: Gaussian Blur sigma (type: double, default: 1)
+\item \code{blur_sigma}: Gaussian Blur sigma (type: double, default: 1)
 }
 }
 
@@ -84,7 +84,7 @@ blur_res <- bake(blur_prep, topos)
 tidy(blur_rec, number = 1)
 tidy(blur_prep, number = 1)
 
-with_sigma <- recipe(~ ., data = topos) |> step_blur(pix, sigma = 10)
+with_sigma <- recipe(~ ., data = topos) |> step_blur(pix, blur_sigma = 10)
 with_sigma <- bake(prep(with_sigma, training = topos), topos)
 
 ops <- par(mfrow = c(1, 3))

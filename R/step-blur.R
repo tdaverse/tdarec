@@ -20,7 +20,7 @@
 
 #' @import recipes
 #' @importFrom dials new_quant_param unknown
-#' @param xmin,xmax,sigma Parameters passed to [blur()].
+#' @param xmin,xmax,blur_sigma Parameters passed to [blur()].
 #' @inheritParams recipes::step_pca
 #' @inherit recipes::step_pca return
 #' @example inst/examples/ex-step-blur.R
@@ -34,7 +34,7 @@ step_blur <- function(
     trained = FALSE,
     # custom parameters
     xmin = 0, xmax = 1,
-    sigma = 1,
+    blur_sigma = 1,
     # standard parameters
     columns = NULL,
     keep_original_cols = FALSE,
@@ -51,7 +51,7 @@ step_blur <- function(
       trained = trained,
       role = role,
       xmin = xmin, xmax = xmax,
-      sigma = sigma,
+      blur_sigma = blur_sigma,
       columns = columns,
       keep_original_cols = keep_original_cols,
       skip = skip,
@@ -64,7 +64,7 @@ step_blur_new <- function(
     terms,
     role, trained,
     xmin, xmax,
-    sigma,
+    blur_sigma,
     columns, keep_original_cols,
     skip, id
 ) {
@@ -74,7 +74,7 @@ step_blur_new <- function(
     role = role,
     trained = trained,
     xmin = xmin, xmax = xmax,
-    sigma = sigma,
+    blur_sigma = blur_sigma,
     columns = columns,
     keep_original_cols = keep_original_cols,
     skip = skip,
@@ -120,7 +120,7 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
     role = x$role,
     trained = TRUE,
     xmin = x$xmin, xmax = x$xmax,
-    sigma = x$sigma,
+    blur_sigma = x$blur_sigma,
     columns = col_names,
     keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
@@ -147,7 +147,7 @@ bake.step_blur <- function(object, new_data, ...) {
         x = d,
         xmin = object$xmin,
         xmax = object$xmax,
-        sigma = object$sigma
+        sigma = object$blur_sigma
       )
     )
     blur_data[[paste(term, "blur", sep = "_")]] <- term_blur
@@ -210,7 +210,7 @@ tidy.step_blur <- function(x, ...) {
 #' @export
 tunable.step_blur <- function(x, ...) {
   tibble::tibble(
-    name = c("sigma"),
+    name = c("blur_sigma"),
     call_info = list(
       list(pkg = "tdarec", fun = "blur_sigma", range = c(0, unknown()))
     ),

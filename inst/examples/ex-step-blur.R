@@ -7,7 +7,7 @@ blur_res <- bake(blur_prep, topos)
 tidy(blur_rec, number = 1)
 tidy(blur_prep, number = 1)
 
-with_sigma <- recipe(~ ., data = topos) |> step_blur(pix, sigma = 10)
+with_sigma <- recipe(~ ., data = topos) |> step_blur(pix, blur_sigma = 10)
 with_sigma <- bake(prep(with_sigma, training = topos), topos)
 
 ops <- par(mfrow = c(1, 3))

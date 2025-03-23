@@ -18,7 +18,7 @@ blur_sigma <- function(range = c(0, unknown()), trans = transform_log1p()) {
   new_quant_param(
     type = "double",
     range = range,
-    inclusive = c(TRUE, TRUE),
+    inclusive = c(FALSE, TRUE),
     trans = trans,
     label = c(blur_sigma = "Gaussian Blur sigma"),
     finalize = get_blur_range
