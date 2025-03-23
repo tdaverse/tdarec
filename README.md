@@ -14,21 +14,6 @@ The goal of {tdarec} is to provide additional preprocessing steps to
 homology (PH) and calculate vectorizations of persistence data
 (diagrams; PDs).
 
-The current prototype provides one engine to compute PH:
-
-- Vietoris–Rips filtrations of point clouds using
-  [{ripserr}](https://github.com/tdaverse/ripserr)
-
-and one engine to vectorize PDs:
-
-- Euler characteristic curves using
-  [{TDAvec}](https://github.com/uislambekov/TDAvec).
-
-The goal is to provide all PH and PD vectorization engines published on
-CRAN.
-
-## Installation
-
 You can install the development version of tdarec from
 [GitHub](https://github.com/) with:
 
@@ -37,43 +22,64 @@ You can install the development version of tdarec from
 pak::pak("corybrunson/tdarec")
 ```
 
+## Design
+
+### Recipe steps
+
+The current version provides two engines to compute PH (more will be
+implemented; see [this issue](issues/2) for plans):
+
+- **Vietoris–Rips** filtrations of point clouds (distance matrices or
+  coordinate matrices) using
+  [{ripserr}](https://github.com/tdaverse/ripserr)
+- **cubical** filtrations of lattices (pixelated or voxelated data)
+  using {ripserr}
+
+Also included are a pre-processing step to introduce **Gaussian blur**
+to lattices and a post-processing step to select PDs for **specific
+homological degrees**.
+
+Finally, this version provides steps that deploy the highly efficient
+**vectorizations** implemented in
+[{TDAvec}](https://github.com/uislambekov/TDAvec). These were written
+with {Rcpp} specifically for ML applications.
+
+### Tunable parameters
+
+Most steps come with new tunable parameters, for example the maximum
+homological degree of the VR filtration and the number of levels in
+persistence landscapes.
+
+One set of parameters that are conspicuously untunable are the “scale
+sequences”—the values at (or intervals over) which each transformed PD
+is vectorized. An implementation is underway.
+
+### Data formats and sets
+
+While the most common {recipes} are designed for structured tabular
+data, i.e. columns with numeric or categorical entries, almost all data
+subjected to machine learning with persistent homology has been in forms
+like point clouds or greyscale images that must be stored in
+list-columns. All {tdarec} examples use data in this form, and the data
+installed with the package is pre-processed for such use.
+
 ## Example
 
 This example uses existing engines in a full Tidyverse workflow to
 optimize a simple classification model for point clouds sampled from
-different embeddings of the Klein bottle:
+different embeddings of the Klein bottle. Note also that
+[{glmnet}](https://cran.r-project.org/package=glmnet) and
+[{tdaunif}](https://cran.r-project.org/package=tdaunif) must be
+installed.
+
+### Setup
+
+While not required, we attach Tidyverse and Tidymodels for convenience:
+
+The points are sampled uniformly from one of two Klein bottle
+embeddings, determined by a coin toss between the flat and the tube.
 
 ``` r
-# prepare a Tidymodels session and attach {tdarec}
-library(tidyverse)
-#> ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-#> ✔ dplyr     1.1.4     ✔ readr     2.1.5
-#> ✔ forcats   1.0.0     ✔ stringr   1.5.1
-#> ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-#> ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-#> ✔ purrr     1.0.4     
-#> ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-#> ✖ dplyr::filter() masks stats::filter()
-#> ✖ dplyr::lag()    masks stats::lag()
-#> ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-library(tidymodels)
-#> ── Attaching packages ────────────────────────────────────── tidymodels 1.2.0 ──
-#> ✔ broom        1.0.7     ✔ rsample      1.2.1
-#> ✔ dials        1.4.0     ✔ tune         1.2.1
-#> ✔ infer        1.0.7     ✔ workflows    1.1.4
-#> ✔ modeldata    1.4.0     ✔ workflowsets 1.1.0
-#> ✔ parsnip      1.3.1     ✔ yardstick    1.3.2
-#> ✔ recipes      1.1.0     
-#> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
-#> ✖ scales::discard() masks purrr::discard()
-#> ✖ dplyr::filter()   masks stats::filter()
-#> ✖ recipes::fixed()  masks stringr::fixed()
-#> ✖ dplyr::lag()      masks stats::lag()
-#> ✖ yardstick::spec() masks readr::spec()
-#> ✖ recipes::step()   masks stats::step()
-#> • Learn how to get started at https://www.tidymodels.org/start/
-library(tdarec)
-
 # generate samples from two embeddings
 set.seed(20024L)
 tibble(embedding = sample(c("flat", "tube"), size = 48, replace = TRUE)) |> 
@@ -84,11 +90,11 @@ tibble(embedding = sample(c("flat", "tube"), size = 48, replace = TRUE)) |>
       tube = tdaunif::sample_klein_tube(60, sd = .5)
     )
   })) |> 
-  # mutate(embedding = factor(embedding)) |> 
+  mutate(embedding = factor(embedding)) |>
   print() -> klein_data
 #> # A tibble: 48 × 2
 #>    embedding sample        
-#>    <chr>     <list>        
+#>    <fct>     <list>        
 #>  1 tube      <dbl [60 × 4]>
 #>  2 tube      <dbl [60 × 4]>
 #>  3 flat      <dbl [60 × 4]>
@@ -100,13 +106,31 @@ tibble(embedding = sample(c("flat", "tube"), size = 48, replace = TRUE)) |>
 #>  9 tube      <dbl [60 × 4]>
 #> 10 flat      <dbl [60 × 4]>
 #> # ℹ 38 more rows
+```
 
+We apply a classical partition into 80% training and 20% testing sets
+and prepare to perform 3-fold cross-validation on the training set.
+
+``` r
 # partition the data
 klein_split <- initial_split(klein_data, prop = .8)
 klein_train <- training(klein_split)
 klein_test <- testing(klein_split)
 klein_folds <- vfold_cv(klein_train, v = 3L)
+```
 
+In this example, we adopt a common transformation of persistence
+diagrams, Euler characteristic curves. For their vectorization, we need
+a scale sequence that spans the birth and death times of any persistent
+features, and for this we choose a round number larger than the
+diameters of both point clouds (based on the sampler documentation) as
+an upper bound. Rather than choose *a priori* to use homology up to
+degree 0, 1, 2, or 3, we prepare to tune the maximum degree during
+optimization.
+
+### Specifications
+
+``` r
 # specify a pre-processing recipe
 scale_seq <- seq(0, 3, by = .05)
 recipe(embedding ~ sample, data = klein_train) |> 
@@ -122,7 +146,7 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> 
 #> ── Recipe ──────────────────────────────────────────────────────────────────────
 #> 
-#> ── Inputs 
+#> ── Inputs
 #> Number of variables by role
 #> outcome:   1
 #> predictor: 1
@@ -130,7 +154,14 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> ── Operations
 #> Persistent features from a Rips filtration of sample
 #> • Euler characteristic curve of: sample_phom
+```
 
+For simplicity, we choose a common model for ML classification,
+penalized logistic regression. We fix the mixture coefficient to use
+LASSO rather than ridge regression but prepare the penalty parameter for
+tuning.
+
+``` r
 # specify a classification model
 logistic_reg(penalty = tune(), mixture = 1) |> 
   set_mode("classification") |> 
@@ -143,7 +174,12 @@ logistic_reg(penalty = tune(), mixture = 1) |>
 #>   mixture = 1
 #> 
 #> Computational engine: glmnet
+```
 
+We then generate a complete hyperparameter tuning grid by crossing the
+grids generated for the two unspecified parameters:
+
+``` r
 # generate a hyperparameter tuning grid
 klein_rec_grid <- grid_regular(
   extract_parameter_set_dials(klein_rec), levels = 3,
@@ -153,46 +189,67 @@ klein_lm_grid <- grid_regular(
   extract_parameter_set_dials(klein_lm), levels = 5
 )
 klein_grid <- merge(klein_rec_grid, klein_lm_grid)
+```
 
+### Optimization
+
+We evaluate the model across the hyperparameter grid using
+cross-validation, using the area under the sensitivity–specificity (ROC)
+curve:
+
+``` r
 # optimize the model performance
 klein_res <- tune_grid(
   klein_lm,
   preprocessor = klein_rec,
   resamples = klein_folds,
   grid = klein_grid,
-  metrics = metric_set(roc_auc, pr_auc)
+  metrics = metric_set(roc_auc)
 )
+```
+
+From the results, we obtain the best-performing parameter setting:
+
+``` r
 klein_res |> 
-  collect_metrics()
-#> # A tibble: 20 × 8
-#>         penalty vr_degree .metric .estimator  mean     n std_err .config        
-#>           <dbl>     <int> <chr>   <chr>      <dbl> <int>   <dbl> <chr>          
-#>  1 0.0000000001         1 pr_auc  binary     0.918     3  0.0817 Preprocessor1_…
-#>  2 0.0000000001         1 roc_auc binary     0.944     3  0.0556 Preprocessor1_…
-#>  3 0.0000000316         1 pr_auc  binary     0.918     3  0.0817 Preprocessor1_…
-#>  4 0.0000000316         1 roc_auc binary     0.944     3  0.0556 Preprocessor1_…
-#>  5 0.00001              1 pr_auc  binary     0.918     3  0.0817 Preprocessor1_…
-#>  6 0.00001              1 roc_auc binary     0.944     3  0.0556 Preprocessor1_…
-#>  7 0.00316              1 pr_auc  binary     0.918     3  0.0817 Preprocessor1_…
-#>  8 0.00316              1 roc_auc binary     0.944     3  0.0556 Preprocessor1_…
-#>  9 1                    1 pr_auc  binary     0.686     3  0.0548 Preprocessor1_…
-#> 10 1                    1 roc_auc binary     0.5       3  0      Preprocessor1_…
-#> 11 0.0000000001         3 pr_auc  binary     0.777     3  0.0614 Preprocessor2_…
-#> 12 0.0000000001         3 roc_auc binary     0.852     3  0.0359 Preprocessor2_…
-#> 13 0.0000000316         3 pr_auc  binary     0.777     3  0.0614 Preprocessor2_…
-#> 14 0.0000000316         3 roc_auc binary     0.852     3  0.0359 Preprocessor2_…
-#> 15 0.00001              3 pr_auc  binary     0.777     3  0.0614 Preprocessor2_…
-#> 16 0.00001              3 roc_auc binary     0.852     3  0.0359 Preprocessor2_…
-#> 17 0.00316              3 pr_auc  binary     0.777     3  0.0614 Preprocessor2_…
-#> 18 0.00316              3 roc_auc binary     0.852     3  0.0359 Preprocessor2_…
-#> 19 1                    3 pr_auc  binary     0.686     3  0.0548 Preprocessor2_…
-#> 20 1                    3 roc_auc binary     0.5       3  0      Preprocessor2_…
-klein_res |> 
-  select_best(metric = "roc_auc")
+  select_best(metric = "roc_auc") |> 
+  print() -> klein_best
 #> # A tibble: 1 × 3
 #>        penalty vr_degree .config             
 #>          <dbl>     <int> <chr>               
 #> 1 0.0000000001         1 Preprocessor1_Model1
+```
+
+### Evaluation
+
+This optimal setting includes both the VR homology degree and the GLM
+penalty, so both the pre-processing recipe and the predictive model must
+be finalized in order to fit the final model to the full training set:
+
+``` r
+klein_rec_fin <- klein_rec |> finalize_recipe(klein_best) |> prep()
+klein_lm_fin <- klein_lm |> finalize_model(klein_best)
+klein_fit <- fit(
+  klein_lm_fin,
+  formula(klein_rec_fin),
+  data = bake(klein_rec_fin, new_data = klein_train)
+)
+```
+
+Finally, we evaluate the fitted model on the testing set:
+
+``` r
+klein_fit |> 
+  predict(
+    new_data = bake(klein_rec_fin, new_data = klein_test),
+    type = "prob"
+  ) |> 
+  bind_cols(select(klein_test, embedding)) |> 
+  roc_auc(truth = embedding, .pred_flat)
+#> # A tibble: 1 × 3
+#>   .metric .estimator .estimate
+#>   <chr>   <chr>          <dbl>
+#> 1 roc_auc binary          0.92
 ```
 
 ## Code of Conduct
@@ -201,3 +258,13 @@ Please note that the tdarec project is released with a [Contributor Code
 of
 Conduct](https://contributor-covenant.org/version/2/1/CODE_OF_CONDUCT.html).
 By contributing to this project, you agree to abide by its terms.
+
+### Generated code
+
+Much of the code exposing {TDAvec} tools to Tidymodels is generated by
+elaborate scripts rather than written manually. While maintenance of
+these scripts takes effort, it prevents (or at least flags) errors
+arising from cascading implications of changes to the original
+functions, and it allows simple and rapid package-wide adjustments. If
+you see an issue with generated code, please raise an issue to discuss
+it before submitting a pull request.
