@@ -1,0 +1,130 @@
+---
+title: "Tuning persistent homological hyperparameters"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tuning persistent homological hyperparameters}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will illustrate the tuning of hyperparameters at two pre-processing steps provided by {tdarec}: the computation of persistent homology from data, and the vectorization of the resulting persistence data.
+
+```{r setup}
+library(tidymodels)
+# library(tdarec)
+devtools::load_all()
+```
+
+## handwritten digits data
+
+
+
+```{r MNIST data}
+print(mnist_train)
+print(mnist_test)
+mnist_train$label <- factor(mnist_train$label, sort(unique(mnist_train$label)))
+mnist_test$label <- factor(mnist_test$label, sort(unique(mnist_test$label)))
+(mnist_folds <- vfold_cv(mnist_train, v = 6L))
+```
+
+
+
+```{r value range}
+print(range(unlist(mnist_train$digit)))
+```
+
+
+
+```{r persistent homological recipe}
+recipe(label ~ digit, data = mnist_train) |> 
+  step_blur(digit, blur_sigma = tune("blur_sd")) |> 
+  step_phom_lattice(digit_blur) |> 
+  step_vpd_persistence_silhouette(
+    digit_blur_phom,
+    hom_degree = tune("sil_degree"),
+    xmin = 0, xmax = 255, xby = 8L
+  ) |>
+  print() -> mnist_rec
+```
+
+
+
+```{r tunable hyperparameters}
+extract_parameter_set_dials(mnist_rec)
+```
+
+
+
+```{r}
+mnist_rec |> 
+  finalize_recipe(parameters = list(blur_sd = 32, sil_degree = 0L)) |> 
+  prep() |> 
+  bake(new_data = mnist_train) ->
+  mnist_bake
+blur_param <- finalize(blur_sigma(), mnist_bake |> select(digit_blur))
+sil_param <- finalize(hom_degree(), mnist_bake |> select(digit_blur_phom))
+```
+
+
+
+```{r random forest model}
+rand_forest(
+  trees = 500,
+  min_n = tune("rf_node"),
+  mtry = tune("rf_pred")
+) |> 
+  set_mode("classification") |> 
+  set_engine("randomForest") |> 
+  print() -> mnist_spec
+extract_parameter_set_dials(mnist_spec)
+mtry_param <- finalize(mtry(), mnist_bake |> select(contains("silhouette")))
+```
+
+
+
+```{r bayesian optimization}
+mnist_rec_end <- mnist_rec |> step_select(label, contains("silhouette"))
+mnist_res <- tune_bayes(
+  mnist_spec,
+  preprocessor = mnist_rec_end,
+  resamples = mnist_folds,
+  param_info = parameters(list(
+    blur_sd = blur_param,
+    sil_degree = sil_param,
+    rf_node = min_n(), rf_pred = mtry_param
+  )),
+  metrics = metric_set(accuracy, roc_auc),
+  iter = 1, initial = 2,
+  control = control_bayes(verbose = TRUE, verbose_iter = TRUE, time_limit = 5)
+)
+collect_metrics(mnist_res)
+(mnist_best <- select_best(mnist_res, metric = "roc_auc"))
+```
+
+
+
+```{r final model fit}
+mnist_fin <- prep(finalize_recipe(mnist_rec_end, mnist_best))
+fit(
+  finalize_model(mnist_spec, mnist_best),
+  formula(mnist_fin),
+  data = bake(mnist_fin, new_data = mnist_train)
+) |> 
+  print() -> mnist_fit
+```
+
+Finally, we evaluate the final model on the holdout data from the original partition.
+
+```{r}
+mnist_fit |> 
+  predict(new_data = bake(mnist_fin, new_data = mnist_test)) |> 
+  bind_cols(select(mnist_test, embedding)) |> 
+  accuracy(truth = embedding, estimate = .pred_class)
+```

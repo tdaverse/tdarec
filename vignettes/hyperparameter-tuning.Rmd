@@ -71,7 +71,7 @@ recipe(embedding ~ sample, data = klein_train) |>
   ) |> 
   step_vpd_euler_characteristic_curve(
     sample_phom, xseq = scale_seq,
-    keep_original_cols = FALSE
+    keep_original_cols = TRUE
   ) |> 
   print() -> klein_rec
 ```
@@ -93,7 +93,8 @@ klein_rec |>
   prep() |> 
   bake(new_data = klein_train) ->
   klein_bake
-mtry_param <- finalize(mtry(), klein_bake)
+mtry_param <- finalize(mtry(), klein_bake |> select(contains("euler")))
+degree_param <- finalize(max_hom_degree(), klein_bake |> select(sample_phom))
 ```
 
 We can now specify the model and its tunable parameters.
@@ -102,8 +103,8 @@ In anticipation of the optimization process, we can also check its dials.
 ```{r random forest model}
 rand_forest(
   trees = 500,
-  min_n = tune("rf_node")#,
-  #mtry = tune("rf_pred")
+  min_n = tune("rf_node"),
+  mtry = tune("rf_pred")
 ) |> 
   set_mode("classification") |> 
   set_engine("randomForest") |> 
@@ -118,15 +119,15 @@ Error in UseMethod("predict") :
 -->
 
 ```{r bayesian optimization}
+klein_rec_end <- klein_rec |> step_select(embedding, contains("euler"))
 klein_res <- tune_bayes(
   klein_spec,
-  preprocessor = klein_rec,
+  preprocessor = klein_rec_end,
   resamples = klein_folds,
-  # # FIXME: This doesn't work, and anyway it shouldn't be necessary.
-  # param_info = parameters(list(
-  #   vr_degree = max_hom_degree(),
-  #   rf_node = min_n()#, rf_pred = mtry_param
-  # )),
+  param_info = parameters(list(
+    vr_degree = degree_param,
+    rf_node = min_n(), rf_pred = mtry_param
+  )),
   metrics = metric_set(accuracy, roc_auc),
   iter = 6, initial = 6
 )
@@ -138,11 +139,11 @@ Across several initializations and iterations, we obtain `r nrow(filter(collect_
 We use the best of these to fit the recipe and model to the entire training set to obtain the final model.
 
 ```{r final model fit}
-klein_prep <- prep(finalize_recipe(klein_rec, klein_param))
+klein_fin <- prep(finalize_recipe(klein_rec_end, klein_param))
 fit(
   finalize_model(klein_spec, klein_param),
-  formula(klein_prep),
-  data = bake(klein_prep, new_data = klein_train)
+  formula(klein_fin),
+  data = bake(klein_fin, new_data = klein_train)
 ) |> 
   print() -> klein_fit
 ```
@@ -151,7 +152,7 @@ Finally, we evaluate the final model on the holdout data from the original parti
 
 ```{r}
 klein_fit |> 
-  predict(new_data = bake(klein_prep, new_data = klein_test)) |> 
+  predict(new_data = bake(klein_fin, new_data = klein_test)) |> 
   bind_cols(select(klein_test, embedding)) |> 
   accuracy(truth = embedding, estimate = .pred_class)
 ```
