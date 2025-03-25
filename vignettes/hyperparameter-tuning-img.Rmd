@@ -43,13 +43,25 @@ print(range(unlist(mnist_train$digit)))
 
 
 ```{r persistent homological recipe}
+recipe(mnist_train) |> 
+  update_role(label, new_role = "outcome") |> 
+  step_blur()
+
+recipe(cars_train) |> 
+  update_role(mpg, new_role = "outcome") |> 
+  step_center(all_numeric() & ! all_outcomes()) |> 
+  step_pca(all_numeric() & ! all_outcomes(), num_comp = 6L) |> 
+  update_role(starts_with("PC"), new_role = "predictor") |> 
+  print() -> cars_rec
+
 recipe(label ~ digit, data = mnist_train) |> 
   step_blur(digit, blur_sigma = tune("blur_sd")) |> 
   step_phom_lattice(digit_blur) |> 
-  step_vpd_persistence_silhouette(
+  step_vpd_persistence_landscape(
     digit_blur_phom,
-    hom_degree = tune("sil_degree"),
-    xmin = 0, xmax = 255, xby = 8L
+    hom_degree = tune("pl_degree"),
+    xmin = 0, xmax = 255, xby = 8L,
+    num_levels = 6L
   ) |>
   print() -> mnist_rec
 ```
@@ -64,17 +76,18 @@ extract_parameter_set_dials(mnist_rec)
 
 ```{r}
 mnist_rec |> 
-  finalize_recipe(parameters = list(blur_sd = 32, sil_degree = 0L)) |> 
+  finalize_recipe(parameters = list(blur_sd = 32, pl_degree = 0L)) |> 
   prep() |> 
   bake(new_data = mnist_train) ->
   mnist_bake
 blur_param <- finalize(blur_sigma(), mnist_bake |> select(digit_blur))
-sil_param <- finalize(hom_degree(), mnist_bake |> select(digit_blur_phom))
+pl_param <- finalize(hom_degree(), mnist_bake |> select(digit_blur_phom))
 ```
 
 
 
 ```{r random forest model}
+stop("How to specify variable roles / model formula?")
 rand_forest(
   trees = 500,
   min_n = tune("rf_node"),
@@ -84,20 +97,39 @@ rand_forest(
   set_engine("randomForest") |> 
   print() -> mnist_spec
 extract_parameter_set_dials(mnist_spec)
-mtry_param <- finalize(mtry(), mnist_bake |> select(contains("silhouette")))
+mtry_param <- finalize(mtry(), mnist_bake |> select(contains("landscape")))
+```
+
+
+
+```{r test workflow}
+stop("Extract from {tune} internals, `tune:::tune_bayes_workflow()`.")
+load("~/Documents/professional/software/tdaverse/tdarec/tune-checks.rda")
+mnist_grid <- create_initial_set(pset, n = 6, checks = "grid")
+workflow() |> 
+  add_recipe(mnist_rec) |> 
+  add_model(mnist_spec) |> 
+  tune_grid(resamples = mnist_folds, grid = mnist_grid)
+  fit(data = mnist_train)
+
+mnist_rec |> 
+  finalize_recipe(list(blur_sd = 32, pl_degree = 0L)) |> 
+  workflow(spec = mnist_spec |> finalize_model(list(min_n = 10, mtry = 6))) |> 
+  fit(data = mnist_train)
 ```
 
 
 
 ```{r bayesian optimization}
 mnist_rec_end <- mnist_rec |> step_select(label, contains("silhouette"))
+stop("When using silhouettes, `tune_bayes()` gets stuck at `tune_grid()` inside `check_initial()`, after generating the initial values. The issue only arises when `hom_degree()` is used.")
 mnist_res <- tune_bayes(
   mnist_spec,
   preprocessor = mnist_rec_end,
   resamples = mnist_folds,
   param_info = parameters(list(
     blur_sd = blur_param,
-    sil_degree = sil_param,
+    pl_degree = pl_param,
     rf_node = min_n(), rf_pred = mtry_param
   )),
   metrics = metric_set(accuracy, roc_auc),
