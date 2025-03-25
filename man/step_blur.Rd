@@ -13,8 +13,6 @@ step_blur(
   xmin = 0,
   xmax = 1,
   blur_sigma = 1,
-  columns = NULL,
-  keep_original_cols = FALSE,
   skip = FALSE,
   id = rand_id("blur")
 )
@@ -34,12 +32,6 @@ the original variables will be used as \emph{predictors} in a model.}
 preprocessing have been estimated.}
 
 \item{xmin, xmax, blur_sigma}{Parameters passed to \code{\link[=blur]{blur()}}.}
-
-\item{columns}{A character string of the selected variable names. This field
-is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
-
-\item{keep_original_cols}{A logical to keep the original variables in the
-output. Defaults to \code{FALSE}.}
 
 \item{skip}{A logical. Should the step be skipped when the
 recipe is baked by \code{\link[recipes:bake]{bake()}}? While all operations are baked

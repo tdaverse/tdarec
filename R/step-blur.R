@@ -36,8 +36,6 @@ step_blur <- function(
     xmin = 0, xmax = 1,
     blur_sigma = 1,
     # standard parameters
-    columns = NULL,
-    keep_original_cols = FALSE,
     skip = FALSE,
     id = rand_id("blur")
 ) {
@@ -52,8 +50,6 @@ step_blur <- function(
       role = role,
       xmin = xmin, xmax = xmax,
       blur_sigma = blur_sigma,
-      columns = columns,
-      keep_original_cols = keep_original_cols,
       skip = skip,
       id = id
     )
@@ -65,7 +61,6 @@ step_blur_new <- function(
     role, trained,
     xmin, xmax,
     blur_sigma,
-    columns, keep_original_cols,
     skip, id
 ) {
   step(
@@ -75,8 +70,6 @@ step_blur_new <- function(
     trained = trained,
     xmin = xmin, xmax = xmax,
     blur_sigma = blur_sigma,
-    columns = columns,
-    keep_original_cols = keep_original_cols,
     skip = skip,
     id = id
   )
@@ -121,8 +114,6 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
     trained = TRUE,
     xmin = x$xmin, xmax = x$xmax,
     blur_sigma = x$blur_sigma,
-    columns = col_names,
-    keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
     id = x$id
   )
@@ -133,15 +124,14 @@ bake.step_blur <- function(object, new_data, ...) {
   # save(object, new_data, file = here::here("step-blur-bake.rda"))
   # load(here::here("step-blur-bake.rda"))
   
-  col_names <- names(object$columns)
+  col_names <- names(object$terms)
   check_new_data(col_names, object, new_data)
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
   # blur each image in each column
-  blur_data <- tibble::tibble(.rows = nrow(new_data))
-  for (term in object$terms) {
-    term_blur <- lapply(
+  for (col_name in col_names) {
+    new_data[[col_name]] <- lapply(
       new_data[[term]],
       \(d) blur(
         x = d,
@@ -150,12 +140,8 @@ bake.step_blur <- function(object, new_data, ...) {
         sigma = object$blur_sigma
       )
     )
-    blur_data[[paste(term, "blur", sep = "_")]] <- term_blur
   }
   
-  check_name(blur_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, blur_data)
-  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
@@ -193,8 +179,8 @@ required_pkgs.step_blur <- function(x, ...) {
 tidy.step_blur <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
-      terms = unname(x$columns),
-      value = rep(NA_real_, length(x$columns))
+      terms = unname(x$terms),
+      value = rep(NA_real_, length(x$terms))
     )
   } else {
     term_names <- sel2char(x$terms)

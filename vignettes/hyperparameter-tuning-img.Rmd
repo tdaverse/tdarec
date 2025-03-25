@@ -43,14 +43,16 @@ print(range(unlist(mnist_train$digit)))
 
 
 ```{r persistent homological recipe}
-recipe(label ~ digit, data = mnist_train) |> 
-  step_blur(digit, blur_sigma = tune("blur_sd")) |> 
-  step_phom_lattice(digit_blur) |> 
+recipe(mnist_train) |> 
+  step_blur(digit, blur_sigma = tune("blur_sd"), role = "intermediary") |> 
+  step_phom_lattice(digit, role = "intermediary") |> 
   step_vpd_persistence_silhouette(
-    digit_blur_phom,
+    digit_phom,
+    role = "predictor",
     hom_degree = tune("sil_degree"),
     xmin = 0, xmax = 255, xby = 8L
   ) |>
+  update_role(label, new_role = "outcome") |>  
   print() -> mnist_rec
 ```
 
@@ -68,8 +70,8 @@ mnist_rec |>
   prep() |> 
   bake(new_data = mnist_train) ->
   mnist_bake
-blur_param <- finalize(blur_sigma(), mnist_bake |> select(digit_blur))
-sil_param <- finalize(hom_degree(), mnist_bake |> select(digit_blur_phom))
+blur_param <- finalize(blur_sigma(), mnist_bake |> select(digit))
+sil_param <- finalize(hom_degree(), mnist_bake |> select(digit_phom))
 ```
 
 
