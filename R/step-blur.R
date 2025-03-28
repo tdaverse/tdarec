@@ -20,7 +20,7 @@
 
 #' @import recipes
 #' @importFrom dials new_quant_param unknown
-#' @param xmin,xmax,blur_sigma Parameters passed to [blur()].
+#' @param xmin,xmax,blur_sigmas Parameters passed to [blur()].
 #' @inheritParams recipes::step_pca
 #' @inherit recipes::step_pca return
 #' @example inst/examples/ex-step-blur.R
@@ -34,10 +34,8 @@ step_blur <- function(
     trained = FALSE,
     # custom parameters
     xmin = 0, xmax = 1,
-    blur_sigma = 1,
+    blur_sigmas = NULL,
     # standard parameters
-    columns = NULL,
-    keep_original_cols = FALSE,
     skip = FALSE,
     id = rand_id("blur")
 ) {
@@ -51,9 +49,7 @@ step_blur <- function(
       trained = trained,
       role = role,
       xmin = xmin, xmax = xmax,
-      blur_sigma = blur_sigma,
-      columns = columns,
-      keep_original_cols = keep_original_cols,
+      blur_sigmas = blur_sigmas,
       skip = skip,
       id = id
     )
@@ -64,8 +60,7 @@ step_blur_new <- function(
     terms,
     role, trained,
     xmin, xmax,
-    blur_sigma,
-    columns, keep_original_cols,
+    blur_sigmas,
     skip, id
 ) {
   step(
@@ -74,9 +69,7 @@ step_blur_new <- function(
     role = role,
     trained = trained,
     xmin = xmin, xmax = xmax,
-    blur_sigma = blur_sigma,
-    columns = columns,
-    keep_original_cols = keep_original_cols,
+    blur_sigmas = blur_sigmas,
     skip = skip,
     id = id
   )
@@ -114,15 +107,25 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
   if (x$xmin > x_range[[1L]]) x$xmin <- x_bound[[1L]]
   if (x$xmax > x_range[[2L]]) x$xmax <- x_bound[[2L]]
   
+  # default to median default blur within each column
+  if (length(x$blur_sigmas) == 1L) {
+    x$blur_sigmas <- rep(x$blur_sigmas, length(col_names))
+    names(x$blur_sigmas) <- col_names
+  } else if (is.null(x$blur_sigmas)) {
+    blur_default <- \(m) max(dim(m)) / ( 2 ^ ( length(dim(m)) + 1 ) )
+    x_blur_sigmas <- training[, col_names, drop = FALSE] |> 
+      lapply(\(l) vapply(l, blur_default, 0.)) |> 
+      vapply(median, 0.)
+    x$blur_sigmas <- x_blur_sigmas
+  }
+  
   # output prepped step
   step_blur_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
     xmin = x$xmin, xmax = x$xmax,
-    blur_sigma = x$blur_sigma,
-    columns = col_names,
-    keep_original_cols = get_keep_original_cols(x),
+    blur_sigmas = x$blur_sigmas,
     skip = x$skip,
     id = x$id
   )
@@ -133,29 +136,24 @@ bake.step_blur <- function(object, new_data, ...) {
   # save(object, new_data, file = here::here("step-blur-bake.rda"))
   # load(here::here("step-blur-bake.rda"))
   
-  col_names <- names(object$columns)
+  col_names <- names(object$terms)
   check_new_data(col_names, object, new_data)
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
   # blur each image in each column
-  blur_data <- tibble::tibble(.rows = nrow(new_data))
-  for (term in object$terms) {
-    term_blur <- lapply(
-      new_data[[term]],
+  for (col_name in col_names) {
+    new_data[[col_name]] <- lapply(
+      new_data[[col_name]],
       \(d) blur(
         x = d,
         xmin = object$xmin,
         xmax = object$xmax,
-        sigma = object$blur_sigma
+        sigma = object$blur_sigmas[col_name]
       )
     )
-    blur_data[[paste(term, "blur", sep = "_")]] <- term_blur
   }
   
-  check_name(blur_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, blur_data)
-  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
@@ -193,8 +191,8 @@ required_pkgs.step_blur <- function(x, ...) {
 tidy.step_blur <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
-      terms = unname(x$columns),
-      value = rep(NA_real_, length(x$columns))
+      terms = unname(x$terms),
+      value = rep(NA_real_, length(x$terms))
     )
   } else {
     term_names <- sel2char(x$terms)
@@ -210,9 +208,9 @@ tidy.step_blur <- function(x, ...) {
 #' @export
 tunable.step_blur <- function(x, ...) {
   tibble::tibble(
-    name = c("blur_sigma"),
+    name = c("blur_sigmas"),
     call_info = list(
-      list(pkg = "tdarec", fun = "blur_sigma", range = c(0, unknown()))
+      list(pkg = "tdarec", fun = "blur_sigmas", range = c(0, unknown()))
     ),
     source = "recipe",
     component = "step_blur",

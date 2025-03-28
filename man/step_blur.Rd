@@ -12,9 +12,7 @@ step_blur(
   trained = FALSE,
   xmin = 0,
   xmax = 1,
-  blur_sigma = 1,
-  columns = NULL,
-  keep_original_cols = FALSE,
+  blur_sigmas = NULL,
   skip = FALSE,
   id = rand_id("blur")
 )
@@ -33,13 +31,7 @@ the original variables will be used as \emph{predictors} in a model.}
 \item{trained}{A logical to indicate if the quantities for
 preprocessing have been estimated.}
 
-\item{xmin, xmax, blur_sigma}{Parameters passed to \code{\link[=blur]{blur()}}.}
-
-\item{columns}{A character string of the selected variable names. This field
-is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
-
-\item{keep_original_cols}{A logical to keep the original variables in the
-output. Defaults to \code{FALSE}.}
+\item{xmin, xmax, blur_sigmas}{Parameters passed to \code{\link[=blur]{blur()}}.}
 
 \item{skip}{A logical. Should the step be skipped when the
 recipe is baked by \code{\link[recipes:bake]{bake()}}? While all operations are baked
@@ -70,7 +62,7 @@ and references.
 
 This step has 1 tuning parameter(s):
 \itemize{
-\item \code{blur_sigma}: Gaussian Blur sigma (type: double, default: 1)
+\item \code{blur_sigmas}: Gaussian Blur std. dev.s (type: double, default: NULL)
 }
 }
 
@@ -84,12 +76,12 @@ blur_res <- bake(blur_prep, topos)
 tidy(blur_rec, number = 1)
 tidy(blur_prep, number = 1)
 
-with_sigma <- recipe(~ ., data = topos) |> step_blur(pix, blur_sigma = 10)
-with_sigma <- bake(prep(with_sigma, training = topos), topos)
+with_sigmas <- recipe(~ ., data = topos) |> step_blur(pix, blur_sigmas = 10)
+with_sigmas <- bake(prep(with_sigmas, training = topos), topos)
 
 ops <- par(mfrow = c(1, 3))
 image(topos$pix[[1]])
-image(blur_res$pix_blur[[1]])
-image(with_sigma$pix_blur[[1]])
+image(blur_res$pix[[1]])
+image(with_sigmas$pix[[1]])
 par(mfrow = ops$mfrow)
 }

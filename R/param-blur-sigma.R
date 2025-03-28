@@ -14,13 +14,13 @@
 #' @inheritParams dials::finalize
 #' @example inst/examples/ex-param-blur-sigma.R
 #' @export
-blur_sigma <- function(range = c(0, unknown()), trans = transform_log1p()) {
+blur_sigmas <- function(range = c(unknown(), unknown()), trans = transform_log1p()) {
   new_quant_param(
     type = "double",
     range = range,
-    inclusive = c(FALSE, TRUE),
+    inclusive = c(TRUE, TRUE),
     trans = trans,
-    label = c(blur_sigma = "Gaussian Blur sigma"),
+    label = c(blur_sigmas = "Gaussian Blur std. dev.s"),
     finalize = get_blur_range
   )
 }
@@ -51,10 +51,15 @@ get_blur_range <- function(object, x, ...) {
   x_sigmas <- sapply(x, \(l) vapply(
     l,
     \(m) max(dim(m)) / 2 ^ (length(dim(m)) + 1),
-    0
+    0.
   ))
-  # set the upper bound to one order of magnitude beyond the maximum
-  rngs[2L] <- log1p(max(x_sigmas)) + 1
+  # set the lower & upper bounds to one order of magnitude beyond the extrema
+  if (dials::is_unknown(rngs$lower)) {
+    rngs[1L] <- log1p(min(x_sigmas)) - 1
+  }
+  if (dials::is_unknown(rngs$upper)) {
+    rngs[2L] <- log1p(max(x_sigmas)) + 1
+  }
   
   if (object$type == "integer" & is.null(object$trans)) {
     rngs <- as.integer(rngs)

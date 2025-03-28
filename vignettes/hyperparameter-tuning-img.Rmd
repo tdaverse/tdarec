@@ -26,43 +26,93 @@ devtools::load_all()
 
 
 
+TODO: Note that this procedure requires PH to be computed fresh for each hyperparameter set. Alternatively, one may fix the PH parameters, bake in the vectorizations, and optimize the post-processing and model hyperparameters. Eventually, a workflow should be made possible that performs the pre-processing steps only once for each hyperparameter set with the results then used to evaluate each model (and post-processing) hyperparameter set.
+<https://tune.tidymodels.org/articles/extras/optimizations.html>
+<https://www.tidymodels.org/learn/work/tune-text/>
+
 ```{r MNIST data}
-print(mnist_train)
-print(mnist_test)
-mnist_train$label <- factor(mnist_train$label, sort(unique(mnist_train$label)))
-mnist_test$label <- factor(mnist_test$label, sort(unique(mnist_test$label)))
-(mnist_folds <- vfold_cv(mnist_train, v = 6L))
+set.seed(239396)
+# (mnist_tr <- mnist_train[sample(600, size = 120), ])
+# (mnist_te <- mnist_test[sample(100, size = 20), ])
+mnist_tr <- mnist_train
+mnist_te <- mnist_test
+mnist_tr$label <- factor(mnist_tr$label, sort(unique(mnist_tr$label)))
+mnist_te$label <- factor(mnist_te$label, sort(unique(mnist_te$label)))
+(mnist_folds <- vfold_cv(mnist_tr, v = 6))
 ```
 
 
 
 ```{r value range}
-print(range(unlist(mnist_train$digit)))
+print(range(unlist(mnist_tr$digit)))
 ```
 
 
 
+TODO: Compute PH, pull apart degrees into multiple PD columns (tune their number---0 only vs 0 and 1), and compute PLs on each PD column separately. This should make use of `tune_grid()`'s order-of-operations trick.
+
 ```{r persistent homological recipe}
-recipe(mnist_train) |> 
+# write pre-processing steps with careful role assignment
+recipe(mnist_tr) |> 
   update_role(label, new_role = "outcome") |> 
-  step_blur()
-
-recipe(cars_train) |> 
-  update_role(mpg, new_role = "outcome") |> 
-  step_center(all_numeric() & ! all_outcomes()) |> 
-  step_pca(all_numeric() & ! all_outcomes(), num_comp = 6L) |> 
-  update_role(starts_with("PC"), new_role = "predictor") |> 
-  print() -> cars_rec
-
-recipe(label ~ digit, data = mnist_train) |> 
-  step_blur(digit, blur_sigma = tune("blur_sd")) |> 
-  step_phom_lattice(digit_blur) |> 
+  step_blur(digit, role = "intermediary") |>
+  step_phom_lattice(digit, role = "intermediary") |> 
   step_vpd_persistence_landscape(
-    digit_blur_phom,
-    hom_degree = tune("pl_degree"),
-    xmin = 0, xmax = 255, xby = 8L,
-    num_levels = 6L
-  ) |>
+    digit_phom,
+    hom_degree = 2,
+    xmin = 0, xmax = 255, xby = 16,
+    num_levels = 3
+  ) |> 
+  update_role(contains("landscape"), new_role = "predictor") |> 
+  print() -> mnist_rec
+# check that pre-processed data are appropriate for model
+mnist_rec |> 
+  prep() |> 
+  bake(new_data = mnist_tr) -> mnist_bake
+# specify model with hyperparameter values
+rand_forest(
+  trees = 100,
+  min_n = 2,
+  mtry = 1
+) |> 
+  set_mode("classification") |> 
+  set_engine("ranger") |> 
+  print() -> mnist_spec
+# fit model to specification and pre-processing
+fit(
+  mnist_spec,
+  mnist_rec |> prep() |> formula(),
+  data = mnist_rec |> prep() |> bake(new_data = mnist_tr)
+) |> 
+  print() -> mnist_fit
+# evaluate predictions on testing set
+mnist_fit |> 
+  predict(new_data = bake(prep(mnist_rec), new_data = mnist_te)) |> 
+  bind_cols(select(mnist_te, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
+```
+
+
+
+Hyperparameter tuning!
+
+```{r}
+recipe(mnist_tr) |> 
+  update_role(label, new_role = "outcome") |> 
+  # FIXME: Default `role` to something other than `"predictor"`.
+  step_blur(digit, role = "intermediary", blur_sigmas = tune("blur_sd")) |> 
+  step_phom_lattice(digit, role = "intermediary") |> 
+  step_vpd_persistence_landscape(
+    digit_phom,
+    hom_degree = tune("pl_deg"),
+    xmin = 0, xmax = 255, xby = 16,
+    num_levels = tune("pl_lev")
+  ) |> 
+  update_role(contains("landscape"), new_role = "predictor") |> 
   print() -> mnist_rec
 ```
 
@@ -76,66 +126,96 @@ extract_parameter_set_dials(mnist_rec)
 
 ```{r}
 mnist_rec |> 
-  finalize_recipe(parameters = list(blur_sd = 32, pl_degree = 0L)) |> 
+  finalize_recipe(parameters = list(blur_sd = 8, pl_deg = 0, pl_lev = 3)) |> 
   prep() |> 
-  bake(new_data = mnist_train) ->
+  bake(new_data = mnist_tr) ->
   mnist_bake
-blur_param <- finalize(blur_sigma(), mnist_bake |> select(digit_blur))
-pl_param <- finalize(hom_degree(), mnist_bake |> select(digit_blur_phom))
+print(mnist_bake)
+```
+
+
+
+```{r}
+blur_sd_fin <- finalize(blur_sigmas(), mnist_tr |> select(digit))
+pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit_phom))
+pl_lev_fin <- finalize(num_levels(), mnist_bake |> select(digit_phom))
 ```
 
 
 
 ```{r random forest model}
-stop("How to specify variable roles / model formula?")
 rand_forest(
-  trees = 500,
+  trees = 100,
   min_n = tune("rf_node"),
   mtry = tune("rf_pred")
 ) |> 
   set_mode("classification") |> 
-  set_engine("randomForest") |> 
+  set_engine("ranger") |> 
   print() -> mnist_spec
 extract_parameter_set_dials(mnist_spec)
-mtry_param <- finalize(mtry(), mnist_bake |> select(contains("landscape")))
+```
+
+
+
+```{r}
+mtry_fin <- finalize(mtry(), mnist_bake |> select(contains("landscape")))
 ```
 
 
 
 ```{r test workflow}
-stop("Extract from {tune} internals, `tune:::tune_bayes_workflow()`.")
-load("~/Documents/professional/software/tdaverse/tdarec/tune-checks.rda")
-mnist_grid <- create_initial_set(pset, n = 6, checks = "grid")
 workflow() |> 
   add_recipe(mnist_rec) |> 
   add_model(mnist_spec) |> 
-  tune_grid(resamples = mnist_folds, grid = mnist_grid)
-  fit(data = mnist_train)
-
-mnist_rec |> 
-  finalize_recipe(list(blur_sd = 32, pl_degree = 0L)) |> 
-  workflow(spec = mnist_spec |> finalize_model(list(min_n = 10, mtry = 6))) |> 
-  fit(data = mnist_train)
+  print() -> mnist_wflow
 ```
 
 
 
-```{r bayesian optimization}
-mnist_rec_end <- mnist_rec |> step_select(label, contains("silhouette"))
-stop("When using silhouettes, `tune_bayes()` gets stuck at `tune_grid()` inside `check_initial()`, after generating the initial values. The issue only arises when `hom_degree()` is used.")
+```{r}
+# mnist_wflow |> 
+#   fit_resamples(resamples = mnist_folds)
+```
+
+
+
+```{r}
+mnist_rec_grid <- 
+  grid_regular(blur_sd_fin, pl_deg_fin, pl_lev_fin, levels = 3) |> 
+  set_names(c("blur_sd", "pl_deg", "pl_lev"))
+mnist_spec_grid <- 
+  grid_regular(min_n(), mtry_fin, levels = 3) |> 
+  set_names(c("rf_node", "rf_pred"))
+mnist_grid <- merge(mnist_rec_grid, mnist_spec_grid)
+mnist_res <- tune_grid(
+  mnist_wflow,
+  resamples = mnist_folds,
+  # grid = mnist_grid,
+  grid = mnist_grid[seq(12), , drop = FALSE],
+  metrics = metric_set(accuracy, roc_auc),
+  control = control_grid()
+)
+```
+
+
+
+```{r}
 mnist_res <- tune_bayes(
-  mnist_spec,
-  preprocessor = mnist_rec_end,
+  mnist_wflow,
   resamples = mnist_folds,
   param_info = parameters(list(
-    blur_sd = blur_param,
-    pl_degree = pl_param,
-    rf_node = min_n(), rf_pred = mtry_param
+    blur_sd = blur_sd_fin, pl_deg = pl_deg_fin, pl_lev = pl_lev_fin,
+    rf_node = min_n(), rf_pred = mtry_fin
   )),
   metrics = metric_set(accuracy, roc_auc),
-  iter = 1, initial = 2,
-  control = control_bayes(verbose = TRUE, verbose_iter = TRUE, time_limit = 5)
+  iter = 12, initial = 6,
+  control = control_bayes(verbose_iter = TRUE, time_limit = 5)
 )
+```
+
+
+
+```{r}
 collect_metrics(mnist_res)
 (mnist_best <- select_best(mnist_res, metric = "roc_auc"))
 ```
@@ -143,20 +223,37 @@ collect_metrics(mnist_res)
 
 
 ```{r final model fit}
-mnist_fin <- prep(finalize_recipe(mnist_rec_end, mnist_best))
+mnist_fin <- prep(finalize_recipe(mnist_rec, mnist_best))
 fit(
   finalize_model(mnist_spec, mnist_best),
   formula(mnist_fin),
-  data = bake(mnist_fin, new_data = mnist_train)
+  data = bake(mnist_fin, new_data = mnist_tr)
 ) |> 
   print() -> mnist_fit
+```
+
+
+
+```{r}
+mnist_fit |> 
+  predict(new_data = bake(mnist_fin, new_data = mnist_tr)) |> 
+  bind_cols(select(mnist_tr, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
 ```
 
 Finally, we evaluate the final model on the holdout data from the original partition.
 
 ```{r}
 mnist_fit |> 
-  predict(new_data = bake(mnist_fin, new_data = mnist_test)) |> 
-  bind_cols(select(mnist_test, embedding)) |> 
-  accuracy(truth = embedding, estimate = .pred_class)
+  predict(new_data = bake(mnist_fin, new_data = mnist_te)) |> 
+  bind_cols(select(mnist_te, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
 ```
