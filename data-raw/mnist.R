@@ -47,8 +47,16 @@ plot_digit <- function(arr784, col = gray(12:1 / 12), ...) {
   image(extract_digit(arr784), col = col, asp = 1, ...)
 }
 
-# view test image
-plot_digit(train_x[5, ])
+# view example training images
+head(train_y, n = 6)
+par(mfrow = c(2, 3))
+for (r in seq(6)) plot_digit(train_x[r, ])
+par(mfrow = c(1, 1))
+# view example testing images
+head(test_y, n = 6)
+par(mfrow = c(2, 3))
+for (r in seq(6)) plot_digit(test_x[r, ])
+par(mfrow = c(1, 1))
 
 # stratified random sample (indices) of digits
 strat_sample_digits <- function(x, y, prop) {
@@ -72,7 +80,7 @@ mnist_train <- tibble(
 test_sample <- strat_sample_digits(test_x, test_y, prop = .01)
 mnist_test <- tibble(
   digit = lapply(test_sample, \(s) extract_digit(test_x[s, ])),
-  label = as.vector(train_y[test_sample, ])
+  label = as.vector(test_y[test_sample, ])
 )
 
 save(
