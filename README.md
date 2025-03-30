@@ -152,7 +152,7 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> predictor: 1
 #> 
 #> ── Operations
-#> Persistent features from a Rips filtration of sample
+#> • persistent features from a Rips filtration of: sample
 #> • Euler characteristic curve of: sample_phom
 ```
 
