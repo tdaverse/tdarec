@@ -67,7 +67,7 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
   x_max_dim <- max(x_max_dims)
   
   # set the range based on the maximum observed and the minimum required
-  rngs[2L] <- min(max_dim, x_max_dim)
+  rngs[2L] <- min(max_dim, x_max_dim) - 1L
   
   if (object$type == "integer" & is.null(object$trans)) {
     rngs <- as.integer(rngs)

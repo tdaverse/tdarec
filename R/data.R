@@ -1,12 +1,11 @@
 #' @title MNIST handwritten digits
 #'
-#' @description This is a 1% sample from the MNIST handwritten digit dataset.
+#' @description This is a 1% stratified random sample from the MNIST handwritten
+#'   digit data set.
 #'
 #' @name mnist
 #' @aliases mnist_train mnist_test
-#' @usage
-#' mnist_train
-#' mnist_test
+#' @usage mnist_train; mnist_test
 #' @keywords datasets
 #' @format Two data frames of 600 and 100 rows, respectively, and 2 variables:
 #' \describe{

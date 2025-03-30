@@ -1,0 +1,158 @@
+---
+title: "Tuning hyperparameters of persistent homological steps"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Tuning hyperparameters of persistent homological steps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette will illustrate the tuning of hyperparameters at two pre-processing steps provided by {tdarec}: the computation of persistent homology from data, and the vectorization of the resulting persistence data.
+The vignette will be updated as additional hyperparameters become available.
+
+```{r setup}
+library(tidymodels)
+library(tdarec)
+```
+
+## Point cloud sampling
+
+Persistent homology is not strictly a topological property; by design, it is sensitive to the geometric scales at which certain features can or cannot be detected.
+And the same topological space may embed in numerous ways in a finite-dimensional real space.
+{tdaunif} provides multiple embeddings of the genus-1 torus, for example.
+So, how much does the geometry of the embedding affect its persistent homology?
+
+We will test whether a simple predictive model can correctly classify point clouds from the same topological space based on which embedding they were sampled from.
+Below we use two embeddings of the Klein bottle into $\mathbb{R}^4$, known as the "flat" embedding and the "tube" embedding, which differ in whether the resulting manifold is locally curved.
+We generate 48 samples of size 60, each from a randomly selected embedding, and perturb the sample with Gaussian noise.
+The point clouds are stored as a list-column in a tibble together with the label for their source embedding.
+
+```{r toy data set}
+set.seed(as.Date("2024-11-16"))
+tibble(embedding = sample(c("flat", "tube"), size = 48, replace = TRUE)) |> 
+  mutate(sample = lapply(embedding, function(emb) {
+    switch(
+      emb,
+      flat = tdaunif::sample_klein_flat(60, sd = .5),
+      tube = tdaunif::sample_klein_tube(60, sd = .5)
+    )
+  })) |> 
+  mutate(embedding = factor(embedding)) |> 
+  print() -> klein_data
+```
+
+The task is now to build a model to classify each point cloud according to its embedding.
+We will optimize both pre-processing and model hyperparameters within a training set using 3-fold cross-validation and evaluate the final model on a testing set.
+
+```{r data partitions}
+klein_split <- initial_split(klein_data, prop = .8)
+klein_train <- training(klein_split)
+klein_test <- testing(klein_split)
+klein_folds <- vfold_cv(klein_train, v = 3L)
+```
+
+For this recipe, we perform only two pre-processing steps: We compute the Vietoris--Rips persistent homology of each point cloud, then we vectorize each resulting persistence diagram to its Euler characteristic curve.
+Because multiple hyperparameters might be called "degree"---especially where homology is involved---we give the explicit name `"vr_degree"` to the Vietoris--Rips parameter.
+To preserve space, we remove the original columns at each step.
+
+```{r persistent homological recipe}
+scale_seq <- seq(0, 3, by = .05)
+recipe(embedding ~ sample, data = klein_train) |> 
+  step_phom_point_cloud(
+    sample, max_hom_degree = tune("vr_degree"),
+    keep_original_cols = FALSE
+  ) |> 
+  step_vpd_euler_characteristic_curve(
+    sample_phom, xseq = scale_seq,
+    keep_original_cols = TRUE
+  ) |> 
+  print() -> klein_rec
+```
+
+We can check which hyperparameters are primed to be tuned by extracting the dials from the recipe:
+
+```{r tunable hyperparameters}
+extract_parameter_set_dials(klein_rec)
+```
+
+Because the vectorization yields numerous features, each of which may contribute incrementally to model performance, we will build a random forest classifier, the most common type of ensemble model.
+
+One tuning parameter, the number of variables sampled for each split (`mtry`), depends on the dimensionality of the pre-processed data.
+To provide it with a tuning range, we first pre-process the data using the largest candidate homological degree:
+
+```{r}
+klein_rec |> 
+  finalize_recipe(list(vr_degree = 3)) |> 
+  prep() |> 
+  bake(new_data = klein_train) ->
+  klein_bake
+mtry_param <- finalize(mtry(), klein_bake |> select(contains("euler")))
+degree_param <- finalize(max_hom_degree(), klein_bake |> select(sample_phom))
+```
+
+We can now specify the model and its tunable parameters.
+In anticipation of the optimization process, we can also check its dials.
+
+```{r random forest model}
+rand_forest(
+  trees = 500,
+  min_n = tune("rf_node"),
+  mtry = tune("rf_pred")
+) |> 
+  set_mode("classification") |> 
+  set_engine("randomForest") |> 
+  print() -> klein_spec
+extract_parameter_set_dials(klein_spec)
+```
+
+Since the persistent homology computation in particular can be time-intensive, we will take a page from Motta &al (2019) and use Bayesian optimization to tune our hyperparameters.
+<!--FIXME: When `objective = "<some metric>"` is set, the following error is invariable:
+Error in UseMethod("predict") : 
+  no applicable method for 'predict' applied to an object of class "character"
+-->
+
+```{r bayesian optimization}
+klein_rec_end <- klein_rec |> step_select(embedding, contains("euler"))
+klein_res <- tune_bayes(
+  klein_spec,
+  preprocessor = klein_rec_end,
+  resamples = klein_folds,
+  param_info = parameters(list(
+    vr_degree = degree_param,
+    rf_node = min_n(), rf_pred = mtry_param
+  )),
+  metrics = metric_set(accuracy, roc_auc),
+  iter = 6, initial = 6
+)
+collect_metrics(klein_res)
+(klein_param <- select_best(klein_res, metric = "roc_auc"))
+```
+
+Across several initializations and iterations, we obtain `r nrow(filter(collect_metrics(klein_res), .metric == "accuracy"))` hyperparameter setting sets.
+We use the best of these to fit the recipe and model to the entire training set to obtain the final model.
+
+```{r final model fit}
+klein_fin <- prep(finalize_recipe(klein_rec_end, klein_param))
+fit(
+  finalize_model(klein_spec, klein_param),
+  formula(klein_fin),
+  data = bake(klein_fin, new_data = klein_train)
+) |> 
+  print() -> klein_fit
+```
+
+Finally, we evaluate the final model on the holdout data from the original partition.
+
+```{r}
+klein_fit |> 
+  predict(new_data = bake(klein_fin, new_data = klein_test)) |> 
+  bind_cols(select(klein_test, embedding)) |> 
+  accuracy(truth = embedding, estimate = .pred_class)
+```

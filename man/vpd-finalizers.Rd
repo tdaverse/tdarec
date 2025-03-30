@@ -42,6 +42,9 @@ functions.}
 \item{frac}{A double for the fraction of the data to be used for the upper
 bound. For \code{get_n_frac_range()} and \code{get_batch_sizes()}, a vector of two
 fractional values are required.}
+
+\item{mult}{A double for the multiple of the data to be used for the lower
+bound.}
 }
 \value{
 An updated \code{param} object or a list of updated \code{param} objects depending

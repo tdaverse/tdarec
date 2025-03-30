@@ -8,7 +8,7 @@
 step_phom_degree(
   recipe,
   ...,
-  role = "predictor",
+  role = "persistence diagram",
   trained = FALSE,
   hom_degrees = NULL,
   columns = NULL,

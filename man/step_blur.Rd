@@ -8,7 +8,7 @@
 step_blur(
   recipe,
   ...,
-  role = "predictor",
+  role = NA_character_,
   trained = FALSE,
   xmin = 0,
   xmax = 1,

@@ -12,7 +12,7 @@
 #' @importFrom scales transform_log1p
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
-#' @example inst/examples/ex-param-blur-sigma.R
+#' @example inst/examples/ex-param-blur-sigmas.R
 #' @export
 blur_sigmas <- function(range = c(unknown(), unknown()), trans = transform_log1p()) {
   new_quant_param(

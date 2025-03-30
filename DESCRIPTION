@@ -44,7 +44,7 @@ Config/testthat/edition: 3
 Collate: 
     'blur.R'
     'data.R'
-    'param-blur-sigma.R'
+    'param-blur-sigmas.R'
     'vpd-finalizers.R'
     'param-hom-degree.R'
     'step-blur.R'

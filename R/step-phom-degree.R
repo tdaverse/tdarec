@@ -25,7 +25,7 @@ step_phom_degree <- function(
     recipe,
     ...,
     # standard inputs
-    role = "predictor",
+    role = "persistence diagram",
     trained = FALSE,
     # custom parameters
     hom_degrees = NULL,
@@ -134,11 +134,16 @@ print.step_phom_degree <- function(
   # save(x, width, file = here::here("step-phom-degree-print.rda"))
   # load(here::here("step-phom-degree-print.rda"))
   
-  cat("Persistent features separated by homological degree.")
-  printer(
-    tr_obj = NULL,
+  title <- paste0(
+    paste0(x$hom_degrees, collapse = ", "),
+    "-degree features from "
+  )
+  
+  print_step(
     untr_obj = x$terms,
+    tr_obj = NULL,
     trained = x$trained,
+    title = title,
     width = width
   )
   invisible(x)

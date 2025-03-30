@@ -89,6 +89,7 @@ details <- do.call(glue::glue, details)
 logistics <- glue::glue(
   doc_wrap("@name vpd-dials"),
   doc_wrap("@inheritParams dials::Laplace"),
+  doc_wrap("@param values A character string of possible values."),
   doc_wrap("@inheritParams dials::finalize"),
   doc_wrap("@importFrom scales {imported_transforms}"),
   doc_wrap("@inheritParams step_phom_degree"),

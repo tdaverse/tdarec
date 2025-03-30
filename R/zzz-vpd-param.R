@@ -42,6 +42,7 @@
 #' 
 #' @name vpd-dials
 #' @inheritParams dials::Laplace
+#' @param values A character string of possible values.
 #' @inheritParams dials::finalize
 #' @importFrom scales transform_log10
 #' @inheritParams step_phom_degree

@@ -46,6 +46,8 @@ these values should be in the \emph{transformed units}.}
 \code{scales::transform_log10()} or \code{scales::transform_reciprocal()}. If not provided,
 the default is used which matches the units used in \code{range}. If no
 transformation, \code{NULL}.}
+
+\item{values}{A character string of possible values.}
 }
 \description{
 These tuning functions govern the parameters of

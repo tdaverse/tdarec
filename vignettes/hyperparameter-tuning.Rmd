@@ -1,8 +1,8 @@
 ---
-title: "Tuning hyperparameters of persistent homological steps"
+title: "Tuning persistent homological hyperparameters"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tuning hyperparameters of persistent homological steps}
+  %\VignetteIndexEntry{Tuning persistent homological hyperparameters}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,144 +15,369 @@ knitr::opts_chunk$set(
 ```
 
 This vignette will illustrate the tuning of hyperparameters at two pre-processing steps provided by {tdarec}: the computation of persistent homology from data, and the vectorization of the resulting persistence data.
-The vignette will be updated as additional hyperparameters become available.
+Because the logic and syntax can become confusing, the vignette will also illustrate how to tune model hyperparameters in the same workflow as those of the pre-processing recipe.
 
 ```{r setup}
 library(tidymodels)
 library(tdarec)
 ```
 
-## Point cloud sampling
+## cubical persistent homology
 
-Persistent homology is not strictly a topological property; by design, it is sensitive to the geometric scales at which certain features can or cannot be detected.
-And the same topological space may embed in numerous ways in a finite-dimensional real space.
-{tdaunif} provides multiple embeddings of the genus-1 torus, for example.
-So, how much does the geometry of the embedding affect its persistent homology?
+The persistent homology of a real-valued function on a manifold is determined by the _sublevel set filtration_:
+Given $f : X \to \mathbb{R}$, for each value $r \in \mathbb{R}$ define $X_r = f^{-1}(-\infty,r]$, so that $X_r \subseteq X_s$ whenever $r < s$.
+Then the induced homomorphisms $H_k(X_r) \to H_k(X_s)$ between (singular) homology groups form a _persistence module_ whose decomposition obtains the birth--death pairs that comprise the $k^\text{th}$ persistence diagram of $X$.
 
-We will test whether a simple predictive model can correctly classify point clouds from the same topological space based on which embedding they were sampled from.
-Below we use two embeddings of the Klein bottle into $\mathbb{R}^4$, known as the "flat" embedding and the "tube" embedding, which differ in whether the resulting manifold is locally curved.
-We generate 48 samples of size 60, each from a randomly selected embedding, and perturb the sample with Gaussian noise.
-The point clouds are stored as a list-column in a tibble together with the label for their source embedding.
+While some such computations can be done analytically, most data come in the form of discrete measurements rather than functional relationships.
+For example, the topographic data for the Maunga Whau caldera take the form of a 2-dimensional numeric array, with each cell containing the estimated elevation of a 100--square meter area:
 
-```{r toy data set}
-set.seed(as.Date("2024-11-16"))
-tibble(embedding = sample(c("flat", "tube"), size = 48, replace = TRUE)) |> 
-  mutate(sample = lapply(embedding, function(emb) {
-    switch(
-      emb,
-      flat = tdaunif::sample_klein_flat(60, sd = .5),
-      tube = tdaunif::sample_klein_tube(60, sd = .5)
-    )
-  })) |> 
-  mutate(embedding = factor(embedding)) |> 
-  print() -> klein_data
+```{r, fig.height=4, fig.width=6}
+filled.contour(volcano, color.palette = terrain.colors, asp = 1)
 ```
 
-The task is now to build a model to classify each point cloud according to its embedding.
-We will optimize both pre-processing and model hyperparameters within a training set using 3-fold cross-validation and evaluate the final model on a testing set.
+This is a discretization of a height function from latitude and longitude ($\mathbb{S}^2$, approximated locally by $\mathbb{R}^2$) to elevation ($\mathbb{R}$), and cubical persistent homology is an alternative to the simplicial computation designed specifically for data in this form.
+The {ripserr} package ports the Cubical Ripser algorithm to R and serves as the engine for this pre-processing step.
 
-```{r data partitions}
-klein_split <- initial_split(klein_data, prop = .8)
-klein_train <- training(klein_split)
-klein_test <- testing(klein_split)
-klein_folds <- vfold_cv(klein_train, v = 3L)
+## handwritten digits data
+
+The MNIST handwritten digits data set comprises 70,000 $28 \times 28$ pixellated black-and-white images of the numerals 0--9 obtained from forms completed by US Census Bureau field staff and Maryland high school students.
+The images are partitioned into a training set of 60,000 and a testing set of 10,000, and {tdavec} comes with a 1% random sample from each.
+To respect Tidymodels conventions, we convert the `label` column from integer to factor before continuing.
+
+```{r mnist data}
+mnist_train$label <- factor(mnist_train$label, sort(unique(mnist_train$label)))
+mnist_test$label <- factor(mnist_test$label, sort(unique(mnist_test$label)))
 ```
 
-For this recipe, we perform only two pre-processing steps: We compute the Vietoris--Rips persistent homology of each point cloud, then we vectorize each resulting persistence diagram to its Euler characteristic curve.
-Because multiple hyperparameters might be called "degree"---especially where homology is involved---we give the explicit name `"vr_degree"` to the Vietoris--Rips parameter.
-To preserve space, we remove the original columns at each step.
+## preparation
+
+Following a standard ML approach, we prepare the training set for 6-fold cross-validation, which will be used to choose hyperparameter settings that maximize the accuracy of a classifier.
+The optimized settings will be used to classify the digits in the testing set, and a comparison with the true labels will provide an estimate of the accuracy of the resulting model.
+
+```{r data partition}
+set.seed(143597)
+(mnist_folds <- vfold_cv(mnist_train, v = 6))
+```
+
+For reference, we check the range of the values that populate the arrays:
+
+```{r value range}
+print(range(unlist(mnist_train$digit)))
+```
+
+This indicates that the greyscale images are coded as integers between $0$ and $2^8 - 1$, and we will use this information to inform our pre-processing steps.
+
+# a fixed-parameter walkthrough
+
+Before taking on the challenge of tuning, we walk through the modeling process using fixed parameters. This will help ensure that our approach is sound, for example by prompting us to think through our choices and flagging unforeseen problems.
+It will also allow us to compare the performance of the model under "trialed" versus tuned parameter settings.
+
+## pre-processing recipe
+
+The first step is to prepare the pre-processing recipe.
+Ours goes in three steps: Blur the original images, compute their cubical persistence diagrams, and transform these diagrams into vectorized persistence landscapes.
+We comment on each step:
+
+1. One limitation of cubical persistent homology is that it is sensitive only to the height difference between cells in the array, not the distances between them. So, on topographic data, a steep peak and a gentle mound of the same height will be encoded as the same feature.
+This is likely to be a problem in the classification of digits, as for example the numerals $0$ and $6$ have one "hole" each so are indistinguishable from a purely topological perspective. We can make the PH sensitive to distance by first convolving the image with a small bivariate Gaussian distribution. This _blur_ reduces the height difference between nearby positions but retains that between distant positions. For this untuned model, we allow `step_blur()` to compute a default standard deviation for the Gaussian as described in `help(blur)`.
+2. Cubical persistent homology is a parameter-free computation, so no tuning is required or even possible. (With point clouds, we might care about the highest-degree features being computed, but for our height functions on $\mathbb{R}^2$ the upper bound for non-zero homology is $2 - 1 = 1$.)
+3. {TDAvec} provides over a dozen vectorization methods for persistence diagrams, and each carries strengths and weaknesses. Our choice to use persistence landscapes in this vignette is somewhat arbitrary, but the nuance of the step allows us to illustrate optimization using two hyperparameters (the homological degree of the diagram to transform and the number of landscape levels to vectorize) and to point out some adjustable default behavior. We use our knowledge of the value range to specify a grid.
+
+Only the final pre-processing step yields new numeric columns that can be used as predictors in a conventional model.
+For this reason, the PH step by default assigns the placeholder role `"persistence diagram"` to its output, so that the new `digit_phom` column will not accidentally be used as a predictor.
+In contrast, the blur step modifies its column `digit` in place, and [the modified column inherits the role(s) of the original](https://recipes.tidymodels.org/articles/Roles.html#role-inheritance).
+This requires us to update the role of `digit`, but this can be done before or after applying the blur.
 
 ```{r persistent homological recipe}
-scale_seq <- seq(0, 3, by = .05)
-recipe(embedding ~ sample, data = klein_train) |> 
-  step_phom_point_cloud(
-    sample, max_hom_degree = tune("vr_degree"),
-    keep_original_cols = FALSE
+recipe(mnist_train) |> 
+  update_role(label, new_role = "outcome") |> 
+  update_role(digit, new_role = "image") |> 
+  step_blur(digit) |>
+  step_phom_lattice(digit) |> 
+  step_vpd_persistence_landscape(
+    digit_phom,
+    hom_degree = 1,
+    xmin = 0, xmax = 255, xby = 16,
+    num_levels = 3
   ) |> 
-  step_vpd_euler_characteristic_curve(
-    sample_phom, xseq = scale_seq,
-    keep_original_cols = TRUE
-  ) |> 
-  print() -> klein_rec
+  print() -> mnist_rec
 ```
 
-We can check which hyperparameters are primed to be tuned by extracting the dials from the recipe:
+We can check directly whether our role assignments obtained as expected:
 
-```{r tunable hyperparameters}
-extract_parameter_set_dials(klein_rec)
+```{r recipe summary}
+mnist_rec |> 
+  prep() |> 
+  print() -> mnist_prep
+summary(mnist_prep)
 ```
 
-Because the vectorization yields numerous features, each of which may contribute incrementally to model performance, we will build a random forest classifier, the most common type of ensemble model.
+And we can inspect the result of applying the prepared recipe to the training data:
 
-One tuning parameter, the number of variables sampled for each split (`mtry`), depends on the dimensionality of the pre-processed data.
-To provide it with a tuning range, we first pre-process the data using the largest candidate homological degree:
+```{r trained recipe}
+mnist_rec |> 
+  prep() |> 
+  bake(new_data = mnist_train)
+```
+
+## classification forest
+
+In the next code chunk we specify a random forest (RF) model to classify the digits using vectorized persistence landscapes.
+RFs are ubiquitous in ML for their combination of flexibility and performance: They can be used almost anywhere and generally produce more accurate models than average.
+They also come with a medley of tuning parameters. In this vignette, we demonstrate the use of 3 hyperparameters, each treated differently:
+
+* The number `trees` of trees in each forest is fixed at 300.
+* The minimum node size will be tuned across its default range, though here it is fixed at 6.
+* The number of predictors selected for each tree will also be tuned, but the maximum value must be determined from the data. Here it is set to 2.
+
+The {randomForest} engine is strict in its requirements: If all predictors have zero variance, i.e. there is no way to generate different predictors for different cases, then the model fails with an error.
+This is a serious possibility for our setting, for instance if no degree-1 features are detected so that the persistence landscapes are uniformly zero.
+To prevent this from derailing our workflow, we use the {ranger} engine, which is tolerant of this situation, instead.
+
+```{r random forest specification}
+rand_forest(
+  trees = 300,
+  min_n = 6,
+  mtry = 2
+) |> 
+  set_mode("classification") |> 
+  set_engine("ranger") |> 
+  print() -> mnist_spec
+```
+
+## fitting and evaluation
+
+We fit the model to the pre-processed training data:
 
 ```{r}
-klein_rec |> 
-  finalize_recipe(list(vr_degree = 3)) |> 
-  prep() |> 
-  bake(new_data = klein_train) ->
-  klein_bake
-mtry_param <- finalize(mtry(), klein_bake |> select(contains("euler")))
-degree_param <- finalize(max_hom_degree(), klein_bake |> select(sample_phom))
+set.seed(944327)
+fit(
+  mnist_spec,
+  mnist_rec |> prep() |> formula(),
+  data = mnist_rec |> prep() |> bake(new_data = mnist_train)
+) |> 
+  print() -> mnist_fit
 ```
 
-We can now specify the model and its tunable parameters.
-In anticipation of the optimization process, we can also check its dials.
+Note that the model, while not optimized for accuracy on the training set, is informed by it through the preparation process, in particular the default choice of blur parameter:
 
-```{r random forest model}
+```{r blur value}
+mnist_prep$steps[[1]]$blur_sigmas
+```
+
+To evaluate the model, we generate predictions for the testing set and compare them to the true labels.
+Because accuracy is a coarse metric for a 10-value classification task, we examine the confusion matrix to get a sense of what errors are most common.
+
+```{r}
+mnist_fit |> 
+  predict(new_data = bake(prep(mnist_rec), new_data = mnist_test)) |> 
+  bind_cols(select(mnist_test, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+```
+
+The accuracy is poor but clearly better than chance. The confusion matrix suggests some reasons for the misclassifications:
+Most confused are $0$ and $2$ (5 errors), $0$ and $3$ (5), $0$ and $7$ (7), $1$ and $4$ (7), and $6$ and $8$ (5). These pairings are more geometrically than topologically similar; there were fewer confusions of $6$ and $9$ or of either and $0$ or $4$, where we might have expected them.
+This could be due to excessive blur; the standard deviation of `r mnist_prep$steps[[1]]$blur_sigmas` may be too high. We can compare this default to the value obtained through tuning.
+
+# tuning hyperparameters
+
+We now extend the process above to choose, bound, and tune several pre-processing and modeling hyperparameters.
+
+## tunable pre-processing recipe
+
+We rewrite the recipe to prepare the hyperparameters for tuning rather than to assign them fixed values.
+Each parameter is given a character ID that will refer to it in the various system messages and outputs.
+Beware that this section of the vignette overwrites all `mnist_*` variable names used in the previous section! This is for readability but can cause problems if parts are executed out of order.
+
+```{r tunable persistent homological recipe}
+recipe(mnist_train) |> 
+  update_role(label, new_role = "outcome") |> 
+  update_role(digit, new_role = "image") |> 
+  step_blur(digit, blur_sigmas = tune("blur_sd")) |>
+  step_phom_lattice(digit) |> 
+  step_vpd_persistence_landscape(
+    digit_phom,
+    hom_degree = tune("pl_deg"),
+    xmin = 0, xmax = 255, xby = 16,
+    num_levels = tune("pl_lev")
+  ) |> 
+  print() -> mnist_rec
+```
+
+This recipe has three tunable parameters, as we can verify by extracting their dials:
+
+```{r tunable recipe hyperparameters}
+extract_parameter_set_dials(mnist_rec)
+```
+
+Note that all three require finalization; like the number of randomly sampled predictors for each tree in a random forest, their ranges should not be guessed but must be determined from the content of the data.
+In fact, the persistence landscape hyperparameters must be determined from columns derived by the first two steps from the input columns, not from the input columns themselves.
+For this reason only, we train the recipe with some intuitive values in order to obtain these derived columns for tuning purposes:
+
+```{r trained tunable recipe}
+mnist_rec |> 
+  finalize_recipe(parameters = list(blur_sd = 8, pl_deg = 0, pl_lev = 3)) |> 
+  prep() |> 
+  bake(new_data = mnist_train) ->
+  mnist_bake
+print(mnist_bake)
+```
+
+We use the input `digit` column to finalize the range of blurs and the derived `digit_phom` column to finalize the range of homological degree.
+We euxpect the important topological features of the digits number at most 2 per image, so we manually prescribe a narrow range for `num_levels`, though it could also be learned from the training set.
+Each finalized range is printed for reference:
+
+```{r finalize recipe tuners}
+( blur_sd_fin <- finalize(blur_sigmas(), mnist_train |> select(digit)) )
+( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit_phom)) )
+( pl_lev_fin <- num_levels(range = c(1, 3)) )
+```
+
+Note that the homological degree ranges only from $0$ to $1$ because the image has dimension 2.
+
+## tunable classification forest
+
+As noted earlier, the three hyperparameters of the RF specification will be treated in different ways: `trees` fixed at $300$, `min_n` tuned over a default grid, and `mtry` tuned over a grid learned from the training set.
+
+```{r tunable random forest specification}
 rand_forest(
-  trees = 500,
+  trees = 300,
   min_n = tune("rf_node"),
   mtry = tune("rf_pred")
 ) |> 
   set_mode("classification") |> 
-  set_engine("randomForest") |> 
-  print() -> klein_spec
-extract_parameter_set_dials(klein_spec)
+  set_engine("ranger") |> 
+  print() -> mnist_spec
 ```
 
-Since the persistent homology computation in particular can be time-intensive, we will take a page from Motta &al (2019) and use Bayesian optimization to tune our hyperparameters.
-<!--FIXME: When `objective = "<some metric>"` is set, the following error is invariable:
-Error in UseMethod("predict") : 
-  no applicable method for 'predict' applied to an object of class "character"
--->
+We can again check for the two tunable hyperparameters by extracting their dials:
 
-```{r bayesian optimization}
-klein_rec_end <- klein_rec |> step_select(embedding, contains("euler"))
-klein_res <- tune_bayes(
-  klein_spec,
-  preprocessor = klein_rec_end,
-  resamples = klein_folds,
+```{r tunable model parameters}
+extract_parameter_set_dials(mnist_spec)
+```
+
+As seen in the printed dials, one hyperparameter range must be finalized.
+The process for doing so is the same as for the recipe, but in this case the variables of interest are the vectorized features.
+We see from the pre-processed data that these features use a consistent naming convention, and we use this convention to select them for learning the range:
+
+```{r finalize model tuners}
+( mtry_fin <- finalize(mtry(), mnist_bake |> select(contains("landscape"))) )
+```
+
+In preparation for tuning, we wrap the pre-processing recipe and the model specification in a workflow:
+
+```{r workflow of recipe and model}
+workflow() |> 
+  add_recipe(mnist_rec) |> 
+  add_model(mnist_spec) |> 
+  print() -> mnist_wflow
+```
+
+One way to systematically optimize the recipe and model hyperparameters---to tune the dials---is via a grid.
+For illustration, we construct a workflow grid by crossing a recipe grid with a model grid:
+
+```{r prepare a tuning grid}
+mnist_rec_grid <- 
+  grid_regular(blur_sd_fin, pl_deg_fin, pl_lev_fin, levels = 3) |> 
+  set_names(c("blur_sd", "pl_deg", "pl_lev"))
+mnist_spec_grid <- 
+  grid_regular(min_n(), mtry_fin, levels = 3) |> 
+  set_names(c("rf_node", "rf_pred"))
+mnist_grid <- merge(mnist_rec_grid, mnist_spec_grid)
+head(mnist_grid)
+```
+
+This approach is not as inefficient as it might seem:
+As implemented in Tidymodels, [grid tuning recognizes the order of the pre-processing steps](https://tune.tidymodels.org/articles/extras/optimizations.html), and sometimes [of the model construction](https://www.tidymodels.org/learn/work/tune-text/#grid-search), and only performs each step once for every combination of subsequent steps, using the temporarily stored results rather than recomputing them from scratch.
+The unexecuted code chunk below shows the syntax for conducting this grid search:
+
+```{r tune workflow over a grid, eval=FALSE}
+mnist_res <- tune_grid(
+  mnist_wflow,
+  resamples = mnist_folds,
+  grid = mnist_grid,
+  metrics = metric_set(accuracy, roc_auc),
+  control = control_grid()
+)
+```
+
+Still, however, due to the exceptionally costly computations involved, a more targeted search is preferable.
+For this reason, [Motta, Tralie, &al (2019)](https://ieeexplore.ieee.org/abstract/document/8999182) recommend Bayesian optimization for ML using topological features. This procedure is also implemented in Tidymodels and executed below.
+The syntax is similar to that of the grid search, but for illustration we specify 6 initial seeds with 12 tuning iterations each, and we limit the total runtime to 5 minutes.
+
+```{r tune workflow via bayesian optimization}
+set.seed(259762)
+mnist_res <- tune_bayes(
+  mnist_wflow,
+  resamples = mnist_folds,
   param_info = parameters(list(
-    vr_degree = degree_param,
-    rf_node = min_n(), rf_pred = mtry_param
+    blur_sd = blur_sd_fin, pl_deg = pl_deg_fin, pl_lev = pl_lev_fin,
+    rf_node = min_n(), rf_pred = mtry_fin
   )),
   metrics = metric_set(accuracy, roc_auc),
-  iter = 6, initial = 6
+  initial = 6, iter = 12,
+  control = control_bayes(time_limit = 5)
 )
-collect_metrics(klein_res)
-(klein_param <- select_best(klein_res, metric = "roc_auc"))
 ```
 
-Across several initializations and iterations, we obtain `r nrow(filter(collect_metrics(klein_res), .metric == "accuracy"))` hyperparameter setting sets.
-We use the best of these to fit the recipe and model to the entire training set to obtain the final model.
+Whereas in the previous section we fit only a single model, in this section we have obtained results for numerous hyperparameter settings and must choose among them for the final model.
+We first inspect the top several models, for a sense of how rapidly performance drops away from the optimal settings, then select the top-performing settings for the final model.
+We computed both accuracy and area under the ROC curve, but we use only the former to inform this choice.
+
+```{r }
+collect_metrics(mnist_res) |> 
+  filter(.metric == "accuracy") |> 
+  arrange(desc(mean))
+(mnist_best <- select_best(mnist_res, metric = "accuracy"))
+```
+
+Now, finally, we fit the tuned model to the training set:
 
 ```{r final model fit}
-klein_fin <- prep(finalize_recipe(klein_rec_end, klein_param))
+mnist_fin <- prep(finalize_recipe(mnist_rec, mnist_best))
+set.seed(590858)
 fit(
-  finalize_model(klein_spec, klein_param),
-  formula(klein_fin),
-  data = bake(klein_fin, new_data = klein_train)
+  finalize_model(mnist_spec, mnist_best),
+  formula(mnist_fin),
+  data = bake(mnist_fin, new_data = mnist_train)
 ) |> 
-  print() -> klein_fit
+  print() -> mnist_fit
 ```
 
-Finally, we evaluate the final model on the holdout data from the original partition.
+The resulting RF correctly classifies roughly half of the images---not great, but much better than the model using intuited hyperparameter values (and than pure chance).
+(Note also that the `blur` standard deviation is lower than originally defaulted to.)
+As before, we can look to the confusion matrix for insights into the sources of error:
 
-```{r}
-klein_fit |> 
-  predict(new_data = bake(klein_fin, new_data = klein_test)) |> 
-  bind_cols(select(klein_test, embedding)) |> 
-  accuracy(truth = embedding, estimate = .pred_class)
+```{r }
+mnist_fit |> 
+  predict(new_data = bake(mnist_fin, new_data = mnist_train)) |> 
+  bind_cols(select(mnist_train, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
 ```
+
+Among the most-confused digits are $1$ and $7$ (7), $2$ and $5$ (9), and $3$ and $5$ (12). This is much more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
+
+Finally, we evaluate the final model on the testing set---the holdout data from the original partition.
+
+```{r }
+mnist_fit |> 
+  predict(new_data = bake(mnist_fin, new_data = mnist_test)) |> 
+  bind_cols(select(mnist_test, label)) |> 
+  print() -> mnist_pred
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  conf_mat(truth = label, estimate = .pred_class)
+```
+
+Some patterns in the training set hold up, though others don't, and some frequent confusion pairings (e.g. $2$ and $6$) are new.
+The accuracy is lower by a third than on the training set---a reminder of the importance of out-of-box evaluation---though within the 2--standard error interval of the cross-validation estimate.
+While the sample is small, we can say with some confidence that topological features discriminate among them, and much more effectively after hyperparameter optimization.

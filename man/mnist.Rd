@@ -16,10 +16,10 @@ Two data frames of 600 and 100 rows, respectively, and 2 variables:
 \url{http://yann.lecun.com/exdb/mnist/}
 }
 \usage{
-mnist_train
-mnist_test
+mnist_train; mnist_test
 }
 \description{
-This is a 1\% sample from the MNIST handwritten digit dataset.
+This is a 1\% stratified random sample from the MNIST handwritten
+digit data set.
 }
 \keyword{datasets}

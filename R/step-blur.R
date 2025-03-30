@@ -30,7 +30,7 @@ step_blur <- function(
     recipe,
     ...,
     # standard inputs
-    role = "predictor",
+    role = NA_character_,
     trained = FALSE,
     # custom parameters
     xmin = 0, xmax = 1,
@@ -115,7 +115,7 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
     blur_default <- \(m) max(dim(m)) / ( 2 ^ ( length(dim(m)) + 1 ) )
     x_blur_sigmas <- training[, col_names, drop = FALSE] |> 
       lapply(\(l) vapply(l, blur_default, 0.)) |> 
-      vapply(median, 0.)
+      vapply(stats::median, 0.)
     x$blur_sigmas <- x_blur_sigmas
   }
   
@@ -164,16 +164,13 @@ print.step_blur <- function(
   # save(x, width, file = here::here("step-blur-print.rda"))
   # load(here::here("step-blur-print.rda"))
   
-  cat(
-    "Persistent features from a ",
-    x$filtration,
-    " filtration of ",
-    sep = ""
-  )
-  printer(
-    tr_obj = NULL,
+  title <- "Gaussian blurring of "
+  
+  print_step(
     untr_obj = x$terms,
+    tr_obj = NULL,
     trained = x$trained,
+    title = title,
     width = width
   )
   invisible(x)

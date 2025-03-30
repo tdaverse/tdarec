@@ -48,7 +48,7 @@ step_phom_lattice <- function(
     recipe,
     ...,
     # standard inputs
-    role = "predictor",
+    role = "persistence diagram",
     trained = FALSE,
     # custom parameters
     filtration = "cubical",
@@ -237,16 +237,17 @@ print.step_phom_lattice <- function(
   # save(x, width, file = here::here("step-phom-lattice-print.rda"))
   # load(here::here("step-phom-lattice-print.rda"))
   
-  cat(
-    "Persistent features from a ",
+  title <- paste0(
+    "persistent features from a ",
     x$filtration,
-    " filtration of ",
-    sep = ""
+    " filtration of "
   )
-  printer(
-    tr_obj = NULL,
+  
+  print_step(
     untr_obj = x$terms,
+    tr_obj = NULL,
     trained = x$trained,
+    title = title,
     width = width
   )
   invisible(x)

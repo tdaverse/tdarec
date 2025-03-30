@@ -8,7 +8,7 @@
 step_phom_lattice(
   recipe,
   ...,
-  role = "predictor",
+  role = "persistence diagram",
   trained = FALSE,
   filtration = "cubical",
   value_max = 9999L,

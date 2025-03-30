@@ -20,6 +20,8 @@
 #' @name vpd-finalizers
 #' @inheritParams vpd-summarizers
 #' @inheritParams dials::finalize
+#' @param mult A double for the multiple of the data to be used for the lower
+#'   bound.
 #' @param ... Other arguments to pass to the underlying parameter finalizer
 #'   functions.
 #' @inherit dials::finalize return

@@ -8,7 +8,7 @@
 step_phom_point_cloud(
   recipe,
   ...,
-  role = "predictor",
+  role = "persistence diagram",
   trained = FALSE,
   filtration = "Rips",
   max_hom_degree = 1L,
