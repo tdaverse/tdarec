@@ -2,8 +2,8 @@
 % Please edit documentation in R/tdarec.R
 \docType{package}
 \name{tdarec}
-\alias{tdarec}
 \alias{tdarec-package}
+\alias{tdarec}
 \title{A \emph{recipes} and \emph{dials} Extension for Persistent Homology}
 \description{
 The \emph{tdarec} package extends \emph{recipes} and \emph{dials} by providing
