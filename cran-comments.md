@@ -47,11 +47,19 @@ Duration: 5m 9.3s
 OS X, R 4.4.2, `devtools::check()`:
 
 ```
+── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
+Duration: 3m 35.6s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 OS X, R 4.4.2, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
 
 ```
+── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
+Duration: 3m 32.9s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 ### Win-Builder results
