@@ -1,23 +1,8 @@
-#' S3 methods for tracking which additional packages are needed for steps.
-#'
-#' Recipe-adjacent packages always list themselves as a required package so that
-#' the steps can function properly within parallel processing schemes.
-#' @param x A recipe step.
-#' @return A character vector.
-#' @rdname required_pkgs.tdarec
-#' @keywords internal
-#' @export
-required_pkgs.step_tdarec <- function(x, ...) {
-  c("tdarec")
-}
-
 #' @title A *recipes* and *dials* Extension for Persistent Homology
 #'
-#' @description
-
-#' The *tdarec* package extends *recipes* and *dials* by providing
-#' pre-processing steps with tunable parameters for computing persistent
-#' homology of suitable data and for vectorizing persistent homology.
+#' @description The *tdarec* package extends *recipes* and *dials* by providing
+#'   pre-processing steps with tunable parameters for computing persistent
+#'   homology of suitable data and for vectorizing persistent homology.
 #'
 #' @import recipes
 #' @name tdarec
@@ -25,10 +10,13 @@ required_pkgs.step_tdarec <- function(x, ...) {
 #' @importFrom dials new_qual_param new_quant_param unknown
 "_PACKAGE"
 
-# installed version of {ripserr}, or `NULL` if not installed
+#' @importFrom rlang "%||%"
+
 .onLoad <- function(...) {
   rlang::run_on_load()
 }
+
+# installed version of {ripserr}, or `NULL` if not installed
 rlang::on_load(
   .ripserr_version <-
     if ("ripserr" %in% rownames(utils::installed.packages())) {
@@ -63,3 +51,18 @@ rlang::on_load({
   }
   .ripserr_cubical_classes <- setdiff(.ripserr_cubical_classes, "default")
 })
+
+#' @title S3 methods for tracking which additional packages are needed for
+#'   steps.
+#'
+#' @description Recipe-adjacent packages always list themselves as a required
+#'   package so that the steps can function properly within parallel processing
+#'   schemes.
+#' @param x A recipe step.
+#' @return A character vector.
+#' @rdname required_pkgs.tdarec
+#' @keywords internal
+#' @export
+required_pkgs.step_tdarec <- function(x, ...) {
+  c("tdarec")
+}

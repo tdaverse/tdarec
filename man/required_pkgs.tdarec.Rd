@@ -30,7 +30,8 @@
 \alias{required_pkgs.step_vpd_persistent_entropy_summary}
 \alias{required_pkgs.step_vpd_tent_template_functions}
 \alias{required_pkgs.step_vpd_tropical_coordinates}
-\title{S3 methods for tracking which additional packages are needed for steps.}
+\title{S3 methods for tracking which additional packages are needed for
+steps.}
 \usage{
 \method{required_pkgs}{step_blur}(x, ...)
 
@@ -75,7 +76,8 @@
 A character vector.
 }
 \description{
-Recipe-adjacent packages always list themselves as a required package so that
-the steps can function properly within parallel processing schemes.
+Recipe-adjacent packages always list themselves as a required
+package so that the steps can function properly within parallel processing
+schemes.
 }
 \keyword{internal}
