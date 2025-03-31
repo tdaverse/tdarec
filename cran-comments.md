@@ -20,6 +20,7 @@ There are no reverse dependencies on CRAN or Bioconductor.
 ### local results
 
 There were no ERRORs or WARNINGs.
+An occasional NOTE was due to Internet connection limitations.
 
 OS X, R 4.2.3, `devtools::check()`:
 
@@ -33,8 +34,8 @@ Duration: 5m 6.9s
 OS X, R 4.2.3, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
 
 ```
-── R CMD check results ───────────────────────────────── tdarec 0.0.1 ────
-Duration: 5m 9.3s
+── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
+Duration: 5m 17.6s
 
 ❯ checking for future file timestamps ... NOTE
   unable to verify current time
@@ -62,10 +63,6 @@ Duration: 3m 32.5s
 
 0 errors ✔ | 0 warnings ✔ | 1 note ✖
 ```
-
-### Win-Builder results
-
-
 
 ### R-hub results
 
