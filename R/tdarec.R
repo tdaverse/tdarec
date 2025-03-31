@@ -47,7 +47,9 @@ rlang::on_load({
   .ripserr_vietoris_rips_classes <- 
     setdiff(.ripserr_vietoris_rips_classes, "default")
   # cubical filtration
-  .ripserr_cubical_classes <- if (.ripserr_version == "0.1.1") {
+  .ripserr_cubical_classes <- if (is.na(.ripserr_version)) {
+    character(length = 0L)
+  } else if (.ripserr_version == "0.1.1") {
     # https://github.com/cran/ripserr/blob/
     # 8cadc3a86009149418d6f9a61124af9d6372d34e/R/calculate.R#L177
     c("array", "matrix")
