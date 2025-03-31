@@ -88,3 +88,5 @@ save(
   file = here::here("data/mnist.rda"),
   compression_level = 9
 )
+tools::resaveRdaFiles("data/")
+tools::checkRdaFiles("data/")
