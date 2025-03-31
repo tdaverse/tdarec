@@ -35,7 +35,8 @@ Suggests:
     testthat (>= 3.0.0),
     knitr (>= 1.20),
     rmarkdown (>= 1.10),
-    tidymodels
+    tidymodels,
+    ranger
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
