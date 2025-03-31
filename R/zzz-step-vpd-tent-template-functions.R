@@ -112,18 +112,20 @@ prep.step_vpd_tent_template_functions <- function(x, training, info = NULL, ...)
   
   
   if (is.null(x$tent_shift) | is.null(x$tent_size)) {
-      x_pers_ranges <- sapply(x, function(l) {
-          val <- sapply(l, pers_range, hom_degree = x$hom_degree, 
-              simplify = TRUE)
-          range(val[is.finite(val)])
-      }, simplify = TRUE)
+      x_pers_ranges <- sapply(training[, col_names, drop = FALSE], 
+          function(l) {
+              val <- sapply(l, pers_range, hom_degree = x$hom_degree, 
+                simplify = TRUE)
+              range(val[is.finite(val)])
+          }, simplify = TRUE)
   }
   if (is.null(x$tent_size)) {
-      x_birth_ranges <- sapply(x, function(l) {
-          val <- sapply(l, birth_range, hom_degree = x$hom_degree, 
-              simplify = TRUE)
-          range(val[is.finite(val)])
-      }, simplify = TRUE)
+      x_birth_ranges <- sapply(training[, col_names, drop = FALSE], 
+          function(l) {
+              val <- sapply(l, birth_range, hom_degree = x$hom_degree, 
+                simplify = TRUE)
+              range(val[is.finite(val)])
+          }, simplify = TRUE)
   }
   if (is.null(x$tent_shift)) 
       x$tent_shift <- x_pers_ranges[1L, ]/2
