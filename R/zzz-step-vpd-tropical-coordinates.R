@@ -120,24 +120,29 @@ bake.step_vpd_tropical_coordinates <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) as.vector(TDAvec::computeTropicalCoordinates(
-        as.matrix(d),
-        homDim = object$hom_degree,
-        r = object$num_bars
-      ))
+      \(d) {
+        v <- TDAvec::computeTropicalCoordinates(
+          as.matrix(d),
+          homDim = object$hom_degree,
+          r = object$num_bars
+        )
+        vn <- vpd_suffix(v)
+        v <- as.vector(v)
+        names(v) <- vn
+        v
+      }
     )
     col_vpd <- purrr::map(
       col_vpd,
       \(v) as.data.frame(matrix(
-        # NB: `v` may be a matrix.
-        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))
+        v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )
-    vph_data[[paste(col_name, "tropical_coordinates", sep = "_")]] <- col_vpd
+    vph_data[[paste(col_name, "tc", sep = "_")]] <- col_vpd
   }
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "tropical_coordinates", sep = "_")),
+    cols = tidyr::all_of(paste(col_names, "tc", sep = "_")),
     names_sep = "_"
   )
   

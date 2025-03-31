@@ -129,25 +129,30 @@ bake.step_vpd_complex_polynomial <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) as.vector(TDAvec::computeComplexPolynomial(
-        as.matrix(d),
-        homDim = object$hom_degree,
-        m = object$num_coef,
-        polyType = object$poly_type
-      ))
+      \(d) {
+        v <- TDAvec::computeComplexPolynomial(
+          as.matrix(d),
+          homDim = object$hom_degree,
+          m = object$num_coef,
+          polyType = object$poly_type
+        )
+        vn <- vpd_suffix(v)
+        v <- as.vector(v)
+        names(v) <- vn
+        v
+      }
     )
     col_vpd <- purrr::map(
       col_vpd,
       \(v) as.data.frame(matrix(
-        # NB: `v` may be a matrix.
-        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))
+        v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )
-    vph_data[[paste(col_name, "complex_polynomial", sep = "_")]] <- col_vpd
+    vph_data[[paste(col_name, "cp", sep = "_")]] <- col_vpd
   }
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "complex_polynomial", sep = "_")),
+    cols = tidyr::all_of(paste(col_names, "cp", sep = "_")),
     names_sep = "_"
   )
   

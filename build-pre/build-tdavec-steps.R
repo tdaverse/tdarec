@@ -439,11 +439,12 @@ build_prep <- function(fn) {
 # generate `bake.step_vpd_*()`
 build_bake <- function(fn) {
   fn_sname <- vec_sname(fn)
+  fn_abbr <- tolower(gsub("[a-z]", "", fn))
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
   fn_compute <- paste0(
-    "        ", custom_params_compute(fn_args), "",
+    "          ", custom_params_compute(fn_args), "",
     collapse = ",\n"
   ) |> paste0("\n")
   
@@ -464,25 +465,30 @@ build_bake <- function(fn) {
     "  for (col_name in col_names) {{\n",
     "    col_vpd <- purrr::map(\n",
     "      new_data[[col_name]],\n",
-    "      \\(d) as.vector(TDAvec::{fn}(\n",
-    "        as.matrix(d),\n",
+    "      \\(d) {{\n",
+    "        v <- TDAvec::{fn}(\n",
+    "          as.matrix(d),\n",
     "{fn_compute}",
-    "      ))\n",
+    "        )\n",
+    "        vn <- vpd_suffix(v)\n",
+    "        v <- as.vector(v)\n",
+    "        names(v) <- vn\n",
+    "        v\n",
+    "      }}\n",
     "    )\n",
     # col_vpd <- lapply(col_vpd, matrix, nrow = 1L)\n",
     "    col_vpd <- purrr::map(\n",
     "      col_vpd,\n",
     "      \\(v) as.data.frame(matrix(\n",
-    "        # NB: `v` may be a matrix.\n",
-    "        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))\n",
+    "        v, nrow = 1L, dimnames = list(NULL, names(v))\n",
     "      ))\n",
     "    )\n",
-    "    vph_data[[paste(col_name, \"{fn_sname}\", sep = \"_\")]] <- col_vpd\n",
+    "    vph_data[[paste(col_name, \"{fn_abbr}\", sep = \"_\")]] <- col_vpd\n",
     "  }}\n",
     # unnest data-framed matrices to ensure commensurate columns
     "  vph_data <- tidyr::unnest(\n",
     "    vph_data,\n",
-    "    cols = tidyr::all_of(paste(col_names, \"{fn_sname}\", sep = \"_\")),\n",
+    "    cols = tidyr::all_of(paste(col_names, \"{fn_abbr}\", sep = \"_\")),\n",
     "    names_sep = \"_\"\n",
     "  )\n",
     "  \n",

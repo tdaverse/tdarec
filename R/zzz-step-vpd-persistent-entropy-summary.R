@@ -134,25 +134,30 @@ bake.step_vpd_persistent_entropy_summary <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) as.vector(TDAvec::computePersistentEntropy(
-        as.matrix(d),
-        homDim = object$hom_degree,
-        scaleSeq = object$xseq,
-        evaluate = object$evaluate
-      ))
+      \(d) {
+        v <- TDAvec::computePersistentEntropy(
+          as.matrix(d),
+          homDim = object$hom_degree,
+          scaleSeq = object$xseq,
+          evaluate = object$evaluate
+        )
+        vn <- vpd_suffix(v)
+        v <- as.vector(v)
+        names(v) <- vn
+        v
+      }
     )
     col_vpd <- purrr::map(
       col_vpd,
       \(v) as.data.frame(matrix(
-        # NB: `v` may be a matrix.
-        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))
+        v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )
-    vph_data[[paste(col_name, "persistent_entropy_summary", sep = "_")]] <- col_vpd
+    vph_data[[paste(col_name, "pe", sep = "_")]] <- col_vpd
   }
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "persistent_entropy_summary", sep = "_")),
+    cols = tidyr::all_of(paste(col_names, "pe", sep = "_")),
     names_sep = "_"
   )
   

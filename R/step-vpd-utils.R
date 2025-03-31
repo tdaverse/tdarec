@@ -97,3 +97,16 @@ reconcile_scale_seq <- function(x, data, axis) {
   
   list(xyseq, xymin, xymax, xylen, xyby)
 }
+
+# assign meaningful names to vectorization features
+vpd_suffix <- function(x, sep = "_") {
+  if (is.matrix(x)) {
+    paste(
+      rep(colnames(x) %||% seq(ncol(x)), each = nrow(x)),
+      rep(rownames(x) %||% seq(nrow(x)), times = ncol(x)),
+      sep = sep
+    )
+  } else {
+    names(x) %||% seq(length(x))
+  }
+}

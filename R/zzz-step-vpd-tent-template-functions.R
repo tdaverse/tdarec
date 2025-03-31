@@ -156,26 +156,31 @@ bake.step_vpd_tent_template_functions <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) as.vector(TDAvec::computeTemplateFunction(
-        as.matrix(d),
-        homDim = object$hom_degree,
-        delta = object$tent_size,
-        d = object$num_bins,
-        epsilon = object$tent_shift
-      ))
+      \(d) {
+        v <- TDAvec::computeTemplateFunction(
+          as.matrix(d),
+          homDim = object$hom_degree,
+          delta = object$tent_size,
+          d = object$num_bins,
+          epsilon = object$tent_shift
+        )
+        vn <- vpd_suffix(v)
+        v <- as.vector(v)
+        names(v) <- vn
+        v
+      }
     )
     col_vpd <- purrr::map(
       col_vpd,
       \(v) as.data.frame(matrix(
-        # NB: `v` may be a matrix.
-        v, nrow = 1L, dimnames = list(NULL, seq(length(v)))
+        v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )
-    vph_data[[paste(col_name, "tent_template_functions", sep = "_")]] <- col_vpd
+    vph_data[[paste(col_name, "tf", sep = "_")]] <- col_vpd
   }
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "tent_template_functions", sep = "_")),
+    cols = tidyr::all_of(paste(col_names, "tf", sep = "_")),
     names_sep = "_"
   )
   
