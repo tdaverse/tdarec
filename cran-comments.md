@@ -14,8 +14,6 @@ There are no reverse dependencies on CRAN or Bioconductor.
 * local OS X install, R 4.4.2
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
-* Win-Builder
-  * `devtools::check_win_devel()`
 * R-hub
   * `rhub::rhub_check(platforms = c("linux", "windows", "atlas", "c23", "gcc15"))`
 
