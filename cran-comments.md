@@ -14,8 +14,6 @@ There are no reverse dependencies on CRAN or Bioconductor.
 * local OS X install, R 4.4.2, with {TDAvec} 0.1.4 (CRAN)
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
-* Win-Builder
-  * `devtools::check_win_devel()`
 * R-hub
   * `rhub::rhub_check(platforms = c("linux", "windows", "atlas", "c23", "gcc15"))`
 
@@ -48,7 +46,7 @@ OS X, R 4.4.2, `devtools::check()`:
 
 ```
 ── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 3m 35.6s
+Duration: 3m 32.2s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
@@ -57,9 +55,12 @@ OS X, R 4.4.2, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))
 
 ```
 ── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 3m 32.9s
+Duration: 3m 32.5s
 
-0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+❯ checking for future file timestamps ... NOTE
+  unable to verify current time
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
 ```
 
 ### Win-Builder results
