@@ -280,7 +280,7 @@ The process for doing so is the same as for the recipe, but in this case the var
 We see from the pre-processed data that these features use a consistent naming convention, and we use this convention to select them for learning the range:
 
 ```{r finalize model tuners}
-( mtry_fin <- finalize(mtry(), mnist_bake |> select(contains("landscape"))) )
+( mtry_fin <- finalize(mtry(), mnist_bake |> select(contains("_pl_"))) )
 ```
 
 ## hyperparameter tuning
