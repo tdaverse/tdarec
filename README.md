@@ -27,7 +27,8 @@ pak::pak("corybrunson/tdarec")
 ### Recipe steps
 
 The current version provides two engines to compute PH (more will be
-implemented; see [this issue](../../issues/2) for plans):
+implemented; see [this
+issue](https://github.com/corybrunson/tdarec/issues/2) for plans):
 
 - **Vietoris–Rips** filtrations of point clouds (distance matrices or
   coordinate matrices) using
