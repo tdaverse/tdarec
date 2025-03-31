@@ -9,6 +9,13 @@
 \alias{ph_dim.data.frame}
 \alias{ph_dim.dist}
 \alias{ph_dim.ts}
+\alias{pairs_min}
+\alias{pairs_min.default}
+\alias{pairs_min.matrix}
+\alias{pairs_min.data.frame}
+\alias{pairs_min.diagram}
+\alias{pairs_min.PHom}
+\alias{pairs_min.persistence}
 \alias{pairs_max}
 \alias{pairs_max.default}
 \alias{pairs_max.matrix}
@@ -66,6 +73,20 @@ ph_dim(x)
 \method{ph_dim}{dist}(x)
 
 \method{ph_dim}{ts}(x)
+
+pairs_min(x, hom_degrees)
+
+\method{pairs_min}{default}(x, hom_degrees)
+
+\method{pairs_min}{matrix}(x, hom_degrees)
+
+\method{pairs_min}{data.frame}(x, hom_degrees)
+
+\method{pairs_min}{diagram}(x, hom_degrees)
+
+\method{pairs_min}{PHom}(x, hom_degrees)
+
+\method{pairs_min}{persistence}(x, hom_degrees)
 
 pairs_max(x, hom_degrees)
 
@@ -167,6 +188,8 @@ The functions compute the following summaries:
 \itemize{
 \item \code{ph_dim()}:
 Dimension of a data set for purposes of PH
+\item \code{pairs_min()}:
+Minimum number of persistent pairs of any degree
 \item \code{pairs_max()}:
 Maximum number of persistent pairs of any degree
 \item \code{birth_range()}:

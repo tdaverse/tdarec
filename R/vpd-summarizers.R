@@ -9,6 +9,8 @@
 #' \itemize{
 #'   \item `ph_dim()`:
 #'         Dimension of a data set for purposes of PH
+#'   \item `pairs_min()`:
+#'         Minimum number of persistent pairs of any degree
 #'   \item `pairs_max()`:
 #'         Maximum number of persistent pairs of any degree
 #'   \item `birth_range()`:
@@ -70,7 +72,52 @@ ph_dim.dist <- function(x) as.integer(attr(x, "Size"))
 #' @export
 ph_dim.ts <- ph_dim.default
 
-# TODO: Get maximum number of pairs for any single degree (not totaled).
+#' @rdname vpd-summarizers
+#' @export
+pairs_min <- function(x, hom_degrees) {
+  UseMethod("pairs_min")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.default <- function(x, hom_degrees) {
+  stop("Unrecognized persistent homology class.")
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.matrix <- function(x, hom_degrees) {
+  if (is.null(hom_degrees)) {
+    min(unname(table(x[, 1L])))
+  } else {
+    min(unname(table(x[x[, 1L] %in% hom_degrees, 1L])))
+  }
+}
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.data.frame <- 
+  function(x, hom_degrees) pairs_min.matrix(x, hom_degrees)
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.diagram <- 
+  function(x, hom_degrees) pairs_min.matrix(unclass(x), hom_degrees)
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.PHom <- 
+  function(x, hom_degrees) pairs_min.data.frame(x, hom_degrees)
+
+#' @rdname vpd-summarizers
+#' @export
+pairs_min.persistence <- function(x, hom_degrees) {
+  if (is.null(hom_degrees)) {
+    min(vapply(x$pairs, nrow, 0L))
+  } else {
+    min(vapply(x$pairs[hom_degrees + 1L], nrow, 0L))
+  }
+}
 
 #' @rdname vpd-summarizers
 #' @export
