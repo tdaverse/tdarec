@@ -1,0 +1,63 @@
+## First submission
+
+This is the first submission of {tdarec} to CRAN.
+Version numbers were not incremented during initial development.
+There are no reverse dependencies on CRAN or Bioconductor.
+
+## R CMD checks
+
+### Test environments
+
+* local OS X install, R 4.2.3
+  * `devtools::check()`
+  * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
+* local OS X install, R 4.4.2
+  * `devtools::check()`
+  * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
+* Win-Builder
+  * `devtools::check_win_devel()`
+* R-hub
+  * `rhub::rhub_check(platforms = c("linux", "windows", "atlas", "c23", "gcc15"))`
+
+### local results
+
+There were no ERRORs or WARNINGs.
+
+OS X, R 4.2.3, `devtools::check()`:
+
+```
+── R CMD check results ───────────────────────────────── tdarec 0.0.1 ────
+Duration: 5m 13.8s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
+```
+
+OS X, R 4.2.3, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
+
+```
+── R CMD check results ───────────────────────────────── tdarec 0.0.1 ────
+Duration: 5m 9.3s
+
+❯ checking for future file timestamps ... NOTE
+  unable to verify current time
+
+0 errors ✔ | 0 warnings ✔ | 1 note ✖
+```
+
+OS X, R 4.4.2, `devtools::check()`:
+
+```
+```
+
+OS X, R 4.4.2, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
+
+```
+```
+
+### Win-Builder results
+
+
+
+### R-hub results
+
+

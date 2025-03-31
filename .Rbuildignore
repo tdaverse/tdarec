@@ -13,3 +13,4 @@
 ^data-raw$
 ^ignore$
 ^sandbox$
+^cran-comments\.md$
