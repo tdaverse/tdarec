@@ -277,7 +277,7 @@ tdavec_preps <- list(
     # `num_bins` is required; `tent_*` params may be derived therefrom
     if (is.null(x$tent_shift) | is.null(x$tent_size)) {
       x_pers_ranges <- sapply(
-        x,
+        training[, col_names, drop = FALSE],
         function(l) {
           val <- 
             sapply(l, pers_range, hom_degree = x$hom_degree, simplify = TRUE)
@@ -288,7 +288,7 @@ tdavec_preps <- list(
     }
     if (is.null(x$tent_size)) {
       x_birth_ranges <- sapply(
-        x,
+        training[, col_names, drop = FALSE],
         function(l) {
           val <- 
             sapply(l, birth_range, hom_degree = x$hom_degree, simplify = TRUE)
