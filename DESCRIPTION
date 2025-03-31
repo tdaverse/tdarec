@@ -1,5 +1,5 @@
 Package: tdarec
-Title: A 'recipes' extension for persistent homology and its vectorizations
+Title: A 'recipes' Extension for Persistent Homology and Its Vectorizations
 Version: 0.0.1
 Authors@R: c(
     person("Jason Cory", "Brunson",
@@ -8,7 +8,7 @@ Authors@R: c(
   )
 Description: Topological data analysis usually produces persistence data
     comprising birth and death values of one or more degrees (dimensions).
-    Specialized vectorization methods are required to incorporatesuch data into
+    Specialized vectorization methods are required to incorporate such data into
     null hypothesis testing, machine learning, and other workflows.
     These recipe steps provide validated vectorizations of persistence data as
     recipe steps.
