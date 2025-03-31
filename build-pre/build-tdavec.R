@@ -259,7 +259,7 @@ tdavec_defaults |>
 # FIXME: Ensure that proper parameters are tuned,
 # e.g. only `num_levels` when `generalized = FALSE`.
 tdavec_preps <- list(
-  # generalized persistence landscapes
+  # generalized persistence landscapes; level error
   PersistenceLandscape = expression({
     # `generalized` should be determined from the presence of `bandwidth`
     if (is.null(x$bandwidth)) {
@@ -270,6 +270,26 @@ tdavec_preps <- list(
       if (! isTRUE(x$generalized))
         warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
       x$generalized = TRUE
+    }
+    
+    if (.TDAvec_version == "0.1.4") {
+      # restrict number of levels to the minimum number of bars
+      x_pairs_min <- vapply(
+        training[, col_names, drop = FALSE],
+        function(l) {
+          val <- vapply(l, pairs_min, 0., hom_degree = x$hom_degree)
+          min(val[is.finite(val)])
+        },
+        0.
+      )
+      if (x$num_levels > x_pairs_min) {
+        warning(
+          "`num_levels = ", x$num_levels,
+          "` is less than minimum diagram size ",
+          "so will be reset to ", x_pairs_min
+        )
+        x$num_levels <- x_pairs_min
+      }
     }
   }),
   # tent function radius and shift

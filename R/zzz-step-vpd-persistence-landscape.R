@@ -142,6 +142,18 @@ prep.step_vpd_persistence_landscape <- function(x, training, info = NULL, ...) {
           warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
       x$generalized = TRUE
   }
+  if (.TDAvec_version == "0.1.4") {
+      x_pairs_min <- vapply(training[, col_names, drop = FALSE], 
+          function(l) {
+              val <- vapply(l, pairs_min, 0, hom_degree = x$hom_degree)
+              min(val[is.finite(val)])
+          }, 0)
+      if (x$num_levels > x_pairs_min) {
+          warning("`num_levels = ", x$num_levels, "` is less than minimum diagram size ", 
+              "so will be reset to ", x_pairs_min)
+          x$num_levels <- x_pairs_min
+      }
+  }
 
   step_vpd_persistence_landscape_new(
     terms = col_names,

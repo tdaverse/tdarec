@@ -17,12 +17,16 @@
 }
 
 # installed version of {ripserr}, or `NULL` if not installed
-rlang::on_load(
+rlang::on_load({
   .ripserr_version <-
     if ("ripserr" %in% rownames(utils::installed.packages())) {
       utils::packageVersion("ripserr")
     } else NA_character_
-)
+  .TDAvec_version <- 
+    if ("TDAvec" %in% rownames(utils::installed.packages())) {
+      utils::packageVersion("TDAvec")
+    } else NA_character_
+})
 # to check that the ripserr engine can handle input data
 rlang::on_load({
   # Vietoris-Rips filtration
