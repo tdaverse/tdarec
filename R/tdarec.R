@@ -30,7 +30,9 @@ rlang::on_load({
 # to check that the ripserr engine can handle input data
 rlang::on_load({
   # Vietoris-Rips filtration
-  .ripserr_vietoris_rips_classes <- if (.ripserr_version == "0.1.1") {
+  .ripserr_vietoris_rips_classes <- if (is.na(.ripserr_version)) {
+    character(length = 0L)
+  } else if (.ripserr_version == "0.1.1") {
     # https://github.com/cran/ripserr/blob/
     # 8cadc3a86009149418d6f9a61124af9d6372d34e/R/calculate.R#L68
     c(
