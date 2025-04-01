@@ -7,12 +7,16 @@
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/tdarec)](https://CRAN.R-project.org/package=tdarec)
 <!-- badges: end -->
 
-The goal of {tdarec} is to provide additional preprocessing steps to
-[{recipes}](https://github.com/tidymodels/recipes) to compute persistent
-homology (PH) and calculate vectorizations of persistence data
-(diagrams; PDs).
+The goal of {tdarec} is to provide
+[{recipes}](https://cran.r-project.org/package=recipes)-style
+preprocessing steps to compute persistent homology (PH) and calculate
+vectorizations of persistence data (diagrams; PDs), and to provide
+[{dials}](https://cran.r-project.org/package=dials)-style hyperparameter
+tuners to optimize these steps in ML workflows.
 
 You can install the development version of tdarec from
 [GitHub](https://github.com/) with:
@@ -66,16 +70,24 @@ installed with the package is pre-processed for such use.
 
 ## Example
 
-This example uses existing engines in a full Tidyverse workflow to
-optimize a simple classification model for point clouds sampled from
-different embeddings of the Klein bottle. Note also that
+This example uses existing engines to optimize a simple classification
+model for point clouds sampled from different embeddings of the Klein
+bottle. Note also that
 [{glmnet}](https://cran.r-project.org/package=glmnet) and
 [{tdaunif}](https://cran.r-project.org/package=tdaunif) must be
 installed.
 
 ### Setup
 
-While not required, we attach Tidyverse and Tidymodels for convenience:
+While not required, we attach Tidyverse and Tidymodels for convenience
+(with messages suppressed):
+
+``` r
+# prepare a Tidymodels session and attach {tdarec}
+library(tidyverse)
+library(tidymodels)
+library(tdarec)
+```
 
 The points are sampled uniformly from one of two Klein bottle
 embeddings, determined by a coin toss between the flat and the tube.
@@ -253,7 +265,7 @@ klein_fit |>
 #> 1 roc_auc binary          0.92
 ```
 
-## Code of Conduct
+## Contributions
 
 Please note that the tdarec project is released with a [Contributor Code
 of
@@ -269,3 +281,14 @@ arising from cascading implications of changes to the original
 functions, and it allows simple and rapid package-wide adjustments. If
 you see an issue with generated code, please raise an issue to discuss
 it before submitting a pull request.
+
+### Acknowledgments
+
+This project was funded by [an ISC grant from the R
+Consortium](https://r-consortium.org/all-projects/2024-group-1.html#modular-interoperable-and-extensible-topological-data-analysis-in-r)
+and done in coordination with Aymeric Stamm and with guidance from
+Bertrand Michel and Paul Rosen. It builds upon the work of and
+conversations with Umar Islambekov and Aleksei Luchinsky, authors of
+[{TDAvec}](https://github.com/uislambekov/TDAvec). Package development
+also benefitted from the use of equipment and the support of colleagues
+at [the University of Florida](https://www.ufl.edu/).
