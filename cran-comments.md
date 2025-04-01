@@ -27,29 +27,18 @@ An occasional NOTE was due to Internet connection limitations.
 OS X, R 4.2.3, `devtools::check()`:
 
 ```
-── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 5m 6.9s
-
-0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 OS X, R 4.2.3, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
 
 ```
-── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 5m 17.6s
-
-❯ checking for future file timestamps ... NOTE
-  unable to verify current time
-
-0 errors ✔ | 0 warnings ✔ | 1 note ✖
 ```
 
 OS X, R 4.4.2, `devtools::check()`:
 
 ```
 ── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 3m 32.2s
+Duration: 3m 57.7s
 
 0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
@@ -58,7 +47,7 @@ OS X, R 4.4.2, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))
 
 ```
 ── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
-Duration: 3m 32.5s
+Duration: 4m 6.4s
 
 ❯ checking for future file timestamps ... NOTE
   unable to verify current time
@@ -68,4 +57,42 @@ Duration: 3m 32.5s
 
 ### Win-Builder results
 
+`devtools::check_win_oldrelease()`:
+
+```
+Maintainer: 'Jason Cory Brunson <cornelioid@gmail.com>'
+
+New submission
+
+Possibly misspelled words in DESCRIPTION:
+  Vectorizations (3:9)
+  vectorization (12:17)
+  vectorizations (14:42)
+```
+
+`devtools::check_win_release()`:
+
+```
+Maintainer: 'Jason Cory Brunson <cornelioid@gmail.com>'
+
+New submission
+
+Possibly misspelled words in DESCRIPTION:
+  Vectorizations (3:9)
+  vectorization (12:17)
+  vectorizations (14:42)
+```
+
+`devtools::check_win_devel()`:
+
+```
+Maintainer: 'Jason Cory Brunson <cornelioid@gmail.com>'
+
+New submission
+
+Possibly misspelled words in DESCRIPTION:
+  Vectorizations (3:9)
+  vectorization (12:17)
+  vectorizations (14:42)
+```
 
