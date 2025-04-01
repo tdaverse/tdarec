@@ -290,5 +290,7 @@ and done in coordination with Aymeric Stamm and with guidance from
 Bertrand Michel and Paul Rosen. It builds upon the work of and
 conversations with Umar Islambekov and Aleksei Luchinsky, authors of
 [{TDAvec}](https://github.com/uislambekov/TDAvec). Package development
-also benefitted from the use of equipment and the support of colleagues
-at [the University of Florida](https://www.ufl.edu/).
+also benefitted from the support of colleagues in [the Laboratory for
+Systems Medicine](https://systemsmedicine.pulmonary.medicine.ufl.edu/)
+and [the TDA Seminar](https://tda.math.ufl.edu/) and the use of
+equipment at [the University of Florida](https://www.ufl.edu/).
