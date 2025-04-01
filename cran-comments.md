@@ -22,16 +22,24 @@ There are no reverse dependencies on CRAN or Bioconductor.
 ### local results
 
 There were no ERRORs or WARNINGs.
-An occasional NOTE was due to Internet connection limitations.
+An occasional and inconsistent NOTE was presumably due to Internet connection speeds.
 
 OS X, R 4.2.3, `devtools::check()`:
 
 ```
+── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
+Duration: 5m 5.4s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 OS X, R 4.2.3, `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`:
 
 ```
+── R CMD check results ─────────────────────────────────────── tdarec 0.0.1 ────
+Duration: 5m 43.5s
+
+0 errors ✔ | 0 warnings ✔ | 0 notes ✔
 ```
 
 OS X, R 4.4.2, `devtools::check()`:
@@ -56,6 +64,8 @@ Duration: 4m 6.4s
 ```
 
 ### Win-Builder results
+
+In addition to the package being a new submission, these checks NOTEd the word "vectorization", which is used throughout the package. It is spelled as intended and consistent with common dictionary spellings.
 
 `devtools::check_win_oldrelease()`:
 
