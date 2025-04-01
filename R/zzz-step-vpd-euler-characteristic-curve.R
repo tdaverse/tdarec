@@ -138,7 +138,7 @@ bake.step_vpd_euler_characteristic_curve <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) {
+      function(d) {
         v <- TDAvec::computeEulerCharacteristic(
           as.matrix(d),
           scaleSeq = object$xseq,
@@ -153,7 +153,7 @@ bake.step_vpd_euler_characteristic_curve <- function(object, new_data, ...) {
     )
     col_vpd <- purrr::map(
       col_vpd,
-      \(v) as.data.frame(matrix(
+      function(v) as.data.frame(matrix(
         v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )

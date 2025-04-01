@@ -88,7 +88,7 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
     rlang::abort("The `blur` step can only transform list-columns.")
   if (! all(vapply(
     training[, col_names, drop = FALSE],
-    \(l) all(vapply(l, \(m) is.array(m) && is.numeric(m), FALSE)),
+    function(l) all(vapply(l, function(m) is.array(m) && is.numeric(m), FALSE)),
     FALSE
   )))
     rlang::abort("The `blur` step can only transform lists of numeric arrays.")
@@ -96,12 +96,12 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   # adjust value bounds
-  x_range <- training[, col_names, drop = FALSE] |> 
-    unlist() |> 
+  x_range <- training[, col_names, drop = FALSE] %>% 
+    unlist() %>% 
     range(na.rm = TRUE, finite = TRUE)
   x_bound <- vapply(
     x_range,
-    \(m) if (m == 0) m else sign(m) * 2 ^ ceiling(log(max(abs(m) + 1), 2)) - 1,
+    function(m) if (m == 0) m else sign(m) * 2 ^ ceiling(log(max(abs(m) + 1), 2)) - 1,
     0
   )
   if (x$xmin > x_range[[1L]]) x$xmin <- x_bound[[1L]]
@@ -112,9 +112,9 @@ prep.step_blur <- function(x, training, info = NULL, ...) {
     x$blur_sigmas <- rep(x$blur_sigmas, length(col_names))
     names(x$blur_sigmas) <- col_names
   } else if (is.null(x$blur_sigmas)) {
-    blur_default <- \(m) max(dim(m)) / ( 2 ^ ( length(dim(m)) + 1 ) )
-    x_blur_sigmas <- training[, col_names, drop = FALSE] |> 
-      lapply(\(l) vapply(l, blur_default, 0.)) |> 
+    blur_default <- function(m) max(dim(m)) / ( 2 ^ ( length(dim(m)) + 1 ) )
+    x_blur_sigmas <- training[, col_names, drop = FALSE] %>% 
+      lapply(function(l) vapply(l, blur_default, 0.)) %>% 
       vapply(stats::median, 0.)
     x$blur_sigmas <- x_blur_sigmas
   }
@@ -145,7 +145,7 @@ bake.step_blur <- function(object, new_data, ...) {
   for (col_name in col_names) {
     new_data[[col_name]] <- lapply(
       new_data[[col_name]],
-      \(d) blur(
+      function(d) blur(
         x = d,
         xmin = object$xmin,
         xmax = object$xmax,

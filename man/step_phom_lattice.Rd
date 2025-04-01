@@ -102,7 +102,7 @@ This step has 1 tuning parameter(s):
 \examples{
 topos <- data.frame(pix = I(list(volcano)))
 
-ph_rec <- recipe(~ ., data = topos) |> 
+ph_rec <- recipe(~ ., data = topos) \%>\% 
   step_phom_lattice(pix)
 ph_prep <- prep(ph_rec, training = topos)
 ph_res <- bake(ph_prep, topos)
@@ -115,7 +115,7 @@ with(ph_res$pix_phom[[1]], plot(
   xlab = NA, ylab = "", asp = 1
 ))
 
-with_max <- recipe(~ ., data = topos) |> 
+with_max <- recipe(~ ., data = topos) \%>\% 
   step_phom_lattice(pix, value_max = 150)
 with_max <- prep(with_max, training = topos)
 bake(with_max, topos)

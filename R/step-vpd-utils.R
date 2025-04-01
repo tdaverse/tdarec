@@ -11,7 +11,7 @@ check_phom_list <- function(data) {
   # TODO: Encode persistence data using a specialized class.
   are_phom <- function(l) all(vapply(
     l,
-    \(x) ncol(x) == 3L && (
+    function(x) ncol(x) == 3L && (
       (inherits(x, "data.frame") && 
          all(vapply(x, typeof, "") %in% c("double", "integer"))) ||
         (inherits(x, "matrix") && typeof(x) %in% c("double", "integer"))
@@ -28,7 +28,7 @@ check_phom_list <- function(data) {
 get_max_hom_degree <- function(data) {
   max_degs <- purrr::map(
     data,
-    \(x) purrr::map_dbl(x, \(m) max(m[, 1L]))
+    function(x) purrr::map_dbl(x, function(m) max(m[, 1L]))
   )
   max(unlist(max_degs))
 }
@@ -37,7 +37,7 @@ get_max_hom_degree <- function(data) {
 get_hom_degrees <- function(data) {
   degs <- purrr::map(
     data,
-    \(x) purrr::map(x, \(m) unique(m[, 1L]))
+    function(x) purrr::map(x, function(m) unique(m[, 1L]))
   )
   sort(unique(unlist(degs)))
 }
@@ -65,12 +65,12 @@ reconcile_scale_seq <- function(x, data, axis) {
   } else {
     # if needed, determine scale sequence
     if (is.null(xymax)) {
-      train_xmax <- purrr::map(data, \(x) purrr::map_dbl(x, \(m) max(m[, 3L])))
+      train_xmax <- purrr::map(data, function(x) purrr::map_dbl(x, function(m) max(m[, 3L])))
       train_xmax <- min(unlist(train_xmax))
       xymax <- max(train_xmax, 0)
     }
     if (is.null(xymin)) {
-      train_xmin <- purrr::map(data, \(x) purrr::map_dbl(x, \(m) min(m[, 2L])))
+      train_xmin <- purrr::map(data, function(x) purrr::map_dbl(x, function(m) min(m[, 2L])))
       train_xmin <- min(unlist(train_xmin))
       # TODO: Consult with specialists about this convention.
       # only deviate from zero if it would reduce the grid size by at least half

@@ -116,7 +116,7 @@ bake.step_phom_degree <- function(object, new_data, ...) {
   for (term in object$terms) for (deg in object$hom_degrees) {
     
     # NB: This works for the 'PHom' class but may not for other formats.
-    term_deg_phom <- lapply(new_data[[term]], \(d) d[d[, 1L] == deg, ])
+    term_deg_phom <- lapply(new_data[[term]], function(d) d[d[, 1L] == deg, ])
     
     phom_data[[paste(term, deg, sep = "_")]] <- term_deg_phom
   }

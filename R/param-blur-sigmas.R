@@ -41,16 +41,16 @@ get_blur_range <- function(object, x, ...) {
   }
   
   # # calculate the maximum number of dimensions
-  # x_max_dim <- vapply(x, \(l) max(vapply(l, \(m) length(dim(m)), 0L)), 0L)
+  # x_max_dim <- vapply(x, function(l) max(vapply(l, function(m) length(dim(m)), 0L)), 0L)
   # # calculate maximum extent of any dimension
-  # x_max_len <- vapply(x, \(l) max(vapply(l, \(m) max(dim(m)), 0L)), 0L)
+  # x_max_len <- vapply(x, function(l) max(vapply(l, function(m) max(dim(m)), 0L)), 0L)
   # # set the upper bound to one order of magnitude beyond the recommendation
   # rngs[2L] <- x_max_len / 2 ^ (x_max_dim + 1)
   
   # calculate the recommended value for each array
-  x_sigmas <- sapply(x, \(l) vapply(
+  x_sigmas <- sapply(x, function(l) vapply(
     l,
-    \(m) max(dim(m)) / 2 ^ (length(dim(m)) + 1),
+    function(m) max(dim(m)) / 2 ^ (length(dim(m)) + 1),
     0.
   ))
   # set the lower & upper bounds to one order of magnitude beyond the extrema

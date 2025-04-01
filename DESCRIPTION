@@ -25,7 +25,8 @@ Imports:
     tibble,
     tidyr,
     purrr (>= 1.0.0),
-    scales
+    scales,
+    magrittr
 Suggests:
     modeldata,
     tdaunif,

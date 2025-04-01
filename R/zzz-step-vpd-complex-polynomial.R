@@ -129,7 +129,7 @@ bake.step_vpd_complex_polynomial <- function(object, new_data, ...) {
   for (col_name in col_names) {
     col_vpd <- purrr::map(
       new_data[[col_name]],
-      \(d) {
+      function(d) {
         v <- TDAvec::computeComplexPolynomial(
           as.matrix(d),
           homDim = object$hom_degree,
@@ -144,7 +144,7 @@ bake.step_vpd_complex_polynomial <- function(object, new_data, ...) {
     )
     col_vpd <- purrr::map(
       col_vpd,
-      \(v) as.data.frame(matrix(
+      function(v) as.data.frame(matrix(
         v, nrow = 1L, dimnames = list(NULL, names(v))
       ))
     )

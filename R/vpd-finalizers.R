@@ -44,7 +44,7 @@ get_pairs_max <- function(object, x, hom_degrees = NULL, ...) {
   # calculate maximum within-dimension number of pairs
   x_pairs_max <- vapply(
     x,
-    \(l) max(
+    function(l) max(
       vapply(l, pairs_max, 0L, hom_degrees = hom_degrees),
       na.rm = FALSE
     ),

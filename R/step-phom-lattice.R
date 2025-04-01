@@ -152,7 +152,7 @@ prep.step_phom_lattice <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) {
     inheritance <- purrr::map_lgl(
       training[[col_name]],
-      \(x) inherits(x, .ripserr_cubical_classes)
+      function(x) inherits(x, .ripserr_cubical_classes)
     )
     if (! all(inheritance)) col_errs <- c(col_errs, col_name)
   }
@@ -204,7 +204,7 @@ bake.step_phom_lattice <- function(object, new_data, ...) {
     term_phom <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::cubical(
+        function(d) ripserr::cubical(
           d,
           threshold = object$value_max,
           method = switch(object$method, link_join = 0, compute_pairs = 1),
@@ -214,7 +214,7 @@ bake.step_phom_lattice <- function(object, new_data, ...) {
     } else if (.ripserr_version >= "0.2.0") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::cubical(
+        function(d) ripserr::cubical(
           d,
           threshold = object$value_max,
           method = switch(object$method, link_join = "lj", compute_pairs = "cp")

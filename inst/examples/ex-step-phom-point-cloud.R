@@ -1,6 +1,6 @@
 roads <- data.frame(dist = I(list(eurodist, UScitiesD)))
 
-ph_rec <- recipe(~ ., data = roads) |> 
+ph_rec <- recipe(~ ., data = roads) %>% 
   step_phom_point_cloud(dist, max_hom_degree = 1, filtration = "Rips")
 ph_prep <- prep(ph_rec, training = roads)
 ph_res <- bake(ph_prep, roads)
@@ -16,7 +16,7 @@ for (i in seq(nrow(ph_res))) {
   ))
 }
 
-with_max <- recipe(~ ., data = roads) |> 
+with_max <- recipe(~ ., data = roads) %>% 
   step_phom_point_cloud(dist, max_hom_degree = 1, diameter_max = 200)
 with_max <- prep(with_max, training = roads)
 bake(with_max, roads)

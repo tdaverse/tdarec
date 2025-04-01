@@ -1,6 +1,6 @@
-data.frame(dist = I(list(eurodist, UScitiesD))) |>
-  transform(pd = I(lapply(dist, ripserr::vietoris_rips))) |>
-  subset(select = c(pd)) |>
+data.frame(dist = I(list(eurodist, UScitiesD))) %>%
+  transform(pd = I(lapply(dist, ripserr::vietoris_rips))) %>%
+  subset(select = c(pd)) %>%
   print() -> pd_data
 
 # `num_coef` for `step_vpn_complex_polynomial()`
@@ -18,10 +18,10 @@ grid_regular(pt_man)
 (is_man <- img_sigma(range = c(100, 400), trans = NULL))
 grid_regular(is_man)
 
-(is_dat <- img_sigma() |> get_pers_max_frac(x = pd_data))
+(is_dat <- img_sigma() %>% get_pers_max_frac(x = pd_data))
 grid_regular(is_dat)
 
-(is_hom <- img_sigma() |> get_pers_max_frac(x = pd_data, hom_degrees = seq(2L)))
+(is_hom <- img_sigma() %>% get_pers_max_frac(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(is_hom)
 
 # `num_levels` for `step_vpn_persistence_landscape()`
@@ -39,10 +39,10 @@ grid_regular(wfp_man)
 (b_man <- bandwidth(range = c(500, 1500), trans = NULL))
 grid_regular(b_man)
 
-(b_dat <- bandwidth() |> get_pers_max_frac(x = pd_data))
+(b_dat <- bandwidth() %>% get_pers_max_frac(x = pd_data))
 grid_regular(b_dat)
 
-(b_hom <- bandwidth() |> get_pers_max_frac(x = pd_data, hom_degrees = seq(2L)))
+(b_hom <- bandwidth() %>% get_pers_max_frac(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(b_hom)
 
 # `weight_power` for `step_vpn_persistence_silhouette()`
@@ -65,9 +65,9 @@ grid_regular(nb_man)
 (ts_man <- tent_shift(range = c(100, 200), trans = NULL))
 grid_regular(ts_man)
 
-(ts_dat <- tent_shift() |> get_pers_min_mult(x = pd_data))
+(ts_dat <- tent_shift() %>% get_pers_min_mult(x = pd_data))
 grid_regular(ts_dat)
 
-(ts_hom <- tent_shift() |> get_pers_min_mult(x = pd_data, hom_degrees = seq(2L)))
+(ts_hom <- tent_shift() %>% get_pers_min_mult(x = pd_data, hom_degrees = seq(2L)))
 grid_regular(ts_hom)
 

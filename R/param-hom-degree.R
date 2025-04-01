@@ -63,7 +63,7 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
   }
   
   # calculate maximum dimensions of list-columns
-  x_max_dims <- vapply(x, \(l) max(vapply(l, ph_dim, 0L), na.rm = FALSE), 0L)
+  x_max_dims <- vapply(x, function(l) max(vapply(l, ph_dim, 0L), na.rm = FALSE), 0L)
   x_max_dim <- max(x_max_dims)
   
   # set the range based on the maximum observed and the minimum required

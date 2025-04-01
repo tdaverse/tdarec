@@ -10,7 +10,7 @@ phom_data <- data.frame(
   id = LETTERS[seq(6L)],
   phom = I(lapply(
     replicate(6L, klein_sampler(60), simplify = FALSE),
-    \(d) as.data.frame(ripserr::vietoris_rips(d))
+    function(d) as.data.frame(ripserr::vietoris_rips(d))
   )),
   part = rep(c("train", "test"), each = 3)
 )
@@ -21,12 +21,12 @@ phom_train <- filter(phom_data, part == "train")
 phom_test <- filter(phom_data, part == "test")
 
 # choose maximum filtration parameters
-max_death <- phom_train$phom |> 
-  lapply(\(d) d$death) |> 
-  unlist() |> max()
-max_persistence <- phom_train$phom |> 
-  lapply(\(d) d$death - d$birth) |> 
-  unlist() |> max()
+max_death <- phom_train$phom %>% 
+  lapply(function(d) d$death) %>% 
+  unlist() %>% max()
+max_persistence <- phom_train$phom %>% 
+  lapply(function(d) d$death - d$birth) %>% 
+  unlist() %>% max()
 
 # build preprocessing recipe with custom settings
 phom_train %>%

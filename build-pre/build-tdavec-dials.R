@@ -100,9 +100,9 @@ logistics <- glue::glue(
 
 # data for examples
 example_data <- glue::glue(
-  "data.frame(dist = I(list(eurodist, UScitiesD))) |>\n",
-  "  transform(pd = I(lapply(dist, ripserr::vietoris_rips))) |>\n",
-  "  subset(select = c(pd)) |>\n",
+  "data.frame(dist = I(list(eurodist, UScitiesD))) %>%\n",
+  "  transform(pd = I(lapply(dist, ripserr::vietoris_rips))) %>%\n",
+  "  subset(select = c(pd)) %>%\n",
   "  print() -> pd_data\n",
   .trim = FALSE
 )
@@ -187,10 +187,10 @@ for (dl in param_autotuners) {
   )
   # example 2 (finalizers only)
   example_2 <- glue::glue(
-    paste0("({dl_abbr}_dat <- {dl_name}() |> {dl_fin}(x = pd_data))\n"),
+    paste0("({dl_abbr}_dat <- {dl_name}() %>% {dl_fin}(x = pd_data))\n"),
     "grid_regular({dl_abbr}_dat)\n",
     "\n",
-    paste0("({dl_abbr}_hom <- {dl_name}() |> {dl_fin}(x = pd_data, hom_degrees = seq(2L)))\n"),
+    paste0("({dl_abbr}_hom <- {dl_name}() %>% {dl_fin}(x = pd_data, hom_degrees = seq(2L)))\n"),
     "grid_regular({dl_abbr}_hom)\n",
     "\n"
   )

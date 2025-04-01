@@ -182,7 +182,7 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
   for (col_name in col_names) {
     inheritance <- purrr::map_lgl(
       training[[col_name]],
-      \(x) inherits(x, .ripserr_vietoris_rips_classes)
+      function(x) inherits(x, .ripserr_vietoris_rips_classes)
     )
     if (! all(inheritance)) col_errs <- c(col_errs, col_name)
   }
@@ -249,7 +249,7 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
     term_phom <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::vietoris_rips(
+        function(d) ripserr::vietoris_rips(
           d,
           threshold = object$diameter_max,
           dim = object$max_hom_degree,
@@ -260,7 +260,7 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
     } else if (.ripserr_version >= "0.2.0") {
       purrr::map(
         new_data[[term]],
-        \(d) ripserr::vietoris_rips(
+        function(d) ripserr::vietoris_rips(
           d,
           threshold = object$diameter_max,
           max_dim = object$max_hom_degree,

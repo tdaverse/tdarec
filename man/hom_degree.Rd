@@ -70,13 +70,13 @@ sample_data <- data.frame(
 
 # options to calibrate homological degree
 hom_degree(range = c(2, 5))
-hom_degree() |> get_hom_range(x = sample_data[, 2, drop = FALSE])
-hom_degree() |> get_hom_range(x = sample_data[, 2, drop = FALSE], max_dim = 5)
+hom_degree() \%>\% get_hom_range(x = sample_data[, 2, drop = FALSE])
+hom_degree() \%>\% get_hom_range(x = sample_data[, 2, drop = FALSE], max_dim = 5)
 
 # heterogeneous data types
 hetero_data <- tibble(dataset = list(mtcars, nhtemp, eurodist, HairEyeColor))
-hetero_data |> 
-  mutate(class = vapply(dataset, \(x) class(x)[[1L]], ""))
+hetero_data \%>\% 
+  mutate(class = vapply(dataset, function(x) class(x)[[1L]], ""))
 get_hom_range(
   hom_degree(),
   hetero_data,
