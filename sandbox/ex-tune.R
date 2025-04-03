@@ -1,5 +1,5 @@
-## errors tuning parameters requiring finalization via bayesian optimization
-
+stop("Use `update()` per topepo's suggestion.")
+# https://github.com/tidymodels/tune/issues/995#issuecomment-2757967821
 
 library(tidymodels)
 set.seed(0)
@@ -20,7 +20,7 @@ res_g <- tune_grid(
   preprocessor = rec,
   resamples = folds
 )
-collect_metrics(res_g) |> count(min_n)
+collect_metrics(res_g) |> head()
 # tune using bayesian optimization
 res <- tune_bayes(
   spec,
@@ -28,7 +28,7 @@ res <- tune_bayes(
   resamples = folds,
   iter = 2, initial = 6
 )
-collect_metrics(res) |> count(min_n)
+collect_metrics(res) |> head()
 
 # random forest model, still with a hyperparameter requiring finalization
 spec_t <- rand_forest(trees = 5, min_n = tune(), mtry = tune()) |> 
@@ -36,84 +36,58 @@ spec_t <- rand_forest(trees = 5, min_n = tune(), mtry = tune()) |>
   set_engine("randomForest")
 (mtry_param <- finalize(mtry(), subset(dat, select = c(-mpg))))
 
-# doesn't work with bayesian optimization
+# Answer 1: Prepare a workflow and tune over a grid or list of finalized params.
+
+wflow <- workflow() |> 
+  add_recipe(rec) |> 
+  add_model(spec_t)
+
 res_g <- tune_grid(
-  spec_t,
-  preprocessor = rec,
-  resamples = folds
+  wflow,
+  resamples = folds,
+  grid = grid_regular(mtry_param, min_n(), levels = 3)
 )
-collect_metrics(res_g) |> count(mtry)
+collect_metrics(res_g) |> head()
+
 res <- tune_bayes(
-  spec_t,
-  preprocessor = rec,
-  resamples = folds,
-  iter = 2, initial = 6
-)
-# bad syntax, but different error with bayesian optimization
-res_g <- tune_grid(
-  spec_t,
-  preprocessor = rec,
-  resamples = folds,
-  param_info = parameters(list(mtry = mtry_param))
-)
-res <- tune_bayes(
-  spec_t,
-  preprocessor = rec,
-  resamples = folds,
-  param_info = parameters(list(mtry = mtry_param)),
-  iter = 2, initial = 6
-)
-# works but is redundant
-res_g <- tune_grid(
-  spec_t,
-  preprocessor = rec,
-  resamples = folds,
-  param_info = parameters(list(mtry = mtry_param, min_n = min_n()))
-)
-collect_metrics(res_g) |> count(mtry)
-res <- tune_bayes(
-  spec_t,
-  preprocessor = rec,
+  wflow,
   resamples = folds,
   param_info = parameters(list(mtry = mtry_param, min_n = min_n())),
   iter = 2, initial = 6
 )
-collect_metrics(res) |> count(mtry)
-
-# Question 1: How should this task be done (whether grid or bayesian)?
+collect_metrics(res) |> head()
 
 # also tune a preprocessing hyperparameter
 rec_pca <- recipe(mpg ~ ., data = dat) |> 
   step_pca(num_comp = tune())
-# no longer works, but again different errors
-res_g <- tune_grid(
-  spec_t,
-  preprocessor = rec_pca,
-  resamples = folds,
-  param_info = parameters(list(mtry = mtry_param, min_n = min_n()))
-)
-res <- tune_bayes(
-  spec_t,
-  preprocessor = rec_pca,
-  resamples = folds,
-  param_info = parameters(list(mtry = mtry_param, min_n = min_n())),
-  iter = 2, initial = 6
-)
-# this also doesn't work, again with different errors
-res_g <- tune_grid(
-  spec_t,
-  preprocessor = rec_pca,
-  resamples = folds,
-  param_info = parameters(list(num_comp = num_comp(),
-                               mtry = mtry_param, min_n = min_n()))
-)
-res <- tune_bayes(
-  spec_t,
-  preprocessor = rec_pca,
-  resamples = folds,
-  param_info = parameters(list(num_comp = num_comp(),
-                               mtry = mtry_param, min_n = min_n())),
-  iter = 2, initial = 6
+
+# Answer 2: Additionally finalize recipe params as necessary.
+
+(num_comp_param <- finalize(num_comp(), subset(dat, select = c(-mpg))))
+
+wflow <- workflow() |> 
+  add_recipe(rec_pca) |> 
+  add_model(spec_t)
+
+grid_wf <- merge(
+  grid_regular(num_comp_param, levels = 3),
+  grid_regular(mtry_param, min_n(), levels = 3)
 )
 
-# Question 2: How should this task be done?
+res_g <- tune_grid(
+  wflow,
+  resamples = folds,
+  grid = grid_wf
+)
+collect_metrics(res_g) |> head()
+
+res <- tune_bayes(
+  wflow,
+  resamples = folds,
+  param_info = parameters(list(
+    num_comp = num_comp_param,
+    mtry = mtry_param, min_n = min_n()
+  )),
+  iter = 2, initial = 6
+)
+collect_metrics(res) |> head()
