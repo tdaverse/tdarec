@@ -11,7 +11,8 @@
 #'   to convolve `x`; defaults to \eqn{\code{max(dim(x))} / 2^{D+1}}, where
 #'   \eqn{D} is the dimensionality of `x`
 #'
-#' @details This function is adapted from [spatstat.explore::blur()].
+#' @details This function is adapted from `spatstat.explore::blur()`, part of
+#'   the [spatstat package collection](https://spatstat.org/).
 #'
 #'   The procedure takes the following steps:
 #' \enumerate{

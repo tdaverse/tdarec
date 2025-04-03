@@ -28,7 +28,8 @@ This function takes a numeric array of any dimension as input
 and returns a blurred array of the same dimensions as output.
 }
 \details{
-This function is adapted from \code{\link[spatstat.explore:blur]{spatstat.explore::blur()}}.
+This function is adapted from \code{spatstat.explore::blur()}, part of
+the \href{https://spatstat.org/}{spatstat package collection}.
 
 The procedure takes the following steps:
 \enumerate{
