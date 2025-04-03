@@ -14,7 +14,7 @@ The longest-running code chunk conducts Bayesian tuning and is designed to abbre
 
 ### Test environments
 
-* local OS X install, R 4.2.3, with {TDAvec} in development (GitHub)
+* local OS X install, R 4.2.3, with {TDAvec} 0.1.3 (GitHub; in development beyond 0.1.4)
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
 * local OS X install, R 4.4.2, with {TDAvec} 0.1.4 (CRAN)
