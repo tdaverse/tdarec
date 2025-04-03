@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r options, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -31,7 +31,7 @@ Then the induced homomorphisms $H_k(X_r) \to H_k(X_s)$ between (singular) homolo
 While some such computations can be done analytically, most data come in the form of discrete measurements rather than functional relationships.
 For example, the topographic data for the Maunga Whau caldera take the form of a 2-dimensional numeric array, with each cell containing the estimated elevation of a 100--square meter area:
 
-```{r, fig.height=5, fig.width=7}
+```{r volcano, fig.height=5, fig.width=7}
 filled.contour(volcano, color.palette = terrain.colors, asp = 1)
 ```
 
@@ -164,7 +164,7 @@ rand_forest(
 
 We fit the model to the pre-processed training data:
 
-```{r}
+```{r model fit}
 set.seed(944327)
 fit(
   mnist_spec,
@@ -183,7 +183,7 @@ mnist_prep$steps[[1]]$blur_sigmas
 To evaluate the model, we generate predictions for the testing set and compare them to the true labels.
 Because accuracy is a coarse metric for a 10-value classification task, we examine the confusion matrix to get a sense of what errors are most common.
 
-```{r}
+```{r evaluate fitted model}
 mnist_fit |> 
   predict(new_data = bake(prep(mnist_rec), new_data = mnist_test)) |> 
   bind_cols(select(mnist_test, label)) |> 
@@ -346,7 +346,7 @@ Whereas in the previous section we fit only a single model, in this section we h
 We first inspect the top several models, for a sense of how rapidly performance drops away from the optimal settings, then select the top-performing settings for the final model.
 We computed both accuracy and area under the ROC curve, but we use only the former to inform this choice.
 
-```{r }
+```{r select hyperparameter settings}
 collect_metrics(mnist_res) |> 
   filter(.metric == "accuracy") |> 
   arrange(desc(mean))
@@ -372,7 +372,7 @@ The resulting RF correctly classifies roughly half of the images---not great, bu
 (Note also that the `blur` standard deviation is lower than originally defaulted to.)
 As before, we can look to the confusion matrix for insights into the sources of error:
 
-```{r }
+```{r evaluate on training set}
 mnist_fit |> 
   predict(new_data = bake(mnist_fin, new_data = mnist_train)) |> 
   bind_cols(select(mnist_train, label)) |> 
@@ -387,7 +387,7 @@ Among the most-confused digits are $1$ and $7$ (7), $2$ and $5$ (9), and $3$ and
 
 Finally, we evaluate the final model on the testing set---the holdout data from the original partition.
 
-```{r }
+```{r evaluate on testing set}
 mnist_fit |> 
   predict(new_data = bake(mnist_fin, new_data = mnist_test)) |> 
   bind_cols(select(mnist_test, label)) |> 
