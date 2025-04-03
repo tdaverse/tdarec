@@ -26,7 +26,7 @@ You can install the development version of tdarec from [GitHub](https://github.c
 
 ``` r
 # install.packages("pak")
-pak::pak("corybrunson/tdarec")
+pak::pak("tdaverse/tdarec")
 ```
 
 ## Design

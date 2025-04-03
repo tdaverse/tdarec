@@ -23,7 +23,7 @@ You can install the development version of tdarec from
 
 ``` r
 # install.packages("pak")
-pak::pak("corybrunson/tdarec")
+pak::pak("tdaverse/tdarec")
 ```
 
 ## Design
