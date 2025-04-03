@@ -5,6 +5,7 @@ vignette: >
   %\VignetteIndexEntry{Tuning persistent homological hyperparameters}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteDepends{tidymodels,ranger}
 ---
 
 ```{r options, include = FALSE}
