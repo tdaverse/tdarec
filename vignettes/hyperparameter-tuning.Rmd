@@ -227,7 +227,7 @@ recipe(mnist_train) |>
 This recipe has three tunable parameters, as we can verify by extracting their dials:
 
 ```{r tunable recipe hyperparameters}
-extract_parameter_set_dials(mnist_rec)
+( rec_dials <- extract_parameter_set_dials(mnist_rec) )
 ```
 
 Note that all three require finalization; like the number of randomly sampled predictors for each tree in a random forest, their ranges should not be guessed but must be determined from the content of the data.
@@ -273,7 +273,7 @@ rand_forest(
 We can again check for the two tunable hyperparameters by extracting their dials:
 
 ```{r tunable model parameters}
-extract_parameter_set_dials(mnist_spec)
+( spec_dials <- extract_parameter_set_dials(mnist_spec) )
 ```
 
 As seen in the printed dials, one hyperparameter range must be finalized.
@@ -326,17 +326,23 @@ mnist_res <- tune_grid(
 
 Still, however, due to the exceptionally costly computations involved, a more targeted search is preferable.
 For this reason, [Motta, Tralie, &al (2019)](https://ieeexplore.ieee.org/abstract/document/8999182) recommend Bayesian optimization for ML using topological features. This procedure is also implemented in Tidymodels and executed below.
-The syntax is similar to that of the grid search, but for illustration we specify 6 initial seeds with 12 tuning iterations each, and we limit the total runtime to 5 minutes.
+First, we combine the extracted dials from the pre-processing recipe and the model specification and update them with the finalized ranges:
+
+```{r update parameter dials}
+wflow_dials <- bind_rows(rec_dials, spec_dials) |> 
+  update(blur_sd = blur_sd_fin, pl_deg = pl_deg_fin, pl_lev = pl_lev_fin) |> 
+  update(rf_pred = mtry_fin)
+```
+
+The tuning syntax is similar to that of the grid search, but in place of the grid we only provide the updated dials.
+For illustration, we specify 6 initial seeds with 12 tuning iterations each, and we limit the total runtime to 5 minutes.
 
 ```{r tune workflow via bayesian optimization}
 set.seed(259762)
 mnist_res <- tune_bayes(
   mnist_wflow,
   resamples = mnist_folds,
-  param_info = parameters(list(
-    blur_sd = blur_sd_fin, pl_deg = pl_deg_fin, pl_lev = pl_lev_fin,
-    rf_node = min_n(), rf_pred = mtry_fin
-  )),
+  param_info = wflow_dials,
   metrics = metric_set(accuracy, roc_auc),
   initial = 6, iter = 12,
   control = control_bayes(time_limit = 5)
