@@ -195,8 +195,7 @@ mnist_pred |>
   accuracy(truth = label, estimate = .pred_class)
 ```
 
-The accuracy is poor but clearly better than chance. The confusion matrix suggests some reasons for the misclassifications:
-Most confused are $0$ and $2$ (5 errors), $0$ and $3$ (5), $0$ and $7$ (7), $1$ and $4$ (7), and $6$ and $8$ (5). These pairings are more geometrically than topologically similar; there were fewer confusions of $6$ and $9$ or of either and $0$ or $4$, where we might have expected them.
+The accuracy is poor but clearly better than chance. The confusion matrix suggests some reasons for the misclassifications, in that the most commonly confused digits are _not_ those with the same degree-1 homology; they are more geometrically than topologically similar.
 This could be due to excessive blur; the standard deviation of `r mnist_prep$steps[[1]]$blur_sigmas` may be too high. We can compare this default to the value obtained through tuning.
 
 # tuning hyperparameters
@@ -300,6 +299,7 @@ One way to systematically optimize the recipe and model hyperparameters---to tun
 For illustration, we construct a workflow grid by crossing a recipe grid with a model grid:
 
 ```{r prepare a tuning grid}
+set.seed(319845)
 mnist_rec_grid <- 
   grid_regular(blur_sd_fin, pl_deg_fin, pl_lev_fin, levels = 3) |> 
   set_names(c("blur_sd", "pl_deg", "pl_lev"))
@@ -385,12 +385,12 @@ mnist_fit |>
   bind_cols(select(mnist_train, label)) |> 
   print() -> mnist_pred
 mnist_pred |> 
-  accuracy(truth = label, estimate = .pred_class)
-mnist_pred |> 
   conf_mat(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
 ```
 
-Among the most-confused digits are $1$ and $7$ (7), $2$ and $5$ (9), and $3$ and $5$ (12). This is much more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
+Among the most-confused digits in these experiments are $1$ and $7$, $2$ and $5$, and $3$ and $5$. This is more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
 
 Finally, we evaluate the final model on the testing set---the holdout data from the original partition.
 
@@ -400,11 +400,11 @@ mnist_fit |>
   bind_cols(select(mnist_test, label)) |> 
   print() -> mnist_pred
 mnist_pred |> 
-  accuracy(truth = label, estimate = .pred_class)
-mnist_pred |> 
   conf_mat(truth = label, estimate = .pred_class)
+mnist_pred |> 
+  accuracy(truth = label, estimate = .pred_class)
 ```
 
-Some patterns in the training set hold up, though others don't, and some frequent confusion pairings (e.g. $2$ and $6$) are new.
+Some patterns in the training set hold up, though others don't, and some frequent confusion pairings are new.
 The accuracy is lower by a third than on the training set---a reminder of the importance of out-of-box evaluation---though within the 2--standard error interval of the cross-validation estimate.
 While the sample is small, we can say with some confidence that topological features discriminate among them, and much more effectively after hyperparameter optimization.
