@@ -13,8 +13,8 @@ homology of suitable data and for vectorizing persistent homology.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/corybrunson/tdarec}
-  \item Report bugs at \url{https://github.com/corybrunson/tdarec/issues}
+  \item \url{https://github.com/tdaverse/tdarec}
+  \item Report bugs at \url{https://github.com/tdaverse/tdarec/issues}
 }
 
 }

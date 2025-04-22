@@ -100,7 +100,7 @@ logistics <- glue::glue(
 
 # data for examples
 example_data <- glue::glue(
-  "data.frame(dist = I(list(eurodist, UScitiesD))) %>%\n",
+  "data.frame(dist = I(list(eurodist, UScitiesD * 1.6))) %>%\n",
   "  transform(pd = I(lapply(dist, ripserr::vietoris_rips))) %>%\n",
   "  subset(select = c(pd)) %>%\n",
   "  print() -> pd_data\n",

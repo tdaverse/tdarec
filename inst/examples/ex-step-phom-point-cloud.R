@@ -1,4 +1,4 @@
-roads <- data.frame(dist = I(list(eurodist, UScitiesD)))
+roads <- data.frame(dist = I(list(eurodist, UScitiesD * 1.6)))
 
 ph_rec <- recipe(~ ., data = roads) %>% 
   step_phom_point_cloud(dist, max_hom_degree = 1, filtration = "Rips")

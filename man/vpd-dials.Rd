@@ -85,7 +85,7 @@ The parameter \code{tent_shift} is passed to \code{epsilon} in
 \code{\link[TDAvec:computeTemplateFunction]{TDAvec::computeTemplateFunction()}}.
 }
 \examples{
-data.frame(dist = I(list(eurodist, UScitiesD))) \%>\%
+data.frame(dist = I(list(eurodist, UScitiesD * 1.6))) \%>\%
   transform(pd = I(lapply(dist, ripserr::vietoris_rips))) \%>\%
   subset(select = c(pd)) \%>\%
   print() -> pd_data

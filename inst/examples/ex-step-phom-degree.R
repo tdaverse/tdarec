@@ -1,5 +1,5 @@
 dat <- data.frame(
-  roads = I(list(eurodist, UScitiesD)),
+  roads = I(list(eurodist, UScitiesD * 1.6)),
   topos = I(list(volcano, 255 - volcano))
 )
 
