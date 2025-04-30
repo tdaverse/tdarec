@@ -1,6 +1,6 @@
 Package: tdarec
 Title: A 'recipes' Extension for Persistent Homology and Its Vectorizations
-Version: 0.0.1
+Version: 0.1.0
 Authors@R: c(
     person("Jason Cory", "Brunson",
            email = "cornelioid@gmail.com",
