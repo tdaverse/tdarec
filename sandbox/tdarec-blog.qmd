@@ -1,0 +1,58 @@
+---
+title: "Tidy topological machine learning with TDAvec and tdarec"
+author: "Jason Cory Brunson"
+format: html
+editor: visual
+---
+
+## The Pitch
+
+Topological data analysis (TDA) is a pretty mature discipline at this point, but in the last several years its assimilation into machine learning (ML) has really taken off. Based on our experience, the plurality of experimental TDA tools are written in Python, and naturally Python is home to most of these applications.
+
+That's not to say that there are no R packages for TDA-ML. [{TDAkit}](https://github.com/kisungyou/TDAkit), [{TDApplied}](https://github.com/shaelebrown/TDApplied), and others provide tools for specific self-contained analyses and could be used together in larger projects.
+As with the broader R ecosystem, though, their integration can require some additional work.
+The combination of several low-level libraries and compounding package dependencies has also made this toolkit fragile, with several packages temporarily or permanently archived.
+
+Meanwhile, the [Tidymodels](https://www.tidymodels.org/) package collection has enabled a new generation of users, myself (Cory) included, to build familiarity and proficiency with conventional ML. By harmonizing syntax and smoothing pipelines, Tidymodels makes it quick and easy to adapt usable code to new data types, pre-processing steps, and model families. By using wrappers and extractors, it also allows seasoned users to extend their work beyond its sphere of convenience.
+
+We therefore think that Tidymodels is an ideal starting point for a more sustained and interoperable collection for TDA-ML in R.
+Since much of the role of TDA in ML has been to extract and vectorize features from spatial, image, and other high-dimensional data, we present an extension to [recipes](https://recipes.tidymodels.org/) for just this purpose.
+Assembling a comprehensive, general-purpose toolkit is a long-term project. Our contribution is meant to spur that project on.
+
+## The Packages
+
+We present two packages: {TDAvec}, an interface to several efficient feature vectorizations, and {tdarec}, a {recipes} + [{dials}](https://dials.tidymodels.org/) extension that integrates these vectorizations into Tidymodels.
+First, though, we need to introduce persistent homology and how it can be computed with R.
+
+### Computations of persistent homology
+
+In predictive modeling, [*persistent homology*](https://en.wikipedia.org/wiki/Persistent_homology) (PH) is the workhorse of TDA.[^1]
+In a nutshell, it measures topological patterns in data---most commonly clusters and enclosures---by the range of resolutions through which they persist.
+Several packages interface to lower-level libraries that compute PH for various data structures (all accept point clouds and distance matrices): [{TDA}](https://doi.org/10.48550/arXiv.1411.1830) (the Dionysus, PHAT, and GUDHI libraries; functions, rasters), [{ripserr}](https://tdaverse.github.io/ripserr/) (the Ripser and Cubical Ripser libraries; rasters), [{TDApplied}](https://joss.theoj.org/papers/10.21105/joss.06321) (Python Ripser), and [{rgudhi}](https://lmjl-alea.github.io/rgudhi/) (GUDHI).
+We rely for now on {ripserr} to compute PH, but a near-term upgrade will incorporate {TDA} as well.
+
+[^1]: Exploratory modeling is another story.
+
+### Vectorizations of persistent homology
+
+
+
+### Tidy machine learning with persistent homology
+
+{recipes} is the pre-processing arm of Tidymodels; mostly it provides `step_*()` functions that pipe together as recipe specifications, to later be applied directly to data or built into workflows. {dials} provides tuning functions for these steps as well as for model families provided by {parsnip}.
+
+{tdarec} provides two primary families of steps:
+1. Steps to *calculate persistent homology from data*. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.
+2. Steps to *transform and vectorize persistent diagrams*. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g. multi-level persistence landscapes) that can be used by most predictive model families.
+
+
+
+## last section
+
+**TODO:**
+Decide whether to include this here or in the last blog post.
+
+I (Cory) am part of a loose-knit team of R developers interested in fostering a more sustainable and extensible package collection for TDA.
+
+Development of {tdarec} was directly funded by an Infrastructure Steering Committee grant from the R Consortium, together with several other packages that will be presented in upcoming blog posts.
+While we hope to secure funding for other specific projects in future, we also invite interested developers or users to reach out with their issues or ideas.
