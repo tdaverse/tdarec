@@ -37,11 +37,11 @@ issue](https://github.com/corybrunson/tdarec/issues/2) for plans):
 - **Vietoris–Rips** filtrations of point clouds (distance matrices or
   coordinate matrices) using
   [{ripserr}](https://github.com/tdaverse/ripserr)
-- **cubical** filtrations of lattices (pixelated or voxelated data)
-  using {ripserr}
+- **cubical** filtrations of rasters (pixelated or voxelated data) using
+  {ripserr}
 
 Also included are a pre-processing step to introduce **Gaussian blur**
-to lattices and a post-processing step to select PDs for **specific
+to rasters and a post-processing step to select PDs for **specific
 homological degrees**.
 
 Finally, this version provides steps that deploy the highly efficient
