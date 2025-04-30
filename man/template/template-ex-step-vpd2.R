@@ -3,7 +3,7 @@ library(recipes)
 # inspect vectorized features
 volc_dat <- data.frame(image = I(list(volcano / 10)))
 recipe(~ image, data = volc_dat) %>% 
-  step_phom_lattice(image, method = "link_join") %>% 
+  step_phom_raster(image, method = "link_join") %>% 
   step_vpd_(image_phom, {param_vals}) %>% 
   print() -> volc_rec
 print(volc_rec)

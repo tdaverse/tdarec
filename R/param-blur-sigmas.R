@@ -1,7 +1,7 @@
 #' @title Standard deviation of Gaussian blur
 #' 
 #' @description The standard deviation of the noise function convolved with
-#'   array values to induce blur in lattice data (images).
+#'   array values to induce blur in raster data.
 #'
 #' @details The gaussian blur step deploys [blur()]. See there for definitions
 #'   and references.

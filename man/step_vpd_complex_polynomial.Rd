@@ -96,7 +96,7 @@ library(recipes)
 # inspect vectorized features
 volc_dat <- data.frame(image = I(list(volcano / 10)))
 recipe(~ image, data = volc_dat) \%>\% 
-  step_phom_lattice(image, method = "link_join") \%>\% 
+  step_phom_raster(image, method = "link_join") \%>\% 
   step_vpd_complex_polynomial(image_phom, hom_degree = 1) \%>\% 
   print() -> volc_rec
 print(volc_rec)

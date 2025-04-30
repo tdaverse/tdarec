@@ -1,7 +1,7 @@
 topos <- data.frame(pix = I(list(volcano)))
 
 ph_rec <- recipe(~ ., data = topos) %>% 
-  step_phom_lattice(pix)
+  step_phom_raster(pix)
 ph_prep <- prep(ph_rec, training = topos)
 ph_res <- bake(ph_prep, topos)
 
@@ -14,6 +14,6 @@ with(ph_res$pix_phom[[1]], plot(
 ))
 
 with_max <- recipe(~ ., data = topos) %>% 
-  step_phom_lattice(pix, value_max = 150)
+  step_phom_raster(pix, value_max = 150)
 with_max <- prep(with_max, training = topos)
 bake(with_max, topos)

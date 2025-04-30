@@ -3,7 +3,7 @@
 \name{step_blur}
 \alias{step_blur}
 \alias{tidy.step_blur}
-\title{Blur lattice (image) data}
+\title{Blur raster data}
 \usage{
 step_blur(
   recipe,

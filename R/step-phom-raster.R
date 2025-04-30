@@ -1,6 +1,6 @@
-#' @title Persistent homology of lattice data (images)
+#' @title Persistent homology of raster data (images)
 #'
-#' @description The function `step_phom_lattice()` creates a _specification_ of
+#' @description The function `step_phom_raster()` creates a _specification_ of
 #'   a recipe step that will convert compatible data formats (numerical arrays,
 #'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
@@ -8,9 +8,9 @@
 #'
 #' @template step-phom-details
 #'
-#' @section PH of Lattices:
+#' @section PH of Rasters:
 #'
-#'   The PH of numeric lattices such as (greyscale) digital images is computed
+#'   The PH of numeric arrays such as (greyscale) digital images is computed
 #'   from the cubical filtration of the pixel or voxel array, treated as a
 #'   function from a cubical mesh to a finite value range.
 #'
@@ -25,7 +25,7 @@
 #' @section Tuning Parameters:
 #'
 #' ```{r, echo=FALSE, results="asis"}
-#' step <- "step_phom_lattice"
+#' step <- "step_phom_raster"
 #' result <- knitr::knit_child("man/rmd/tunable-args.Rmd")
 #' cat(result)
 #' ```
@@ -41,10 +41,10 @@
 #' @param engine The computational engine to use (see 'Details'). Reasonable
 #'   defaults are chosen based on `filtration`.
 #' @family topological feature extraction via persistent homology
-#' @example inst/examples/ex-step-phom-lattice.R
+#' @example inst/examples/ex-step-phom-raster.R
 
 #' @export
-step_phom_lattice <- function(
+step_phom_raster <- function(
     recipe,
     ...,
     # standard inputs
@@ -59,14 +59,14 @@ step_phom_lattice <- function(
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
-    id = rand_id("phom_lattice")
+    id = rand_id("phom_raster")
 ) {
-  recipes_pkg_check(required_pkgs.step_phom_lattice())
+  recipes_pkg_check(required_pkgs.step_phom_raster())
   
   # output the step
   add_step(
     recipe,
-    step_phom_lattice_new(
+    step_phom_raster_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
@@ -82,7 +82,7 @@ step_phom_lattice <- function(
   )
 }
 
-step_phom_lattice_new <- function(
+step_phom_raster_new <- function(
     terms,
     role, trained,
     filtration,
@@ -92,7 +92,7 @@ step_phom_lattice_new <- function(
     skip, id
 ) {
   step(
-    subclass = "phom_lattice",
+    subclass = "phom_raster",
     terms = terms,
     role = role,
     trained = trained,
@@ -108,16 +108,16 @@ step_phom_lattice_new <- function(
 }
 
 #' @export
-prep.step_phom_lattice <- function(x, training, info = NULL, ...) {
-  # save(x, training, info, file = here::here("step-phom-lattice-prep.rda"))
-  # load(here::here("step-phom-lattice-prep.rda"))
+prep.step_phom_raster <- function(x, training, info = NULL, ...) {
+  # save(x, training, info, file = here::here("step-phom-raster-prep.rda"))
+  # load(here::here("step-phom-raster-prep.rda"))
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
   # check that all columns are list-columns
   # TODO: Check other existing steps for handling of list-columns.
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
-    rlang::abort("The `phom_lattice` step can only transform list-columns.")
+    rlang::abort("The `phom_raster` step can only transform list-columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
@@ -171,7 +171,7 @@ prep.step_phom_lattice <- function(x, training, info = NULL, ...) {
   x$method <- match.arg(x$method, c("link_join", "compute_pairs"))
   
   # output prepped step
-  step_phom_lattice_new(
+  step_phom_raster_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
@@ -187,9 +187,9 @@ prep.step_phom_lattice <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_phom_lattice <- function(object, new_data, ...) {
-  # save(object, new_data, file = here::here("step-phom-lattice-bake.rda"))
-  # load(here::here("step-phom-lattice-bake.rda"))
+bake.step_phom_raster <- function(object, new_data, ...) {
+  # save(object, new_data, file = here::here("step-phom-raster-bake.rda"))
+  # load(here::here("step-phom-raster-bake.rda"))
   
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
@@ -231,11 +231,11 @@ bake.step_phom_lattice <- function(object, new_data, ...) {
 }
 
 #' @export
-print.step_phom_lattice <- function(
+print.step_phom_raster <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  # save(x, width, file = here::here("step-phom-lattice-print.rda"))
-  # load(here::here("step-phom-lattice-print.rda"))
+  # save(x, width, file = here::here("step-phom-raster-print.rda"))
+  # load(here::here("step-phom-raster-print.rda"))
   
   title <- paste0(
     "persistent features from a ",
@@ -255,14 +255,14 @@ print.step_phom_lattice <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_phom_lattice <- function(x, ...) {
+required_pkgs.step_phom_raster <- function(x, ...) {
   c("ripserr", "tdarec")
 }
 
-#' @rdname step_phom_lattice
+#' @rdname step_phom_raster
 #' @usage NULL
 #' @export
-tidy.step_phom_lattice <- function(x, ...) {
+tidy.step_phom_raster <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
       terms = unname(x$columns),
@@ -280,14 +280,14 @@ tidy.step_phom_lattice <- function(x, ...) {
 }
 
 #' @export
-tunable.step_phom_lattice <- function(x, ...) {
+tunable.step_phom_raster <- function(x, ...) {
   tibble::tibble(
     name = c("max_hom_degree"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, 3L))
     ),
     source = "recipe",
-    component = "step_phom_lattice",
+    component = "step_phom_raster",
     component_id = x$id
   )
 }

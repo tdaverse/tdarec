@@ -109,7 +109,7 @@ recipe(mnist_train) |>
   update_role(label, new_role = "outcome") |> 
   update_role(digit, new_role = "image") |> 
   step_blur(digit) |>
-  step_phom_lattice(digit) |> 
+  step_phom_raster(digit) |> 
   step_vpd_persistence_landscape(
     digit_phom,
     hom_degree = 1,
@@ -213,7 +213,7 @@ recipe(mnist_train) |>
   update_role(label, new_role = "outcome") |> 
   update_role(digit, new_role = "image") |> 
   step_blur(digit, blur_sigmas = tune("blur_sd")) |>
-  step_phom_lattice(digit) |> 
+  step_phom_raster(digit) |> 
   step_vpd_persistence_landscape(
     digit_phom,
     hom_degree = tune("pl_deg"),

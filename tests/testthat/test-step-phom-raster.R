@@ -50,28 +50,28 @@ cube <- array(c(sq1, sq2, sq3, sq4, sq5, sq6), dim = c(6, 8, 6))
 
 dat <- data.frame(img = I(list(matrix(runif(120)), volcano, cube)))
 
-test_that("`step_phom_lattice()` accepts different values and dimensions", {
+test_that("`step_phom_raster()` accepts different values and dimensions", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_lattice(img)
+    step_phom_raster(img)
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
 test_that("`prep()` requires at least one variable", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_lattice()
+    step_phom_raster()
   expect_error(prep(rec, training = dat), "name")
 })
 
 test_that("`prep()` checks names", {
   dat2 <- transform(dat, img_phom = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
-    step_phom_lattice(img)
+    step_phom_raster(img)
   expect_message(prep(rec2, training = dat2), "[Nn]ew names")
 })
 
 test_that("`tunable()` return standard names", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_lattice(img)
+    step_phom_raster(img)
   tun <- tunable(rec$steps[[1]])
   expect_equal(
     names(tun),
@@ -89,7 +89,7 @@ test_that("within-step and without-step calculations agree", {
   
   # no parameter specifications
   phom_extract <- phom_rec |> 
-    step_phom_lattice(img, id = "")
+    step_phom_raster(img, id = "")
   phom_train <- prep(phom_extract, training = dat)
   phom_test <- bake(phom_train, new_data = dat)
   manual_calc <- lapply(dat$img, ripserr::cubical)
@@ -97,7 +97,7 @@ test_that("within-step and without-step calculations agree", {
   
   # data-determined maximum value
   phom_extract <- phom_rec |> 
-    step_phom_lattice(img, value_max = 1000, id = "")
+    step_phom_raster(img, value_max = 1000, id = "")
   phom_train <- prep(phom_extract, training = dat)
   phom_test <- bake(phom_train, new_data = dat)
   manual_calc <- lapply(
@@ -108,7 +108,7 @@ test_that("within-step and without-step calculations agree", {
   
   # higher homological degree
   phom_extract <- phom_rec |> 
-    step_phom_lattice(img, method = "compute_pairs", id = "")
+    step_phom_raster(img, method = "compute_pairs", id = "")
   phom_train <- prep(phom_extract, training = dat)
   phom_test <- bake(phom_train, new_data = dat)
   # not equal to result using link-join method
