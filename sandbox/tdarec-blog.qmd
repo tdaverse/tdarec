@@ -62,7 +62,7 @@ Notably, all vectorizations are written in C++ and exposed to R using {Rcpp}. We
 
 [{tdarec}](https://tdaverse.github.io/tdarec/) provides two primary families of steps:
 
-1. Steps to *calculate persistent homology from data*, which share the naming pattern `step_phom_*()` for **p**ersistent **hom**ology. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.
+1. Steps to *calculate persistent homology from data*, which share the naming pattern `step_pd_*()` for **p**ersistent **d**iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.
 2. Steps to *transform and vectorize persistent diagrams*, which share the naming pattern `step_vpd_*()` for **v**ectorized **p**ersistence **d**iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g. multi-level persistence landscapes) that can be used by most predictive model families.
 
 Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters.

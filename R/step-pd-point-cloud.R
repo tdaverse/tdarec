@@ -1,12 +1,12 @@
 #' @title Persistent homology of point clouds
 #'
-#' @description The function `step_phom_point_cloud()` creates a _specification_
+#' @description The function `step_pd_point_cloud()` creates a _specification_
 #'   of a recipe step that will convert compatible data formats (distance
 #'   matrices, coordinate matrices, or time series) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
 #'   list-columns.
 #'
-#' @template step-phom-details
+#' @template step-pd-details
 #'
 #' @section PH of Point Clouds:
 #'
@@ -35,7 +35,7 @@
 #' @section Tuning Parameters:
 #'
 #' ```{r, echo=FALSE, results="asis"}
-#' step <- "step_phom_point_cloud"
+#' step <- "step_pd_point_cloud"
 #' result <- knitr::knit_child("man/rmd/tunable-args.Rmd")
 #' cat(result)
 #' ```
@@ -52,10 +52,10 @@
 #' @param engine The computational engine to use (see 'Details'). Reasonable
 #'   defaults are chosen based on `filtration`.
 #' @family topological feature extraction via persistent homology
-#' @example inst/examples/ex-step-phom-point-cloud.R
+#' @example inst/examples/ex-step-pd-point-cloud.R
 
 #' @export
-step_phom_point_cloud <- function(
+step_pd_point_cloud <- function(
     recipe,
     ...,
     # standard inputs
@@ -71,14 +71,14 @@ step_phom_point_cloud <- function(
     columns = NULL,
     keep_original_cols = TRUE,
     skip = FALSE,
-    id = rand_id("phom_point_cloud")
+    id = rand_id("pd_point_cloud")
 ) {
-  recipes_pkg_check(required_pkgs.step_phom_point_cloud())
+  recipes_pkg_check(required_pkgs.step_pd_point_cloud())
   
   # output the step
   add_step(
     recipe,
-    step_phom_point_cloud_new(
+    step_pd_point_cloud_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
@@ -95,7 +95,7 @@ step_phom_point_cloud <- function(
   )
 }
 
-step_phom_point_cloud_new <- function(
+step_pd_point_cloud_new <- function(
     terms,
     role, trained,
     filtration,
@@ -105,7 +105,7 @@ step_phom_point_cloud_new <- function(
     skip, id
 ) {
   step(
-    subclass = "phom_point_cloud",
+    subclass = "pd_point_cloud",
     terms = terms,
     role = role,
     trained = trained,
@@ -122,16 +122,16 @@ step_phom_point_cloud_new <- function(
 }
 
 #' @export
-prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
-  # save(x, training, info, file = here::here("step-phom-point-cloud-prep.rda"))
-  # load(here::here("step-phom-point-cloud-prep.rda"))
+prep.step_pd_point_cloud <- function(x, training, info = NULL, ...) {
+  # save(x, training, info, file = here::here("step-pd-point-cloud-prep.rda"))
+  # load(here::here("step-pd-point-cloud-prep.rda"))
   
   # extract columns and ensure they are lists of 3-column numeric tables
   col_names <- recipes_eval_select(x$terms, training, info)
   # check that all columns are list-columns
   # TODO: Check other existing steps for handling of list-columns.
   if (! all(vapply(training[, col_names, drop = FALSE], typeof, "") == "list"))
-    rlang::abort("The `phom_point_cloud` step can only transform list-columns.")
+    rlang::abort("The `pd_point_cloud` step can only transform list-columns.")
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
@@ -215,7 +215,7 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
   }
   
   # output prepped step
-  step_phom_point_cloud_new(
+  step_pd_point_cloud_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
@@ -232,9 +232,9 @@ prep.step_phom_point_cloud <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_phom_point_cloud <- function(object, new_data, ...) {
-  # save(object, new_data, file = here::here("step-phom-point-cloud-bake.rda"))
-  # load(here::here("step-phom-point-cloud-bake.rda"))
+bake.step_pd_point_cloud <- function(object, new_data, ...) {
+  # save(object, new_data, file = here::here("step-pd-point-cloud-bake.rda"))
+  # load(here::here("step-pd-point-cloud-bake.rda"))
   
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
@@ -244,9 +244,9 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
   # TODO: Move {ggtda} procedure for passing data to engine to helper package.
   # TODO: include `.ripserr_version` in helper package
   # tabulate persistent homology from each data column
-  phom_data <- tibble::tibble(.rows = nrow(new_data))
+  pd_data <- tibble::tibble(.rows = nrow(new_data))
   for (term in object$terms) {
-    term_phom <- if (.ripserr_version == "0.1.1") {
+    term_pd <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
         function(d) ripserr::vietoris_rips(
@@ -268,21 +268,21 @@ bake.step_phom_point_cloud <- function(object, new_data, ...) {
         )
       )
     }
-    phom_data[[paste(term, "phom", sep = "_")]] <- term_phom
+    pd_data[[paste(term, "pd", sep = "_")]] <- term_pd
   }
   
-  check_name(phom_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, phom_data)
+  check_name(pd_data, new_data, object)
+  new_data <- vctrs::vec_cbind(new_data, pd_data)
   new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
 #' @export
-print.step_phom_point_cloud <- function(
+print.step_pd_point_cloud <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  # save(x, width, file = here::here("step-phom-point-cloud-print.rda"))
-  # load(here::here("step-phom-point-cloud-print.rda"))
+  # save(x, width, file = here::here("step-pd-point-cloud-print.rda"))
+  # load(here::here("step-pd-point-cloud-print.rda"))
   
   title <- paste0(
     "persistent features from a ",
@@ -302,14 +302,14 @@ print.step_phom_point_cloud <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_phom_point_cloud <- function(x, ...) {
+required_pkgs.step_pd_point_cloud <- function(x, ...) {
   c("ripserr", "tdarec")
 }
 
-#' @rdname step_phom_point_cloud
+#' @rdname step_pd_point_cloud
 #' @usage NULL
 #' @export
-tidy.step_phom_point_cloud <- function(x, ...) {
+tidy.step_pd_point_cloud <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
       terms = unname(x$columns),
@@ -327,14 +327,14 @@ tidy.step_phom_point_cloud <- function(x, ...) {
 }
 
 #' @export
-tunable.step_phom_point_cloud <- function(x, ...) {
+tunable.step_pd_point_cloud <- function(x, ...) {
   tibble::tibble(
     name = c("max_hom_degree"),
     call_info = list(
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, 3L))
     ),
     source = "recipe",
-    component = "step_phom_point_cloud",
+    component = "step_pd_point_cloud",
     component_id = x$id
   )
 }

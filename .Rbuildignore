@@ -8,6 +8,7 @@
 ^CODE_OF_CONDUCT\.md$
 ^man-roxygen$
 ^build-pre$
+^docs$
 
 # development
 ^data-raw$

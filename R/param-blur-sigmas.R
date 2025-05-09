@@ -37,7 +37,7 @@ get_blur_range <- function(object, x, ...) {
   
   # check that all columns are list-columns of objects with sizes
   if (! all(vapply(x, typeof, "") == "list")) {
-    rlang::abort("The `phom` step can only transform list-columns.")
+    rlang::abort("The `pd` steps can only transform list-columns.")
   }
   
   # # calculate the maximum number of dimensions

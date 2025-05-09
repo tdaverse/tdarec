@@ -65,12 +65,12 @@ To preserve space, we remove the original columns at each step.
 ```{r persistent homological recipe}
 scale_seq <- seq(0, 3, by = .05)
 recipe(embedding ~ sample, data = klein_train) |> 
-  step_phom_point_cloud(
+  step_pd_point_cloud(
     sample, max_hom_degree = tune("vr_degree"),
     keep_original_cols = FALSE
   ) |> 
   step_vpd_euler_characteristic_curve(
-    sample_phom, xseq = scale_seq,
+    sample_pd, xseq = scale_seq,
     keep_original_cols = TRUE
   ) |> 
   print() -> klein_rec
@@ -94,7 +94,7 @@ klein_rec |>
   bake(new_data = klein_train) ->
   klein_bake
 mtry_param <- finalize(mtry(), klein_bake |> select(contains("euler")))
-degree_param <- finalize(max_hom_degree(), klein_bake |> select(sample_phom))
+degree_param <- finalize(max_hom_degree(), klein_bake |> select(sample_pd))
 ```
 
 We can now specify the model and its tunable parameters.

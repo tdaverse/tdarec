@@ -3,8 +3,8 @@ library(recipes)
 # inspect vectorized features
 volc_dat <- data.frame(image = I(list(volcano / 10)))
 recipe(~ image, data = volc_dat) %>% 
-  step_phom_raster(image, method = "link_join") %>% 
-  step_vpd_complex_polynomial(image_phom, hom_degree = 1) %>% 
+  step_pd_raster(image, method = "link_join") %>% 
+  step_vpd_complex_polynomial(image_pd, hom_degree = 1) %>% 
   print() -> volc_rec
 print(volc_rec)
 volc_rec %>% 
@@ -19,9 +19,9 @@ permeability_qsar %>%
   tidyr::nest(chem_fp = -perm_cut) %>% 
   print() -> perm_dat
 recipe(perm_cut ~ chem_fp, data = perm_dat) %>% 
-  step_phom_point_cloud(chem_fp, max_hom_degree = 2) %>% 
-  step_vpd_complex_polynomial(chem_fp_phom, hom_degree = 1) %>% 
-  step_pca(starts_with("chem_fp_phom_"), num_comp = 2) %>%
+  step_pd_point_cloud(chem_fp, max_hom_degree = 2) %>% 
+  step_vpd_complex_polynomial(chem_fp_pd, hom_degree = 1) %>% 
+  step_pca(starts_with("chem_fp_pd_"), num_comp = 2) %>%
   print() -> perm_rec
 perm_est <- prep(perm_rec, training = perm_dat)
 perm_res <- bake(perm_est, new_data = perm_dat)

@@ -59,7 +59,7 @@ get_hom_range <- function(object, x, max_dim = 2L, ...) {
   
   # check that all columns are list-columns of objects with sizes
   if (! all(vapply(x, typeof, "") == "list")) {
-    rlang::abort("The `phom` step can only transform list-columns.")
+    rlang::abort("The `pd` steps can only transform list-columns.")
   }
   
   # calculate maximum dimensions of list-columns

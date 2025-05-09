@@ -147,12 +147,12 @@ optimization.
 # specify a pre-processing recipe
 scale_seq <- seq(0, 3, by = .05)
 recipe(embedding ~ sample, data = klein_train) |> 
-  step_phom_point_cloud(
+  step_pd_point_cloud(
     sample, max_hom_degree = tune("vr_degree"),
     keep_original_cols = FALSE
   ) |> 
   step_vpd_euler_characteristic_curve(
-    sample_phom, xseq = scale_seq,
+    sample_pd, xseq = scale_seq,
     keep_original_cols = FALSE
   ) |> 
   print() -> klein_rec
@@ -166,7 +166,7 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> 
 #> ── Operations
 #> • persistent features from a Rips filtration of: sample
-#> • Euler characteristic curve of: sample_phom
+#> • Euler characteristic curve of: sample_pd
 ```
 
 For simplicity, we choose a common model for ML classification,

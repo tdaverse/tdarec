@@ -4,28 +4,28 @@ dat <- data.frame(
 )
 if (.ripserr_version >= "0.2.0") dat$timeseries <- I(list(Nile, LakeHuron))
 
-test_that("`step_phom_point_cloud()` accepts multiple data classes", {
+test_that("`step_pd_point_cloud()` accepts multiple data classes", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_point_cloud(everything())
+    step_pd_point_cloud(everything())
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
 test_that("`prep()` requires at least one variable", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_point_cloud()
+    step_pd_point_cloud()
   expect_error(prep(rec, training = dat), "name")
 })
 
 test_that("`prep()` checks names", {
-  dat2 <- transform(dat, dists_phom = 0)
+  dat2 <- transform(dat, dists_pd = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
-    step_phom_point_cloud(dists)
+    step_pd_point_cloud(dists)
   expect_message(prep(rec2, training = dat2), "[Nn]ew names")
 })
 
 test_that("`tunable()` return standard names", {
   rec <- recipe(~ dists, data = dat) |> 
-    step_phom_point_cloud(dists)
+    step_pd_point_cloud(dists)
   tun <- tunable(rec$steps[[1]])
   expect_equal(
     names(tun),
@@ -60,50 +60,50 @@ diam_max <- sphere_train$sample |>
   sapply(max) |> 
   max()
 
-phom_rec <- recipe(dimension ~ ., data = sphere_train)
+pd_rec <- recipe(dimension ~ ., data = sphere_train)
 
 test_that("within-step and without-step calculations agree", {
   
   # no parameter specifications
-  phom_extract <- phom_rec |> 
-    step_phom_point_cloud(sample, id = "")
-  phom_train <- prep(phom_extract, training = sphere_train)
-  phom_test <- bake(phom_train, new_data = sphere_test)
+  pd_extract <- pd_rec |> 
+    step_pd_point_cloud(sample, id = "")
+  pd_train <- prep(pd_extract, training = sphere_train)
+  pd_test <- bake(pd_train, new_data = sphere_test)
   manual_calc <- lapply(sphere_test$sample, ripserr::vietoris_rips)
-  expect_equal(phom_test$sample_phom, manual_calc)
+  expect_equal(pd_test$sample_pd, manual_calc)
   
   # data-determined maximum diameter
-  phom_extract <- phom_rec |> 
-    step_phom_point_cloud(sample, diameter_max = diam_max, id = "")
-  phom_train <- prep(phom_extract, training = sphere_train)
-  phom_test <- bake(phom_train, new_data = sphere_test)
+  pd_extract <- pd_rec |> 
+    step_pd_point_cloud(sample, diameter_max = diam_max, id = "")
+  pd_train <- prep(pd_extract, training = sphere_train)
+  pd_test <- bake(pd_train, new_data = sphere_test)
   manual_calc <- lapply(
     sphere_test$sample,
     ripserr::vietoris_rips, threshold = diam_max
   )
-  expect_equal(phom_test$sample_phom, manual_calc)
+  expect_equal(pd_test$sample_pd, manual_calc)
   
   # non-trivial maximum diameter
-  phom_extract <- phom_rec |> 
-    step_phom_point_cloud(sample, diameter_max = diam_max/6, id = "")
-  phom_train <- prep(phom_extract, training = sphere_train)
-  phom_test <- bake(phom_train, new_data = sphere_test)
+  pd_extract <- pd_rec |> 
+    step_pd_point_cloud(sample, diameter_max = diam_max/6, id = "")
+  pd_train <- prep(pd_extract, training = sphere_train)
+  pd_test <- bake(pd_train, new_data = sphere_test)
   manual_calc <- lapply(
     sphere_test$sample,
     ripserr::vietoris_rips, threshold = diam_max/6
   )
-  expect_equal(phom_test$sample_phom, manual_calc)
+  expect_equal(pd_test$sample_pd, manual_calc)
   
   # higher homological degree
-  phom_extract <- phom_rec |> 
-    step_phom_point_cloud(sample, max_hom_degree = 2, id = "")
-  phom_train <- prep(phom_extract, training = sphere_train)
-  phom_test <- bake(phom_train, new_data = sphere_test)
+  pd_extract <- pd_rec |> 
+    step_pd_point_cloud(sample, max_hom_degree = 2, id = "")
+  pd_train <- prep(pd_extract, training = sphere_train)
+  pd_test <- bake(pd_train, new_data = sphere_test)
   manual_calc <- if (.ripserr_version < "0.2.0") {
     lapply(sphere_test$sample, ripserr::vietoris_rips, dim = 2)
   } else {
     lapply(sphere_test$sample, ripserr::vietoris_rips, max_dim = 2)
   }
-  expect_equal(phom_test$sample_phom, manual_calc)
+  expect_equal(pd_test$sample_pd, manual_calc)
   
 })

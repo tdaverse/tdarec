@@ -10,12 +10,12 @@ mnist_folds <- vfold_cv(mnist_train, v = 6L)
 # specify a pre-processing recipe
 scale_seq <- seq(0, 3, by = .05)
 recipe(label ~ digit, data = mnist_train) |> 
-  step_phom_raster(
+  step_pd_raster(
     digit, max_hom_degree = tune("ph_degree"),
     keep_original_cols = FALSE
   ) |> 
   step_vpd_pl(
-    sample_phom, hom_degree = tune("pl_degree"), xseq = scale_seq, k = 1L,
+    sample_pd, hom_degree = tune("pl_degree"), xseq = scale_seq, k = 1L,
     keep_original_cols = FALSE
   ) |> 
   print() -> mnist_rec

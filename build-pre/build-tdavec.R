@@ -569,7 +569,7 @@ link_obj <- function(name) {
   res
 }
 # load_all()
-# link_obj("step_phom_point_cloud")
+# link_obj("step_pd_point_cloud")
 # link_obj("computePersistenceLandscape")
 # # FIXME: This should link to `dials::check_param`, but it is not exported.
 # link_obj("check_param")

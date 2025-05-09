@@ -9,3 +9,7 @@ inst/doc
 
 # development
 ignore
+
+# publication
+sandbox/tdarec-blog_files
+

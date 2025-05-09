@@ -1,6 +1,6 @@
 
 # ensure that all columns are list-columns of 3-column persistence diagrams
-check_phom_list <- function(data) {
+check_pd_list <- function(data) {
   # check that all columns are list columns
   if (! all(vapply(data, typeof, "") == "list"))
     rlang::abort("The `vpd_*` steps can only transform list columns.")
@@ -9,7 +9,7 @@ check_phom_list <- function(data) {
   for (col in names(data)) class(data[[col]]) <- "list"
   # check that each list element is a 3-column matrix or data frame
   # TODO: Encode persistence data using a specialized class.
-  are_phom <- function(l) all(vapply(
+  are_pd <- function(l) all(vapply(
     l,
     function(x) ncol(x) == 3L && (
       (inherits(x, "data.frame") && 
@@ -18,7 +18,7 @@ check_phom_list <- function(data) {
     ),
     FALSE
   ))
-  if (! all(vapply(data, are_phom, FALSE))) {
+  if (! all(vapply(data, are_pd, FALSE))) {
     rlang::abort("The `vpd_*` steps require 3-column persistence data.")
   }
 }

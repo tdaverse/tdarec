@@ -1,6 +1,6 @@
 #' @title Separate persistent pairs by homological degree
 #'
-#' @description The function `step_phom_degree()` creates a _specification_ of a
+#' @description The function `step_pd_degree()` creates a _specification_ of a
 #'   recipe step that will separate data sets of persistent pairs by homological
 #'   degree. The input and output must be list-columns.
 #'
@@ -18,10 +18,10 @@
 #' @inherit recipes::step_pca return
 #' @param hom_degrees Integer vector of homological degrees.
 #' @family topological feature extraction via persistent homology
-#' @example inst/examples/ex-step-phom-degree.R
+#' @example inst/examples/ex-step-pd-degree.R
 
 #' @export
-step_phom_degree <- function(
+step_pd_degree <- function(
     recipe,
     ...,
     # standard inputs
@@ -33,14 +33,14 @@ step_phom_degree <- function(
     columns = NULL,
     keep_original_cols = FALSE,
     skip = FALSE,
-    id = rand_id("phom_degree")
+    id = rand_id("pd_degree")
 ) {
-  recipes_pkg_check(required_pkgs.step_phom_degree())
+  recipes_pkg_check(required_pkgs.step_pd_degree())
   
   # output the step
   add_step(
     recipe,
-    step_phom_degree_new(
+    step_pd_degree_new(
       terms = rlang::enquos(...),
       trained = trained,
       role = role,
@@ -53,7 +53,7 @@ step_phom_degree <- function(
   )
 }
 
-step_phom_degree_new <- function(
+step_pd_degree_new <- function(
     terms,
     role, trained,
     hom_degrees,
@@ -61,7 +61,7 @@ step_phom_degree_new <- function(
     skip, id
 ) {
   step(
-    subclass = "phom_degree",
+    subclass = "pd_degree",
     terms = terms,
     role = role,
     trained = trained,
@@ -74,12 +74,12 @@ step_phom_degree_new <- function(
 }
 
 #' @export
-prep.step_phom_degree <- function(x, training, info = NULL, ...) {
-  # save(x, training, info, file = here::here("step-phom-degree-prep.rda"))
-  # load(here::here("step-phom-degree-prep.rda"))
+prep.step_pd_degree <- function(x, training, info = NULL, ...) {
+  # save(x, training, info, file = here::here("step-pd-degree-prep.rda"))
+  # load(here::here("step-pd-degree-prep.rda"))
   
   col_names <- recipes_eval_select(x$terms, training, info)
-  check_phom_list(training[, col_names, drop = FALSE])
+  check_pd_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   # intersection of `hom_degrees` (if passed) and dimensions in data
@@ -90,7 +90,7 @@ prep.step_phom_degree <- function(x, training, info = NULL, ...) {
     x$hom_degrees <- sort(intersect(as.integer(x$hom_degrees), x_hom_degrees))
   
   # output prepped step
-  step_phom_degree_new(
+  step_pd_degree_new(
     terms = col_names,
     role = x$role,
     trained = TRUE,
@@ -103,36 +103,36 @@ prep.step_phom_degree <- function(x, training, info = NULL, ...) {
 }
 
 #' @export
-bake.step_phom_degree <- function(object, new_data, ...) {
-  # save(object, new_data, file = here::here("step-phom-degree-bake.rda"))
-  # load(here::here("step-phom-degree-bake.rda"))
+bake.step_pd_degree <- function(object, new_data, ...) {
+  # save(object, new_data, file = here::here("step-pd-degree-bake.rda"))
+  # load(here::here("step-pd-degree-bake.rda"))
   
   col_names <- names(object$columns)
   check_new_data(col_names, object, new_data)
   for (col_name in col_names) class(new_data[[col_name]]) <- "list"
   
   # iterate all columns over the same degrees
-  phom_data <- tibble::tibble(.rows = nrow(new_data))
+  pd_data <- tibble::tibble(.rows = nrow(new_data))
   for (term in object$terms) for (deg in object$hom_degrees) {
     
     # NB: This works for the 'PHom' class but may not for other formats.
-    term_deg_phom <- lapply(new_data[[term]], function(d) d[d[, 1L] == deg, ])
+    term_deg_pd <- lapply(new_data[[term]], function(d) d[d[, 1L] == deg, ])
     
-    phom_data[[paste(term, deg, sep = "_")]] <- term_deg_phom
+    pd_data[[paste(term, deg, sep = "_")]] <- term_deg_pd
   }
   
-  check_name(phom_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, phom_data)
+  check_name(pd_data, new_data, object)
+  new_data <- vctrs::vec_cbind(new_data, pd_data)
   new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 
 #' @export
-print.step_phom_degree <- function(
+print.step_pd_degree <- function(
     x, width = max(20, options()$width - 35), ...
 ) {
-  # save(x, width, file = here::here("step-phom-degree-print.rda"))
-  # load(here::here("step-phom-degree-print.rda"))
+  # save(x, width, file = here::here("step-pd-degree-print.rda"))
+  # load(here::here("step-pd-degree-print.rda"))
   
   title <- paste0(
     paste0(x$hom_degrees, collapse = ", "),
@@ -151,14 +151,14 @@ print.step_phom_degree <- function(
 
 #' @rdname required_pkgs.tdarec
 #' @export
-required_pkgs.step_phom_degree <- function(x, ...) {
+required_pkgs.step_pd_degree <- function(x, ...) {
   c("tdarec")
 }
 
-#' @rdname step_phom_degree
+#' @rdname step_pd_degree
 #' @usage NULL
 #' @export
-tidy.step_phom_degree <- function(x, ...) {
+tidy.step_pd_degree <- function(x, ...) {
   if (is_trained(x)) {
     res <- tibble::tibble(
       terms = unname(x$columns),

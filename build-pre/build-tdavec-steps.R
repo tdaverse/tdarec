@@ -412,7 +412,7 @@ build_prep <- function(fn) {
     # extract columns and ensure they are lists of 3-column numeric tables
     "  col_names <- recipes_eval_select(x$terms, training, info)\n",
     # ensure that columns are list-columns of 3-column persistence diagrams
-    "  check_phom_list(training[, col_names, drop = FALSE])\n",
+    "  check_pd_list(training[, col_names, drop = FALSE])\n",
     # TODO: Delete this conversion here if not needed below.
     # remove troublesome 'AsIs' class (and any other non-'list' classes)
     "  for (col_name in col_names) class(training[[col_name]]) <- \"list\"\n",

@@ -6,28 +6,28 @@ ph <- data.frame(
 )
 dat <- data.frame(df = I(list(ph)), mat = I(list(as.matrix(ph))))
 
-test_that("`step_phom_degree()` accepts base R classes", {
+test_that("`step_pd_degree()` accepts base R classes", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_degree(df, mat)
+    step_pd_degree(df, mat)
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
 test_that("`prep()` requires at least one variable", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_degree()
+    step_pd_degree()
   expect_error(prep(rec, training = dat), "name")
 })
 
 test_that("`prep()` checks names", {
   dat2 <- transform(dat, df_0 = 0, mat_0 = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
-    step_phom_degree(df, mat)
+    step_pd_degree(df, mat)
   expect_message(prep(rec2, training = dat2), "[Nn]ew names")
 })
 
 test_that("no parameters are `tunable()`", {
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_degree(df, mat)
+    step_pd_degree(df, mat)
   tun <- tunable(rec$steps[[1]])
   expect_equal(nrow(tun), 0L)
 })
@@ -36,7 +36,7 @@ test_that("within-step and without-step calculations agree", {
   df <- dat$df[[1L]]
   mat <- dat$mat[[1L]]
   recipe(~ ., data = dat) |> 
-    step_phom_degree(df, mat) |> 
+    step_pd_degree(df, mat) |> 
     prep(training = dat) |> 
     bake(new_data = dat) ->
     step_calc
@@ -48,7 +48,7 @@ test_that("within-step and without-step calculations agree", {
   expect_equal(step_calc$mat_2[[1L]], mat[mat[, 1] == 2, , drop = FALSE])
 })
 
-test_that("`step_phom_degree()` accepts {ripserr} 'PHom' class", {
+test_that("`step_pd_degree()` accepts {ripserr} 'PHom' class", {
   skip_if_not_installed("ripserr")
   skip("Unnecessary; persistence data should be coerced to a standard format.")
   
@@ -57,11 +57,11 @@ test_that("`step_phom_degree()` accepts {ripserr} 'PHom' class", {
     topos = I(lapply(list(volcano, 255 - volcano), ripserr::cubical))
   )
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_degree(roads, topos)
+    step_pd_degree(roads, topos)
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
-test_that("`step_phom_degree()` accepts {TDA} 'diagram' class", {
+test_that("`step_pd_degree()` accepts {TDA} 'diagram' class", {
   skip_if_not_installed("TDA")
   skip("Unnecessary; persistence data should be coerced to a standard format.")
   
@@ -72,6 +72,6 @@ test_that("`step_phom_degree()` accepts {TDA} 'diagram' class", {
     ))
   )
   rec <- recipe(~ ., data = dat) |> 
-    step_phom_degree(roads)
+    step_pd_degree(roads)
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })

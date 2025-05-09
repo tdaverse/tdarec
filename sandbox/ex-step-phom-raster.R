@@ -1,12 +1,12 @@
 data(mnist)
 
 cph_transform <- recipe(~ ., data = mnist_train) |> 
-  step_phom_raster(digit, value_max = 255L) |> 
-  step_vpd_ecc(digit_phom)
+  step_pd_raster(digit, value_max = 255L) |> 
+  step_vpd_ecc(digit_pd)
 cph_estimates <- prep(cph_transform, training = mnist_train)
 cph_data <- bake(cph_estimates, mnist_test)
 
-head(cph_data$digit_phom[[1]])
+head(cph_data$digit_pd[[1]])
 cph_data |> 
   select(contains("ecc")) |> 
   prcomp() ->

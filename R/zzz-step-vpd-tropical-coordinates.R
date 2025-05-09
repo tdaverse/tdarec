@@ -93,7 +93,7 @@ step_vpd_tropical_coordinates_new <- function(
 #' @export
 prep.step_vpd_tropical_coordinates <- function(x, training, info = NULL, ...) {
   col_names <- recipes_eval_select(x$terms, training, info)
-  check_phom_list(training[, col_names, drop = FALSE])
+  check_pd_list(training[, col_names, drop = FALSE])
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
   
