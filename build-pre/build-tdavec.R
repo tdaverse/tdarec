@@ -272,7 +272,7 @@ tdavec_preps <- list(
       x$generalized = TRUE
     }
     
-    if (.TDAvec_version == "0.1.4") {
+    if (is.na(.TDAvec_version) || .TDAvec_version == "0.1.4") {
       # restrict number of levels to the minimum number of bars
       x_pairs_min <- vapply(
         training[, col_names, drop = FALSE],

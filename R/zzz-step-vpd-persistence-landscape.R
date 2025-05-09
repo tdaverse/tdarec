@@ -142,7 +142,7 @@ prep.step_vpd_persistence_landscape <- function(x, training, info = NULL, ...) {
           warning("`bandwidth` is provided so `generalized` is set to `TRUE`.")
       x$generalized = TRUE
   }
-  if (.TDAvec_version == "0.1.4") {
+  if (is.na(.TDAvec_version) || .TDAvec_version == "0.1.4") {
       x_pairs_min <- vapply(training[, col_names, drop = FALSE], 
           function(l) {
               val <- vapply(l, pairs_min, 0, hom_degree = x$hom_degree)
