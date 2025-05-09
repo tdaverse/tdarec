@@ -14,7 +14,7 @@ status](https://www.r-pkg.org/badges/version/tdarec)](https://CRAN.R-project.org
 The goal of {tdarec} is to provide
 [{recipes}](https://cran.r-project.org/package=recipes)-style
 preprocessing steps to compute persistent homology (PH) and calculate
-vectorizations of persistence data (diagrams; PDs), and to provide
+vectorizations of persistence diagrams (PDs), and to provide
 [{dials}](https://cran.r-project.org/package=dials)-style hyperparameter
 tuners to optimize these steps in ML workflows.
 
