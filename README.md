@@ -286,11 +286,13 @@ it before submitting a pull request.
 
 This project was funded by [an ISC grant from the R
 Consortium](https://r-consortium.org/all-projects/2024-group-1.html#modular-interoperable-and-extensible-topological-data-analysis-in-r)
-and done in coordination with Aymeric Stamm and with guidance from
-Bertrand Michel and Paul Rosen. It builds upon the work of and
-conversations with Umar Islambekov and Aleksei Luchinsky, authors of
-[{TDAvec}](https://github.com/uislambekov/TDAvec). Package development
-also benefitted from the support of colleagues in [the Laboratory for
-Systems Medicine](https://systemsmedicine.pulmonary.medicine.ufl.edu/)
-and [the TDA Seminar](https://tda.math.ufl.edu/) and the use of
-equipment at [the University of Florida](https://www.ufl.edu/).
+and done in coordination with [Aymeric Stamm](@astamm) and with guidance
+from [Bertrand Michel](@bertrandmichel) and [Paul Rosen](@PaulRosenPhD).
+It builds upon the work of and conversations with [Umar
+Islambekov](@uislambekov) and [Aleksei Luchinsky](@ALuchinsky), authors
+of [{TDAvec}](https://github.com/uislambekov/TDAvec). Package
+development also benefitted from the support of colleagues in [the
+Laboratory for Systems
+Medicine](https://systemsmedicine.pulmonary.medicine.ufl.edu/) and [the
+TDA Seminar](https://tda.math.ufl.edu/) and the use of equipment at [the
+University of Florida](https://www.ufl.edu/).
