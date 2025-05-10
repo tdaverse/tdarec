@@ -16,7 +16,6 @@
 #' smaller of this maximum and `max_dim` (which defaults to `2L`, the highest
 #' homological degree of interest in most practical applications).
 #'
-#' @include vpd-finalizers.R
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
 #' @inheritParams vpd-finalizers

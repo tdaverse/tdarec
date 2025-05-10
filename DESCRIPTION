@@ -1,17 +1,15 @@
 Package: tdarec
-Title: A 'recipes' Extension for Persistent Homology and Its Vectorizations
+Title: A 'recipes' Extension for Persistent Homology and Its
+    Vectorizations
 Version: 0.1.0
-Authors@R: c(
-    person("Jason Cory", "Brunson",
-           email = "cornelioid@gmail.com",
-           role = c("cre", "aut"))
-  )
+Authors@R: 
+    person("Jason Cory", "Brunson", , "cornelioid@gmail.com", role = c("cre", "aut"))
 Description: Topological data analysis usually produces persistence data
     comprising birth and death values of one or more degrees (dimensions).
-    Specialized vectorization methods are required to incorporate such data into
-    null hypothesis testing, machine learning, and other workflows.
-    These recipe steps provide validated vectorizations of persistence data as
-    recipe steps.
+    Specialized vectorization methods are required to incorporate such
+    data into null hypothesis testing, machine learning, and other
+    workflows.  These recipe steps provide validated vectorizations of
+    persistence data as recipe steps.
 License: GPL (>= 3)
 URL: https://github.com/tdaverse/tdarec
 BugReports: https://github.com/tdaverse/tdarec/issues
@@ -22,53 +20,26 @@ Depends:
 Imports:
     rlang (>= 1.1.0),
     vctrs (>= 0.5.0),
-    tibble,
-    tidyr,
-    purrr (>= 1.0.0),
     scales,
+    tibble,
+    purrr (>= 1.0.0),
+    tidyr,
     magrittr
 Suggests:
-    modeldata,
-    tdaunif,
-    TDA,
     ripserr (>= 0.1.1),
+    TDA,
     TDAvec (>= 0.1.4),
     testthat (>= 3.0.0),
+    modeldata,
+    tdaunif,
     knitr (>= 1.20),
     rmarkdown (>= 1.10),
     tidymodels,
     ranger
+VignetteBuilder: 
+    knitr
+Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
-VignetteBuilder: knitr
-RoxygenNote: 7.3.2
 Roxygen: list(markdown = TRUE)
-Config/testthat/edition: 3
-Collate: 
-    'blur.R'
-    'data.R'
-    'param-blur-sigmas.R'
-    'vpd-finalizers.R'
-    'param-hom-degree.R'
-    'step-blur.R'
-    'step-pd-degree.R'
-    'step-pd-point-cloud.R'
-    'step-pd-raster.R'
-    'step-vpd-utils.R'
-    'tdarec.R'
-    'tunable.R'
-    'vpd-summarizers.R'
-    'zzz-step-vpd-algebraic-functions.R'
-    'zzz-step-vpd-betti-curve.R'
-    'zzz-step-vpd-complex-polynomial.R'
-    'zzz-step-vpd-descriptive-statistics.R'
-    'zzz-step-vpd-euler-characteristic-curve.R'
-    'zzz-step-vpd-normalized-life-curve.R'
-    'zzz-step-vpd-persistence-block.R'
-    'zzz-step-vpd-persistence-image.R'
-    'zzz-step-vpd-persistence-landscape.R'
-    'zzz-step-vpd-persistence-silhouette.R'
-    'zzz-step-vpd-persistent-entropy-summary.R'
-    'zzz-step-vpd-tent-template-functions.R'
-    'zzz-step-vpd-tropical-coordinates.R'
-    'zzz-vpd-param.R'
+RoxygenNote: 7.3.2
