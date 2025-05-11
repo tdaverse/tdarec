@@ -21,7 +21,60 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-</style>
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="tdarec-blog_files/libs/clipboard/clipboard.min.js"></script>
@@ -71,7 +124,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="the-pitch">The Pitch</h2>
 <p>Topological data analysis (TDA) is a pretty mature discipline at this point, but in the last several years its assimilation into machine learning (ML) has really taken off. Based on our experience, the plurality of experimental TDA tools are written in Python, and naturally Python is home to most of these applications.</p>
 <p>That’s not to say that there are no R packages for TDA-ML. <a href="https://github.com/kisungyou/TDAkit">{TDAkit}</a>, <a href="https://github.com/shaelebrown/TDApplied">{TDApplied}</a>, and others provide tools for specific self-contained analyses and could be used together in larger projects. As with the broader R ecosystem, though, their integration can require some additional work. The combination of several low-level libraries and compounding package dependencies has also made this toolkit fragile, with several packages temporarily or permanently archived.</p>
-<p>Meanwhile, the <a href="https://www.tidymodels.org/">Tidymodels</a> package collection has enabled a new generation of users, myself (Cory) included, to build familiarity and proficiency with conventional ML. By harmonizing syntax and smoothing pipelines, Tidymodels makes it quick and easy to adapt usable code to new data types, pre-processing steps, and model families. By using wrappers and extractors, it also allows seasoned users to extend their work beyond its sphere of convenience.</p>
+<p>Meanwhile, the <a href="https://www.tidymodels.org/">Tidymodels</a> package collection has enabled a new generation of users, myself (JCB) included, to build familiarity and proficiency with conventional ML. By harmonizing syntax and smoothing pipelines, Tidymodels makes it quick and easy to adapt usable code to new data types, pre-processing steps, and model families. By using wrappers and extractors, it also allows seasoned users to extend their work beyond its sphere of convenience.</p>
 <p>We therefore think that Tidymodels is an ideal starting point for a more sustained and interoperable collection for TDA-ML in R. Since much of the role of TDA in ML has been to extract and vectorize features from spatial, image, and other high-dimensional data, we present an extension to <a href="https://recipes.tidymodels.org/">{recipes}</a> for just this purpose. Assembling a comprehensive, general-purpose toolkit is a long-term project. Our contribution is meant to spur that project on.</p>
 </section>
 <section id="the-packages" class="level2">
@@ -81,20 +134,48 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="computations-of-persistent-homology">Computations of persistent homology</h3>
 <p>In predictive modeling, <a href="https://en.wikipedia.org/wiki/Persistent_homology"><strong>persistent homology</strong></a> (PH) is the workhorse of TDA.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> In a nutshell, it measures topological patterns in data—most commonly clusters and enclosures—by the range of resolutions through which they persist. Several packages interface to lower-level libraries that compute PH for various data structures—all accept point clouds and distance matrices, but other structures are accepted where noted:</p>
 <ul>
-<li><a href="https://doi.org/10.48550/arXiv.1411.1830">{TDA}</a> interfaces to the Dionysus, PHAT, and GUDHI libraries and also accepts functions and rasters;</li>
-<li><a href="https://tdaverse.github.io/ripserr/">{ripserr}</a>, a spinoff from <a href="https://joss.theoj.org/papers/10.21105/joss.00860">{TDAstats}</a>, interfaces to the Ripser and Cubical Ripser C++ libraries and also accepts rasters;</li>
-<li><a href="https://joss.theoj.org/papers/10.21105/joss.06321">{TDApplied}</a> calls {TDA} and {TDAstats} but also interfaces with Python Ripser; and</li>
-<li><a href="https://lmjl-alea.github.io/rgudhi/">{rgudhi}</a> interfaces to Python GUDHI.</li>
+<li><a href="https://doi.org/10.48550/arXiv.1411.1830">{TDA}</a> <span class="citation" data-cites="Fasy2022">(<a href="#ref-Fasy2022" role="doc-biblioref">Fasy et al. 2022</a>)</span> interfaces to the Dionysus, PHAT, and GUDHI libraries and also accepts functions and rasters;</li>
+<li><a href="https://tdaverse.github.io/ripserr/">{ripserr}</a> <span class="citation" data-cites="Wadhwa2025">(<a href="#ref-Wadhwa2025" role="doc-biblioref">Wadhwa et al. 2025</a>)</span>, a spinoff from <a href="https://joss.theoj.org/papers/10.21105/joss.00860">{TDAstats}</a>, interfaces to the Ripser and Cubical Ripser C++ libraries and also accepts rasters;</li>
+<li><a href="https://joss.theoj.org/papers/10.21105/joss.06321">{TDApplied}</a> <span class="citation" data-cites="Brown2024">(<a href="#ref-Brown2024" role="doc-biblioref">Brown and Farivar 2024</a>)</span> calls {TDA} and {TDAstats} but also interfaces with Python Ripser; and</li>
+<li><a href="https://lmjl-alea.github.io/rgudhi/">{rgudhi}</a> <span class="citation" data-cites="Stamm2023">(<a href="#ref-Stamm2023" role="doc-biblioref">Stamm 2023</a>)</span> interfaces to Python GUDHI.</li>
 </ul>
+<p>Here is an example using the most mature package, {TDA}, to compute the PH for an alpha filtration of a sample from a torus:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> TDA<span class="sc">::</span><span class="fu">torusUnif</span>(<span class="at">n =</span> <span class="dv">200</span>, <span class="at">a =</span> <span class="dv">1</span>, <span class="at">c =</span> <span class="dv">2</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pd <span class="ot">&lt;-</span> TDA<span class="sc">::</span><span class="fu">alphaComplexDiag</span>(x, <span class="at">maxdimension =</span> <span class="dv">2</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pd<span class="sc">$</span>diagram, <span class="at">asp =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="tdarec-blog_files/figure-html/TDA-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 <p>We rely for now on {ripserr} to compute PH, but a near-term upgrade will incorporate {TDA} as well.</p>
 </section>
 <section id="vectorizations-of-persistent-homology" class="level3">
 <h3 class="anchored" data-anchor-id="vectorizations-of-persistent-homology">Vectorizations of persistent homology</h3>
 <p>Vectorization is a crucial step to bridge TDA and ML. Numerous methods have been proposed, and research shows that ML performance on a specific task can depend strongly on the chosen method. Therefore, it is highly desirable to compare several approaches to a given problem and select the one found to be best-suited to it.</p>
-<p>Although most proposed vectorization methods are available in free software, they are scattered across various R and Python packages. This complicates the comparison process, as researchers must search for available methods and adapt their code to the interface of each specific implementation. The goal of <a href="https://github.com/uislambekov/TDAvec/">{TDAvec}</a> is to address this issue.</p>
-<p>We have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library. For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g.&nbsp;<code>computePersistenceLandscape()</code>. Additionally, several new vectorization methods developed by our group are also available within the TDAvec framework.</p>
+<p>Although most proposed vectorization methods are available in free software, they are scattered across various R and Python packages. This complicates the comparison process, as researchers must search for available methods and adapt their code to the interface of each specific implementation. The goal of <a href="https://cran.r-project.org/package=TDAvec">{TDAvec}</a> <span class="citation" data-cites="Luchinsky2025">(<a href="#ref-Luchinsky2025" role="doc-biblioref">Luchinsky and Islambekov 2025</a>)</span> is to address this issue.</p>
+<p>We (JCB) have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library. For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g.&nbsp;<code>computePersistenceLandscape()</code>. Additionally, several new vectorization methods developed by our group are also available within the TDAvec framework.</p>
+<p>Here, for example, is how to compute the tropical coordinates proposed by <span class="citation" data-cites="Kalisnik2019">Kališnik (<a href="#ref-Kalisnik2019" role="doc-biblioref">2019</a>)</span> and a coarse vectorization of our own persistence block transformation <span class="citation" data-cites="Chan2022">(<a href="#ref-Chan2022" role="doc-biblioref">Chan et al. 2022</a>)</span> for the degree-1 persistence diagram above:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TDAvec)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">computeTropicalCoordinates</span>(pd<span class="sc">$</span>diagram, <span class="at">homDim =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         F1          F2          F3          F4          F5          F6 
+  0.8990377   1.7917789   2.3351634   2.8282403  10.4905759   7.1901295 
+         F7 
+209.4293666 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>xy_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, .<span class="dv">5</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">computePersistenceBlock</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  pd<span class="sc">$</span>diagram, <span class="at">homDim =</span> <span class="dv">2</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xSeq =</span> xy_seq, <span class="at">ySeq =</span> xy_seq</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  0.48899687  0.37000086  0.00000000  0.37950262 50.17623944 60.17243396
+[7]  0.03300634 64.96390741 79.47811883</code></pre>
+</div>
+</div>
 <p>Notably, all vectorizations are written in C++ and exposed to R using {Rcpp}. We also utilize the Armadillo package for various matrix operations, which makes all computations extremely fast and efficient.</p>
-<p>(links)</p>
 </section>
 <section id="tidy-machine-learning-with-persistent-homology" class="level3">
 <h3 class="anchored" data-anchor-id="tidy-machine-learning-with-persistent-homology">Tidy machine learning with persistent homology</h3>
@@ -104,15 +185,66 @@ ul.task-list li input[type="checkbox"] {
 <li>Steps to <em>calculate persistent homology from data</em>, which share the naming pattern <code>step_pd_*()</code> for <strong>p</strong>ersistent <strong>d</strong>iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.</li>
 <li>Steps to <em>transform and vectorize persistent diagrams</em>, which share the naming pattern <code>step_vpd_*()</code> for <strong>v</strong>ectorized <strong>p</strong>ersistence <strong>d</strong>iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g.&nbsp;multi-level persistence landscapes) that can be used by most predictive model families.</li>
 </ol>
+<p>Here is how to incorporate PH (using the default Vietoris–Rips filtration) and the persistence block transformation above into a pre-processing recipe:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressMessages</span>(<span class="fu">library</span>(tdarec))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">source =</span> <span class="st">"torus"</span>, <span class="at">sample =</span> <span class="fu">list</span>(x))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">recipe</span>(<span class="sc">~</span> sample, <span class="at">data =</span> dat) <span class="sc">|&gt;</span> </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pd_point_cloud</span>(sample, <span class="at">max_hom_degree =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pd_degree</span>(sample_pd, <span class="at">hom_degrees =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_vpd_persistence_block</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    sample_pd_1, sample_pd_2,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">hom_degree =</span> <span class="dv">2</span>, <span class="at">xseq =</span> xy_seq</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> rec</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>rec <span class="sc">|&gt;</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(<span class="at">training =</span> dat) <span class="sc">|&gt;</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 597
+  sample          sample_pd_1     sample_pd_2 sample_pd_1_pb_1 sample_pd_1_pb_2
+  &lt;list&gt;          &lt;list&gt;          &lt;list&gt;                 &lt;dbl&gt;            &lt;dbl&gt;
+1 &lt;dbl [200 × 3]&gt; &lt;PHom [62 × 3]&gt; &lt;PHom&gt;                     0                0
+# ℹ 592 more variables: sample_pd_1_pb_3 &lt;dbl&gt;, sample_pd_1_pb_4 &lt;dbl&gt;,
+#   sample_pd_1_pb_5 &lt;dbl&gt;, sample_pd_1_pb_6 &lt;dbl&gt;, sample_pd_1_pb_7 &lt;dbl&gt;,
+#   sample_pd_1_pb_8 &lt;dbl&gt;, sample_pd_1_pb_9 &lt;dbl&gt;, sample_pd_1_pb_10 &lt;dbl&gt;,
+#   sample_pd_1_pb_11 &lt;dbl&gt;, sample_pd_1_pb_12 &lt;dbl&gt;, sample_pd_1_pb_13 &lt;dbl&gt;,
+#   sample_pd_1_pb_14 &lt;dbl&gt;, sample_pd_1_pb_15 &lt;dbl&gt;, sample_pd_1_pb_16 &lt;dbl&gt;,
+#   sample_pd_1_pb_17 &lt;dbl&gt;, sample_pd_1_pb_18 &lt;dbl&gt;, sample_pd_1_pb_19 &lt;dbl&gt;,
+#   sample_pd_1_pb_20 &lt;dbl&gt;, sample_pd_1_pb_21 &lt;dbl&gt;, …</code></pre>
+</div>
+</div>
 <p>Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters.</p>
 </section>
 </section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section"></h2>
+<section id="references" class="level2 unnumbered">
+
+
 </section>
 
 
-<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-Brown2024" class="csl-entry" role="listitem">
+Brown, Shael, and Reza Farivar. 2024. <span>“<span>TDApplied</span>: <span>Machine Learning</span> and <span>Inference</span> for <span>Topological Data Analysis</span>.”</span> <a href="https://cran.r-project.org/package=TDApplied">https://cran.r-project.org/package=TDApplied</a>.
+</div>
+<div id="ref-Chan2022" class="csl-entry" role="listitem">
+Chan, Kit C., Umar Islambekov, Alexey Luchinsky, and Rebecca Sanders. 2022. <span>“A <span>Computationally Efficient Framework</span> for <span>Vector Representation</span> of <span>Persistence Diagrams</span>.”</span> <em>Journal of Machine Learning Research</em> 23 (268): 1–33. <a href="http://jmlr.org/papers/v23/21-1129.html">http://jmlr.org/papers/v23/21-1129.html</a>.
+</div>
+<div id="ref-Fasy2022" class="csl-entry" role="listitem">
+Fasy, Brittany T., Jisu Kim, Fabrizio Lecci, Clement Maria, David L. Millman, and Vincent Rouvreau. 2022. <span>“<span>TDA</span>: <span>Statistical Tools</span> for <span>Topological Data Analysis</span>.”</span> <a href="https://CRAN.R-project.org/package=TDA">https://CRAN.R-project.org/package=TDA</a>.
+</div>
+<div id="ref-Kalisnik2019" class="csl-entry" role="listitem">
+Kališnik, Sara. 2019. <span>“Tropical <span>Coordinates</span> on the <span>Space</span> of <span>Persistence Barcodes</span>.”</span> <em>Foundations of Computational Mathematics</em> 19 (1): 101–29. <a href="https://doi.org/10.1007/s10208-018-9379-y">https://doi.org/10.1007/s10208-018-9379-y</a>.
+</div>
+<div id="ref-Luchinsky2025" class="csl-entry" role="listitem">
+Luchinsky, Aleksei, and Umar Islambekov. 2025. <span>“<span>TDAvec</span>: <span>Computing Vector Summaries</span> of <span>Persistence Diagrams</span> for <span>Topological Data Analysis</span> in <span>R</span> and <span>Python</span>.”</span> arXiv. <a href="https://doi.org/10.48550/arXiv.2411.17340">https://doi.org/10.48550/arXiv.2411.17340</a>.
+</div>
+<div id="ref-Stamm2023" class="csl-entry" role="listitem">
+Stamm, Aymeric. 2023. <span>“<span class="nocase">rgudhi</span>: <span>An Interface</span> to the <span>GUDHI Library</span> for <span>Topological Data Analysis</span>.”</span> <a href="https://lmjl-alea.github.io/rgudhi/">https://lmjl-alea.github.io/rgudhi/</a>.
+</div>
+<div id="ref-Wadhwa2025" class="csl-entry" role="listitem">
+Wadhwa, Raoul, Matt Piekenbrock, Jacob Scott, Jason Cory Brunson, Emily Noble, and Xinyi Zhang. 2025. <span>“<span class="nocase">ripserr</span>: <span>Calculate Persistent Homology</span> with <span>Ripser-Based Engines</span>.”</span> <a href="https://cran.r-project.org/package=ripserr">https://cran.r-project.org/package=ripserr</a>.
+</div>
+</div></section><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
 <li id="fn1"><p>Exploratory modeling is another story.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
