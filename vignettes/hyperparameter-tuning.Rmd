@@ -71,7 +71,6 @@ Following a standard ML approach, we prepare the training set for 6-fold cross-v
 The optimized settings will be used to classify the digits in the testing set, and a comparison with the true labels will provide an estimate of the accuracy of the resulting model.
 
 ```{r data partition}
-set.seed(143597)
 (mnist_folds <- vfold_cv(mnist_train, v = 6))
 ```
 
@@ -166,7 +165,6 @@ rand_forest(
 We fit the model to the pre-processed training data:
 
 ```{r model fit}
-set.seed(944327)
 fit(
   mnist_spec,
   mnist_rec |> prep() |> formula(),
@@ -300,7 +298,6 @@ This can be important when the parameters have known trade-offs or the objective
 For illustration, we construct a workflow grid by crossing a recipe grid with a model grid:
 
 ```{r prepare a tuning grid}
-set.seed(319845)
 mnist_rec_grid <- 
   grid_regular(blur_sd_fin, pl_deg_fin, pl_lev_fin, levels = 3) |> 
   set_names(c("blur_sd", "pl_deg", "pl_lev"))
@@ -339,7 +336,6 @@ The tuning syntax is similar to that of the grid search, but in place of the gri
 For illustration, we specify 6 initial seeds with 12 tuning iterations each, and we limit the total runtime to 5 minutes.
 
 ```{r tune workflow via bayesian optimization}
-set.seed(259762)
 mnist_res <- tune_bayes(
   mnist_wflow,
   resamples = mnist_folds,
@@ -367,7 +363,6 @@ Now, finally, we fit the tuned model to the training set:
 
 ```{r final model fit}
 mnist_fin <- prep(finalize_recipe(mnist_rec, mnist_best))
-set.seed(590858)
 fit(
   finalize_model(mnist_spec, mnist_best),
   formula(mnist_fin),
@@ -391,7 +386,7 @@ mnist_pred |>
   accuracy(truth = label, estimate = .pred_class)
 ```
 
-Among the most-confused digits in these experiments are $1$ and $7$, $2$ and $5$, and $3$ and $5$. This is more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
+Among the most-confused digits in previous runs of these experiments are $1$ and $7$, $2$ and $5$, and $3$ and $5$. (The results above should be similar but will depend somewhat on the state of the random number generator.) This is more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
 
 Finally, we evaluate the final model on the testing set---the holdout data from the original partition.
 
