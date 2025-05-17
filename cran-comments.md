@@ -6,9 +6,7 @@ There are no reverse dependencies on CRAN or Bioconductor.
 
 ## Long-running vignette
 
-The vignette "Tuning persistent homological hyperparameters" takes several minutes to run.
-This could be prevented by shrinking the data set being used, but i believe that the results would then be less illustrative.
-The longest-running code chunk conducts Bayesian tuning and is designed to abbreviate at 5 minutes; the other code chunks together take less than a minute on my oldest machine.
+The vignette "Tuning persistent homological hyperparameters" takes between 1 and 2 minutes to run, trimmed from roughly 5 minutes in a previous submission.
 
 ## R CMD checks
 
