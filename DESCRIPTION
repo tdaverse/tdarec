@@ -4,12 +4,16 @@ Title: A 'recipes' Extension for Persistent Homology and Its
 Version: 0.1.0
 Authors@R: 
     person("Jason Cory", "Brunson", , "cornelioid@gmail.com", role = c("cre", "aut"))
-Description: Topological data analysis usually produces persistence data
-    comprising birth and death values of one or more degrees (dimensions).
-    Specialized vectorization methods are required to incorporate such
-    data into null hypothesis testing, machine learning, and other
-    workflows.  These recipe steps provide validated vectorizations of
-    persistence data as recipe steps.
+Description: Topological data analytic methods in machine learning rely on
+    vectorizations of the persistence diagrams that encode persistent
+    homology, as surveyed by Ali &al (2000)
+    <doi:10.48550/arXiv.2212.09703>.  Persistent homology can be computed
+    using 'TDA' and 'ripserr' and vectorized using 'TDAvec'.  The
+    Tidymodels package collection modularizes machine learning in R for
+    straightforward extensibility; see Kuhn & Silge (2022,
+    ISBN:978-1-4920-9644-3).  These 'recipe' steps and 'dials' tuners make
+    efficient algorithms for computing and vectorizing persistence
+    diagrams available for Tidymodels workflows.
 License: GPL (>= 3)
 URL: https://github.com/tdaverse/tdarec
 BugReports: https://github.com/tdaverse/tdarec/issues
