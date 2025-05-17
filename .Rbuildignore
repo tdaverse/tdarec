@@ -16,3 +16,4 @@
 ^sandbox$
 ^cran-comments\.md$
 ^.github$
+^CRAN-SUBMISSION$
