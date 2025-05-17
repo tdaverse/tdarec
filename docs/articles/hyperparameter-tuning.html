@@ -53,6 +53,9 @@
     </li>
   </ul>
 </li>
+<li>
+  <a href="../news/index.html">Changelog</a>
+</li>
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
@@ -191,8 +194,7 @@ settings will be used to classify the digits in the testing set, and a
 comparison with the true labels will provide an estimate of the accuracy
 of the resulting model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">143597</span><span class="op">)</span></span>
-<span><span class="op">(</span><span class="va">mnist_folds</span> <span class="op">&lt;-</span> <span class="fu">vfold_cv</span><span class="op">(</span><span class="va">mnist_train</span>, v <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="op">(</span><span class="va">mnist_folds</span> <span class="op">&lt;-</span> <span class="fu">vfold_cv</span><span class="op">(</span><span class="va">mnist_train</span>, v <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; #  6-fold cross-validation </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
 <span><span class="co">#&gt;   splits            id   </span></span>
@@ -269,7 +271,7 @@ specify a grid.</li>
 can be used as predictors in a conventional model. For this reason, the
 PH step by default assigns the placeholder role
 <code>"persistence diagram"</code> to its output, so that the new
-<code>digit_phom</code> column will not accidentally be used as a
+<code>digit_pd</code> column will not accidentally be used as a
 predictor. In contrast, the blur step modifies its column
 <code>digit</code> in place, and <a href="https://recipes.tidymodels.org/articles/Roles.html#role-inheritance" class="external-link">the
 modified column inherits the role(s) of the original</a>. This requires
@@ -280,9 +282,9 @@ or after applying the blur.</p>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/roles.html" class="external-link">update_role</a></span><span class="op">(</span><span class="va">label</span>, new_role <span class="op">=</span> <span class="st">"outcome"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/roles.html" class="external-link">update_role</a></span><span class="op">(</span><span class="va">digit</span>, new_role <span class="op">=</span> <span class="st">"image"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/step_blur.html">step_blur</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/step_phom_raster.html">step_phom_raster</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/step_pd_raster.html">step_pd_raster</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/step_vpd_persistence_landscape.html">step_vpd_persistence_landscape</a></span><span class="op">(</span></span>
-<span>    <span class="va">digit_phom</span>,</span>
+<span>    <span class="va">digit_pd</span>,</span>
 <span>    hom_degree <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>    xmin <span class="op">=</span> <span class="fl">0</span>, xmax <span class="op">=</span> <span class="fl">255</span>, xby <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    num_levels <span class="op">=</span> <span class="fl">3</span></span>
@@ -299,7 +301,7 @@ or after applying the blur.</p>
 <span><span class="co">#&gt; ── Operations</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Gaussian blurring of: <span style="color: #0000BB;">digit</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistent features from a cubical filtration of: <span style="color: #0000BB;">digit</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_phom</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_pd</span></span></span></code></pre></div>
 <p>We can check directly whether our role assignments obtained as
 expected:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -323,18 +325,18 @@ expected:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">&lt;none&gt;</span> | <span style="font-style: italic;">Trained</span></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mnist_prep</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 51 × 4</span></span></span>
-<span><span class="co">#&gt;    variable          type      role                source  </span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> digit             <span style="color: #949494;">&lt;chr [1]&gt;</span> image               original</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> label             <span style="color: #949494;">&lt;chr [3]&gt;</span> outcome             original</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> digit_phom        <span style="color: #949494;">&lt;chr [1]&gt;</span> persistence diagram derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> digit_phom_pl_1_1 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> digit_phom_pl_1_2 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> digit_phom_pl_1_3 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> digit_phom_pl_1_4 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> digit_phom_pl_1_5 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> digit_phom_pl_1_6 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> digit_phom_pl_1_7 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt;    variable        type      role                source  </span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> digit           <span style="color: #949494;">&lt;chr [1]&gt;</span> image               original</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> label           <span style="color: #949494;">&lt;chr [3]&gt;</span> outcome             original</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> digit_pd        <span style="color: #949494;">&lt;chr [1]&gt;</span> persistence diagram derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> digit_pd_pl_1_1 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> digit_pd_pl_1_2 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> digit_pd_pl_1_3 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> digit_pd_pl_1_4 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> digit_pd_pl_1_5 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> digit_pd_pl_1_6 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> digit_pd_pl_1_7 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 41 more rows</span></span></span></code></pre></div>
 <p>And we can inspect the result of applying the prepared recipe to the
 training data:</p>
@@ -343,25 +345,25 @@ training data:</p>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">mnist_train</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 600 × 51</span></span></span>
-<span><span class="co">#&gt;    digit           label digit_phom     digit_phom_pl_1_1 digit_phom_pl_1_2</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>                 0                 0</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>                 0                 0</span></span>
+<span><span class="co">#&gt;    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>               0               0            3.15</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            5.49</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            0   </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 46 more variables: digit_phom_pl_1_3 &lt;dbl&gt;, digit_phom_pl_1_4 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_5 &lt;dbl&gt;, digit_phom_pl_1_6 &lt;dbl&gt;, digit_phom_pl_1_7 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_8 &lt;dbl&gt;, digit_phom_pl_1_9 &lt;dbl&gt;, digit_phom_pl_1_10 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_11 &lt;dbl&gt;, digit_phom_pl_1_12 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_13 &lt;dbl&gt;, digit_phom_pl_1_14 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_15 &lt;dbl&gt;, digit_phom_pl_1_16 &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="classification-forest">classification forest<a class="anchor" aria-label="anchor" href="#classification-forest"></a>
@@ -413,8 +415,7 @@ uniformly zero. To prevent this from derailing our workflow, we use the
 </h3>
 <p>We fit the model to the pre-processed training data:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">944327</span><span class="op">)</span></span>
-<span><span class="fu">fit</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="fu">fit</span><span class="op">(</span></span>
 <span>  <span class="va">mnist_spec</span>,</span>
 <span>  <span class="va">mnist_rec</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  data <span class="op">=</span> <span class="va">mnist_rec</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">mnist_train</span><span class="op">)</span></span>
@@ -435,7 +436,7 @@ uniformly zero. To prevent this from derailing our workflow, we use the
 <span><span class="co">#&gt; Target node size:                 6 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.786172</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.7845969</span></span></code></pre></div>
 <p>Note that the model, while not optimized for accuracy on the training
 set, is informed by it through the preparation process, in particular
 the default choice of blur parameter:</p>
@@ -455,37 +456,37 @@ get a sense of what errors are most common.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 2</span></span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 7           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5           0    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4           1    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1           4    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4           1    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1           2    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 2           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0           0    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1           4    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 8           9    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 6           9    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3           6    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 5           0    </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt;          0 1 0 3 4 0 1 0 2 0 0</span></span>
+<span><span class="co">#&gt;          0 2 0 3 4 0 0 1 2 0 0</span></span>
 <span><span class="co">#&gt;          1 0 5 1 0 4 2 0 0 0 0</span></span>
-<span><span class="co">#&gt;          2 2 0 0 0 0 0 1 4 0 0</span></span>
-<span><span class="co">#&gt;          3 1 0 0 0 0 1 3 0 2 0</span></span>
+<span><span class="co">#&gt;          2 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;          3 0 0 0 1 0 1 2 0 3 0</span></span>
 <span><span class="co">#&gt;          4 0 3 1 1 6 1 0 0 1 0</span></span>
-<span><span class="co">#&gt;          5 0 0 0 0 0 1 0 0 0 0</span></span>
-<span><span class="co">#&gt;          6 0 0 1 0 0 0 2 1 3 3</span></span>
-<span><span class="co">#&gt;          7 5 2 0 3 0 4 2 2 1 5</span></span>
-<span><span class="co">#&gt;          8 0 0 4 2 0 0 2 1 3 2</span></span>
-<span><span class="co">#&gt;          9 1 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;          5 2 1 0 3 0 4 2 1 1 0</span></span>
+<span><span class="co">#&gt;          6 2 0 5 0 0 0 4 3 4 5</span></span>
+<span><span class="co">#&gt;          7 3 1 0 0 0 2 0 1 0 5</span></span>
+<span><span class="co">#&gt;          8 0 0 0 1 0 0 1 0 1 0</span></span>
+<span><span class="co">#&gt;          9 1 0 0 0 0 0 0 3 0 0</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass       0.2</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass      0.24</span></span></code></pre></div>
 <p>The accuracy is poor but clearly better than chance. The confusion
 matrix suggests some reasons for the misclassifications, in that the
 most commonly confused digits are <em>not</em> those with the same
@@ -515,9 +516,9 @@ order.</p>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/roles.html" class="external-link">update_role</a></span><span class="op">(</span><span class="va">label</span>, new_role <span class="op">=</span> <span class="st">"outcome"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/roles.html" class="external-link">update_role</a></span><span class="op">(</span><span class="va">digit</span>, new_role <span class="op">=</span> <span class="st">"image"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/step_blur.html">step_blur</a></span><span class="op">(</span><span class="va">digit</span>, blur_sigmas <span class="op">=</span> <span class="fu">tune</span><span class="op">(</span><span class="st">"blur_sd"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/step_phom_raster.html">step_phom_raster</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
+<span>  <span class="fu"><a href="../reference/step_pd_raster.html">step_pd_raster</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="../reference/step_vpd_persistence_landscape.html">step_vpd_persistence_landscape</a></span><span class="op">(</span></span>
-<span>    <span class="va">digit_phom</span>,</span>
+<span>    <span class="va">digit_pd</span>,</span>
 <span>    hom_degree <span class="op">=</span> <span class="fu">tune</span><span class="op">(</span><span class="st">"pl_deg"</span><span class="op">)</span>,</span>
 <span>    xmin <span class="op">=</span> <span class="fl">0</span>, xmax <span class="op">=</span> <span class="fl">255</span>, xby <span class="op">=</span> <span class="fl">16</span>,</span>
 <span>    num_levels <span class="op">=</span> <span class="fu">tune</span><span class="op">(</span><span class="st">"pl_lev"</span><span class="op">)</span></span>
@@ -534,7 +535,7 @@ order.</p>
 <span><span class="co">#&gt; ── Operations</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Gaussian blurring of: <span style="color: #0000BB;">digit</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistent features from a cubical filtration of: <span style="color: #0000BB;">digit</span></span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_phom</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_pd</span></span></span></code></pre></div>
 <p>This recipe has three tunable parameters, as we can verify by
 extracting their dials:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -567,38 +568,37 @@ tuning purposes:</p>
 <span>  <span class="va">mnist_bake</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mnist_bake</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 600 × 51</span></span></span>
-<span><span class="co">#&gt;    digit           label digit_phom     digit_phom_pl_1_1 digit_phom_pl_1_2</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>                 0              5.19</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl [28 × 28]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>                 0              0   </span></span>
+<span><span class="co">#&gt;    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>               0            5.19            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               3.85</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0              15.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               5.33</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               7.97</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               6.87</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               9.98</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               5.14</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0              11.1 </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 46 more variables: digit_phom_pl_1_3 &lt;dbl&gt;, digit_phom_pl_1_4 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_5 &lt;dbl&gt;, digit_phom_pl_1_6 &lt;dbl&gt;, digit_phom_pl_1_7 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_8 &lt;dbl&gt;, digit_phom_pl_1_9 &lt;dbl&gt;, digit_phom_pl_1_10 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_11 &lt;dbl&gt;, digit_phom_pl_1_12 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_13 &lt;dbl&gt;, digit_phom_pl_1_14 &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   digit_phom_pl_1_15 &lt;dbl&gt;, digit_phom_pl_1_16 &lt;dbl&gt;, …</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></span></code></pre></div>
 <p>We use the input <code>digit</code> column to finalize the range of
-blurs and the derived <code>digit_phom</code> column to finalize the
-range of homological degree. We expect the important topological
-features of the digits number at most 2 per image, so we manually
-prescribe a narrow range for <code>num_levels</code>, though it could
-also be learned from the training set. Each finalized range is printed
-for reference:</p>
+blurs and the derived <code>digit_pd</code> column to finalize the range
+of homological degree. We expect the important topological features of
+the digits number at most 2 per image, so we manually prescribe a narrow
+range for <code>num_levels</code>, though it could also be learned from
+the training set. Each finalized range is printed for reference:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span> <span class="va">blur_sd_fin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dials.tidymodels.org/reference/finalize.html" class="external-link">finalize</a></span><span class="op">(</span><span class="fu"><a href="../reference/blur_sigmas.html">blur_sigmas</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">mnist_train</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">digit</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span>
 <span><span class="co">#&gt; Gaussian Blur std. dev.s (quantitative)</span></span>
 <span><span class="co">#&gt; Transformer: log1p [-1, Inf]</span></span>
 <span><span class="co">#&gt; Range (transformed scale): [0.504, 2.5]</span></span>
-<span><span class="op">(</span> <span class="va">pl_deg_fin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dials.tidymodels.org/reference/finalize.html" class="external-link">finalize</a></span><span class="op">(</span><span class="fu"><a href="../reference/hom_degree.html">hom_degree</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">mnist_bake</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">digit_phom</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span>
+<span><span class="op">(</span> <span class="va">pl_deg_fin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dials.tidymodels.org/reference/finalize.html" class="external-link">finalize</a></span><span class="op">(</span><span class="fu"><a href="../reference/hom_degree.html">hom_degree</a></span><span class="op">(</span><span class="op">)</span>, <span class="va">mnist_bake</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">digit_pd</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span>
 <span><span class="co">#&gt; Homological Degree (quantitative)</span></span>
 <span><span class="co">#&gt; Range: [0, 1]</span></span>
 <span><span class="op">(</span> <span class="va">pl_lev_fin</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/vpd-dials.html">num_levels</a></span><span class="op">(</span>range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span></span>
@@ -679,7 +679,7 @@ a workflow:</p>
 <span><span class="co">#&gt; 3 Recipe Steps</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; • step_blur()</span></span>
-<span><span class="co">#&gt; • step_phom_raster()</span></span>
+<span><span class="co">#&gt; • step_pd_raster()</span></span>
 <span><span class="co">#&gt; • step_vpd_persistence_landscape()</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Model ───────────────────────────────────────────────────────────────────────</span></span>
@@ -699,8 +699,7 @@ course-grained “map” of how performance varies across the whole
 parameter space. For illustration, we construct a workflow grid by
 crossing a recipe grid with a model grid:</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">319845</span><span class="op">)</span></span>
-<span><span class="va">mnist_rec_grid</span> <span class="op">&lt;-</span> </span>
+<code class="sourceCode R"><span><span class="va">mnist_rec_grid</span> <span class="op">&lt;-</span> </span>
 <span>  <span class="fu"><a href="https://dials.tidymodels.org/reference/grid_regular.html" class="external-link">grid_regular</a></span><span class="op">(</span><span class="va">blur_sd_fin</span>, <span class="va">pl_deg_fin</span>, <span class="va">pl_lev_fin</span>, levels <span class="op">=</span> <span class="fl">3</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"blur_sd"</span>, <span class="st">"pl_deg"</span>, <span class="st">"pl_lev"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mnist_spec_grid</span> <span class="op">&lt;-</span> </span>
@@ -747,8 +746,7 @@ of the grid we only provide the updated dials. For illustration, we
 specify 6 initial seeds with 12 tuning iterations each, and we limit the
 total runtime to 5 minutes.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">259762</span><span class="op">)</span></span>
-<span><span class="va">mnist_res</span> <span class="op">&lt;-</span> <span class="fu">tune_bayes</span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">mnist_res</span> <span class="op">&lt;-</span> <span class="fu">tune_bayes</span><span class="op">(</span></span>
 <span>  <span class="va">mnist_wflow</span>,</span>
 <span>  resamples <span class="op">=</span> <span class="va">mnist_folds</span>,</span>
 <span>  param_info <span class="op">=</span> <span class="va">wflow_dials</span>,</span>
@@ -765,6 +763,7 @@ total runtime to 5 minutes.</p>
 <span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">C</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 38 columns were requested but there were 16 predictors in the data.</span></span>
 <span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 16 predictors will be used.</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1   <span style="color: #BBBB00; font-weight: bold;">C</span>: x1</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x2   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1   <span style="color: #BBBB00; font-weight: bold;">C</span>: x1</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x2   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x1</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x2   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x2</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x3   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x2</span></span>
@@ -773,15 +772,16 @@ total runtime to 5 minutes.</p>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x4   <span style="color: #BBBB00; font-weight: bold;">B</span>: x4   <span style="color: #BBBB00; font-weight: bold;">C</span>: x4</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x5   <span style="color: #BBBB00; font-weight: bold;">B</span>: x5   <span style="color: #BBBB00; font-weight: bold;">C</span>: x4</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x5   <span style="color: #BBBB00; font-weight: bold;">B</span>: x5   <span style="color: #BBBB00; font-weight: bold;">C</span>: x5</span></span>
-<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x5   <span style="color: #BBBB00; font-weight: bold;">C</span>: x5</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x5</span></span>
 <span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span>
 <span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">The Gaussian process model is being fit using 5 features but only has 6</span></span></span>
 <span><span class="co">#&gt;   <span style="color: #BBBB00;">data points to do so. This may cause errors or a poor model fit.</span></span></span>
-<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x7   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span>
-<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x10   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span>
-<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x12   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span>
-<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x12   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span></code></pre></div>
+<span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">D</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 28 columns were requested but there were 16 predictors in the data.</span></span>
+<span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 16 predictors will be used.</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x1</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x2</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x4</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x6</span></span></code></pre></div>
 <p>Whereas in the previous section we fit only a single model, in this
 section we have obtained results for numerous hyperparameter settings
 and must choose among them for the final model. We first inspect the top
@@ -796,30 +796,30 @@ we use only the former to inform this choice.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 12</span></span></span>
 <span><span class="co">#&gt;    blur_sd pl_deg pl_lev rf_pred rf_node .metric  .estimator  mean     n std_err</span></span>
 <span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>   0.658      0      2      23      27 accuracy multiclass 0.432     6 0.008<span style="text-decoration: underline;">72</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   0.676      0      2       3       4 accuracy multiclass 0.42      6 0.026<span style="text-decoration: underline;">6</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   0.752      0      3      42      40 accuracy multiclass 0.388     6 0.025<span style="text-decoration: underline;">0</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   0.990      0      2       1      40 accuracy multiclass 0.378     6 0.022<span style="text-decoration: underline;">9</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   4.50       0      3      10      32 accuracy multiclass 0.375     6 0.022<span style="text-decoration: underline;">2</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   1.31       0      3      47      32 accuracy multiclass 0.358     6 0.024<span style="text-decoration: underline;">8</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   3.20       0      3      14      25 accuracy multiclass 0.357     6 0.013<span style="text-decoration: underline;">6</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   0.655      0      1      19      17 accuracy multiclass 0.353     6 0.012<span style="text-decoration: underline;">3</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   5.66       0      2       8      34 accuracy multiclass 0.32      6 0.018<span style="text-decoration: underline;">6</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>   3.72       0      2      28      40 accuracy multiclass 0.317     6 0.011<span style="text-decoration: underline;">5</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>   7.76       0      2      23      30 accuracy multiclass 0.292     6 0.017<span style="text-decoration: underline;">4</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>   0.911      1      2      48      32 accuracy multiclass 0.263     6 0.012<span style="text-decoration: underline;">0</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>   2.68       1      2      48      40 accuracy multiclass 0.25      6 0.006<span style="text-decoration: underline;">83</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>  10.2        0      3      17      39 accuracy multiclass 0.235     6 0.020<span style="text-decoration: underline;">0</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>   5.11       0      1      13       2 accuracy multiclass 0.203     6 0.006<span style="text-decoration: underline;">67</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>   1.47       1      3      29       2 accuracy multiclass 0.195     6 0.015<span style="text-decoration: underline;">7</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>  11.2        0      1      38       9 accuracy multiclass 0.172     6 0.008<span style="text-decoration: underline;">72</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>   7.20       1      2       1      24 accuracy multiclass 0.165     6 0.018<span style="text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>   0.670      0      2       2      15 accuracy multiclass 0.412     6 0.012<span style="text-decoration: underline;">5</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   4.87       0      3      20      39 accuracy multiclass 0.41      6 0.015<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   4.50       0      3      10      32 accuracy multiclass 0.388     6 0.007<span style="text-decoration: underline;">03</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   5.42       0      3      11      17 accuracy multiclass 0.383     6 0.012<span style="text-decoration: underline;">8</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   4.55       0      3      32       3 accuracy multiclass 0.383     6 0.018<span style="text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   5.25       0      3      33      39 accuracy multiclass 0.373     6 0.013<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   0.690      0      1      12      22 accuracy multiclass 0.36      6 0.019<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   0.914      0      1       1       7 accuracy multiclass 0.357     6 0.012<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   0.655      0      1      19      17 accuracy multiclass 0.352     6 0.019<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>   3.98       0      3       6       6 accuracy multiclass 0.333     6 0.005<span style="text-decoration: underline;">58</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>   4.81       1      3      48      39 accuracy multiclass 0.303     6 0.017<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>   4.09       1      2       3      38 accuracy multiclass 0.282     6 0.019<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>   2.68       1      2      48      40 accuracy multiclass 0.267     6 0.019<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>   2.43       0      3       3      40 accuracy multiclass 0.248     6 0.007<span style="text-decoration: underline;">03</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>   5.10       0      1      28      40 accuracy multiclass 0.238     6 0.020<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>   1.47       1      3      29       2 accuracy multiclass 0.212     6 0.017<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>   7.20       1      2       1      24 accuracy multiclass 0.158     6 0.018<span style="text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>  11.2        0      1      38       9 accuracy multiclass 0.153     6 0.017<span style="text-decoration: underline;">3</span> </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: .config &lt;chr&gt;, .iter &lt;int&gt;</span></span></span>
 <span><span class="op">(</span><span class="va">mnist_best</span> <span class="op">&lt;-</span> <span class="fu">select_best</span><span class="op">(</span><span class="va">mnist_res</span>, metric <span class="op">=</span> <span class="st">"accuracy"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
 <span><span class="co">#&gt;   blur_sd pl_deg pl_lev rf_pred rf_node .config</span></span>
 <span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   0.658      0      2      23      27 Iter11</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   0.670      0      2       2      15 Iter12</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="fitting-and-evaluation-1">fitting and evaluation<a class="anchor" aria-label="anchor" href="#fitting-and-evaluation-1"></a>
@@ -827,7 +827,6 @@ we use only the former to inform this choice.</p>
 <p>Now, finally, we fit the tuned model to the training set:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mnist_fin</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="fu">finalize_recipe</span><span class="op">(</span><span class="va">mnist_rec</span>, <span class="va">mnist_best</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">590858</span><span class="op">)</span></span>
 <span><span class="fu">fit</span><span class="op">(</span></span>
 <span>  <span class="fu">finalize_model</span><span class="op">(</span><span class="va">mnist_spec</span>, <span class="va">mnist_best</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a></span><span class="op">(</span><span class="va">mnist_fin</span><span class="op">)</span>,</span>
@@ -839,17 +838,17 @@ we use only the former to inform this choice.</p>
 <span><span class="co">#&gt; Ranger result</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~23L,      x), num.trees = ~300, min.node.size = min_rows(~27L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
+<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~2L,      x), num.trees = ~300, min.node.size = min_rows(~15L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Type:                             Probability estimation </span></span>
 <span><span class="co">#&gt; Number of trees:                  300 </span></span>
 <span><span class="co">#&gt; Sample size:                      600 </span></span>
 <span><span class="co">#&gt; Number of independent variables:  32 </span></span>
-<span><span class="co">#&gt; Mtry:                             23 </span></span>
-<span><span class="co">#&gt; Target node size:                 27 </span></span>
+<span><span class="co">#&gt; Mtry:                             2 </span></span>
+<span><span class="co">#&gt; Target node size:                 15 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.5318048</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.5821558</span></span></code></pre></div>
 <p>The resulting RF correctly classifies roughly half of the images—not
 great, but much better than the model using intuited hyperparameter
 values (and than pure chance). (Note also that the <code>blur</code>
@@ -865,37 +864,38 @@ error:</p>
 <span><span class="co">#&gt;    .pred_class label</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1           1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 9           6    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 6           6    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 6           6    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 6           2    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 7           7    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3           7    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 9           9    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 2           2    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0           0    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4           4    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 1           3    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7           3    </span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction  0  1  2  3  4  5  6  7  8  9</span></span>
-<span><span class="co">#&gt;          0 52  0  0  2  0  0  2  0  0  3</span></span>
-<span><span class="co">#&gt;          1  0 49  7  9  5  3  1 10  0  2</span></span>
-<span><span class="co">#&gt;          2  0  0 28  0  0  1  1  0  0  1</span></span>
-<span><span class="co">#&gt;          3  0  3  3 33  5  4  1  4  0  0</span></span>
-<span><span class="co">#&gt;          4  1  2  6  4 37  4  0  4  0  0</span></span>
-<span><span class="co">#&gt;          5  0  5  5  9  6 41  4  8  0  0</span></span>
-<span><span class="co">#&gt;          6  3  0  6  0  2  0 40  0  4  4</span></span>
-<span><span class="co">#&gt;          7  0  1  4  3  2  6  3 34  0  0</span></span>
-<span><span class="co">#&gt;          8  2  0  0  0  0  0  2  0 53  1</span></span>
-<span><span class="co">#&gt;          9  2  0  1  0  3  1  6  0  3 49</span></span>
+<span><span class="co">#&gt;          0 52  0  0  2  0  1  2  0  0  3</span></span>
+<span><span class="co">#&gt;          1  0 54  4  6  8 13  3 20  0  2</span></span>
+<span><span class="co">#&gt;          2  0  0 20  0  0  0  0  0  0  1</span></span>
+<span><span class="co">#&gt;          3  0  2  5 24  6  9  1  4  0  1</span></span>
+<span><span class="co">#&gt;          4  0  0  5  2 24  5  1  5  0  0</span></span>
+<span><span class="co">#&gt;          5  1  1  7 12 11 27  1 11  0  1</span></span>
+<span><span class="co">#&gt;          6  2  0  7  0  4  0 43  0  3  3</span></span>
+<span><span class="co">#&gt;          7  0  3  7 14  6  4  3 20  0  0</span></span>
+<span><span class="co">#&gt;          8  2  0  1  0  0  0  1  0 52  1</span></span>
+<span><span class="co">#&gt;          9  3  0  4  0  1  1  5  0  5 48</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass     0.693</span></span></code></pre></div>
-<p>Among the most-confused digits in these experiments are
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass     0.607</span></span></code></pre></div>
+<p>Among the most-confused digits in previous runs of these experiments
+are
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>7</mn><annotation encoding="application/x-tex">7</annotation></semantics></math>,
@@ -906,8 +906,10 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>3</mn><annotation encoding="application/x-tex">3</annotation></semantics></math>
 and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>5</mn><annotation encoding="application/x-tex">5</annotation></semantics></math>.
-This is more in keeping with the topological similarities of the digits,
-though geometry is also clearly playing a role.</p>
+(The results above should be similar but will depend somewhat on the
+state of the random number generator.) This is more in keeping with the
+topological similarities of the digits, though geometry is also clearly
+playing a role.</p>
 <p>Finally, we evaluate the final model on the testing set—the holdout
 data from the original partition.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
@@ -918,8 +920,8 @@ data from the original partition.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 2</span></span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 4           0    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 7           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1           1    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4           4    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1           1    </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6           2    </span></span>
@@ -934,21 +936,21 @@ data from the original partition.</p>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
 <span><span class="co">#&gt;          0 7 0 0 0 0 0 1 0 0 0</span></span>
-<span><span class="co">#&gt;          1 0 8 0 2 3 1 0 4 0 0</span></span>
+<span><span class="co">#&gt;          1 0 8 1 5 2 1 0 4 0 0</span></span>
 <span><span class="co">#&gt;          2 0 0 2 1 0 0 3 0 0 0</span></span>
-<span><span class="co">#&gt;          3 0 0 0 2 0 2 2 0 1 0</span></span>
-<span><span class="co">#&gt;          4 1 0 1 1 2 0 0 0 0 1</span></span>
-<span><span class="co">#&gt;          5 0 0 1 2 3 5 0 3 0 0</span></span>
-<span><span class="co">#&gt;          6 0 0 4 0 1 0 3 0 0 4</span></span>
-<span><span class="co">#&gt;          7 0 2 1 2 1 1 0 3 0 0</span></span>
+<span><span class="co">#&gt;          3 0 0 0 3 1 3 2 1 0 1</span></span>
+<span><span class="co">#&gt;          4 0 0 0 0 3 1 0 0 1 0</span></span>
+<span><span class="co">#&gt;          5 1 0 2 1 1 2 0 4 0 0</span></span>
+<span><span class="co">#&gt;          6 0 0 4 0 1 0 3 0 0 2</span></span>
+<span><span class="co">#&gt;          7 0 2 0 0 2 2 0 1 0 0</span></span>
 <span><span class="co">#&gt;          8 0 0 0 0 0 0 0 0 9 0</span></span>
-<span><span class="co">#&gt;          9 2 0 1 0 0 1 1 0 0 5</span></span>
+<span><span class="co">#&gt;          9 2 0 1 0 0 1 1 0 0 7</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass      0.46</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass      0.45</span></span></code></pre></div>
 <p>Some patterns in the training set hold up, though others don’t, and
 some frequent confusion pairings are new. The accuracy is lower by a
 third than on the training set—a reminder of the importance of
@@ -975,7 +977,7 @@ much more effectively after hyperparameter optimization.</p>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
       </footer>

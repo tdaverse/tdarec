@@ -6,6 +6,7 @@
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
 <url><loc>/reference/blur.html</loc></url>
 <url><loc>/reference/blur_sigmas.html</loc></url>
 <url><loc>/reference/hom_degree.html</loc></url>
@@ -13,6 +14,9 @@
 <url><loc>/reference/mnist.html</loc></url>
 <url><loc>/reference/required_pkgs.tdarec.html</loc></url>
 <url><loc>/reference/step_blur.html</loc></url>
+<url><loc>/reference/step_pd_degree.html</loc></url>
+<url><loc>/reference/step_pd_point_cloud.html</loc></url>
+<url><loc>/reference/step_pd_raster.html</loc></url>
 <url><loc>/reference/step_phom_degree.html</loc></url>
 <url><loc>/reference/step_phom_point_cloud.html</loc></url>
 <url><loc>/reference/step_phom_raster.html</loc></url>
