@@ -33,4 +33,5 @@ An occasional NOTE was presumably due to Internet connection speeds.
 
 ### Win-Builder results
 
-In addition to the package being a new submission, these checks NOTEd the word "vectorization" used throughout the package. It is spelled as intended and consistent with common dictionary spellings.
+In addition to the package being a new submission, these checks NOTEd the words "vectorization(s)" and "vectorizing" used throughout the package and the words "Silge", "Tidymodels", "al" (part of "&al"), and "modularizes".
+All are spelled as intended.
