@@ -9,8 +9,22 @@ vignette: >
 ---
 
 ```{r options, include = FALSE}
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      # record the current time before each chunk
+      now <<- Sys.time()
+    } else {
+      # calculate the time difference after a chunk
+      res <- difftime(Sys.time(), now, units = "secs")
+      # return a character string to show the time
+      paste("Time for this code chunk to run:", round(res, 2), "seconds")
+    }
+  }
+}))
 knitr::opts_chunk$set(
-  collapse = TRUE,
+  collapse = TRUE, time_it = TRUE,
   comment = "#>"
 )
 ```
@@ -333,7 +347,8 @@ wflow_dials <- bind_rows(rec_dials, spec_dials) |>
 ```
 
 The tuning syntax is similar to that of the grid search, but in place of the grid we only provide the updated dials.
-For illustration, we specify 6 initial seeds with 12 tuning iterations each, and we limit the total runtime to 5 minutes.
+We specify 3 initial seeds with 6 tuning iterations each, and we limit the total runtime to 5 minutes.
+(This vignette is for illustration, and these choices keep its time cost manageable; additional iterations and seeds may prove necessary in practice.)
 
 ```{r tune workflow via bayesian optimization}
 mnist_res <- tune_bayes(
@@ -341,7 +356,7 @@ mnist_res <- tune_bayes(
   resamples = mnist_folds,
   param_info = wflow_dials,
   metrics = metric_set(accuracy, roc_auc),
-  initial = 6, iter = 12,
+  initial = 3, iter = 6,
   control = control_bayes(time_limit = 5)
 )
 ```
@@ -371,7 +386,7 @@ fit(
   print() -> mnist_fit
 ```
 
-The resulting RF correctly classifies roughly half of the images---not great, but much better than the model using intuited hyperparameter values (and than pure chance).
+The resulting RF correctly classifies roughly half of the images "out of bag"---not great, but much better than the model using intuited hyperparameter values (and than pure chance).
 (Note also that the `blur` standard deviation is lower than originally defaulted to.)
 As before, we can look to the confusion matrix for insights into the sources of error:
 
@@ -402,5 +417,5 @@ mnist_pred |>
 ```
 
 Some patterns in the training set hold up, though others don't, and some frequent confusion pairings are new.
-The accuracy is lower by a third than on the training set---a reminder of the importance of out-of-box evaluation---though within the 2--standard error interval of the cross-validation estimate.
-While the sample is small, we can say with some confidence that topological features discriminate among them, and much more effectively after hyperparameter optimization.
+The accuracy is significantly lower than on the training set---a reminder of the importance of out-of-box evaluation---though significantly higher than the untuned model.
+While the sample is small, we can say with confidence that topological features discriminate among them, and much more effectively after hyperparameter optimization.
