@@ -7,7 +7,10 @@
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
 ^man-roxygen$
-^build-pre$
+^vignettes/.*-orig\.Rmd$
+^vignettes/figure$
+^pre-generate$
+^pre-compile$
 ^docs$
 
 # development

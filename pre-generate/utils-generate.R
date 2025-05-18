@@ -1,5 +1,5 @@
 #' This script provides helper files for the code generating scripts
-#' 'build-pre/build-*.R'.
+#' 'pre-generate/generate-*.R'.
 #'
 #' Refer to the following resources for guidance:
 #' https://blog.r-hub.io/2020/02/10/code-generation/
