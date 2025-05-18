@@ -6,7 +6,7 @@ There are no reverse dependencies on CRAN or Bioconductor.
 
 ## Long-running vignette
 
-The vignette "Tuning persistent homological hyperparameters" takes between 1 and 2 minutes to run, trimmed from roughly 5 minutes in a previous submission.
+The vignette is now pre-built to avoid inflating checktime.
 
 ## R CMD checks
 
@@ -18,7 +18,7 @@ The vignette "Tuning persistent homological hyperparameters" takes between 1 and
 * local OS X install, R 4.4.2, with {TDAvec} 0.1.4 (CRAN)
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
-  * `devtools::check(remote = TRUE, manual = TRUE)`
+  * `devtools::check(manual = TRUE, remote = TRUE)`
 * Win-Builder
   * `devtools::check_win_oldrelease()`
   * `devtools::check_win_release()`
@@ -28,6 +28,8 @@ The vignette "Tuning persistent homological hyperparameters" takes between 1 and
 
 There were no ERRORs or WARNINGs.
 An occasional NOTE was presumably due to Internet connection speeds.
+
+The exception, with CRAN incoming checks and manual build, also NOTEd that this is a new submission.
 
 ### Win-Builder results
 
