@@ -22,12 +22,13 @@
 #'   \item `pers_range()`:
 #'         Range of positive finite persistence for a given degree
 #'   \item `life_support()`:
-#'         Union of birth--death ranges for a given degree
+#'         Range of union of birth--death ranges for a given degree
 #' }
 #' 
 #' @name vpd-summarizers
 #' @param x Persistence data in a recognizable format.
 #' @param hom_degree,hom_degrees Integer (vector) of homological degree(s).
+#' @returns A vector of one or two numeric values.
 NULL
 
 check_param <- getFromNamespace("check_param", "dials")

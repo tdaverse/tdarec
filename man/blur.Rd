@@ -23,6 +23,9 @@ integer \eqn{2^k - 1 \leq \code{max(x)}}}
 to convolve \code{x}; defaults to \eqn{\code{max(dim(x))} / 2^{D+1}}, where
 \eqn{D} is the dimensionality of \code{x}}
 }
+\value{
+An array of the same dimensions as \code{x}.
+}
 \description{
 This function takes a numeric array of any dimension as input
 and returns a blurred array of the same dimensions as output.

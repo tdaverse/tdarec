@@ -12,6 +12,7 @@
 #' @importFrom scales transform_log1p
 #' @inheritParams dials::Laplace
 #' @inheritParams dials::finalize
+#' @returns A `param` object or list of `param` objects.
 #' @example inst/examples/ex-param-blur-sigmas.R
 #' @export
 blur_sigmas <- function(range = c(unknown(), unknown()), trans = transform_log1p()) {

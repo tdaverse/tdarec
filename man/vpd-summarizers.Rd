@@ -177,6 +177,9 @@ life_support(x, hom_degree)
 
 \item{hom_degree, hom_degrees}{Integer (vector) of homological degree(s).}
 }
+\value{
+A vector of one or two numeric values.
+}
 \description{
 These miscellaneous functions are used by various
 \verb{get_*_range()} functions to \link[dials:finalize]{finalize} hyperparameter
@@ -201,6 +204,6 @@ Minimum positive finite persistence for a given degree
 \item \code{pers_range()}:
 Range of positive finite persistence for a given degree
 \item \code{life_support()}:
-Union of birth--death ranges for a given degree
+Range of union of birth--death ranges for a given degree
 }
 }

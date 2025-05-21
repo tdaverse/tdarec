@@ -20,11 +20,11 @@
 # installed version of {ripserr}, or `NULL` if not installed
 rlang::on_load({
   .ripserr_version <-
-    if ("ripserr" %in% rownames(utils::installed.packages())) {
+    if (! identical(find.package("ripserr", quiet = TRUE), character(0))) {
       utils::packageVersion("ripserr")
     } else NA_character_
   .TDAvec_version <- 
-    if ("TDAvec" %in% rownames(utils::installed.packages())) {
+    if (! identical(find.package("TDAvec", quiet = TRUE), character(0))) {
       utils::packageVersion("TDAvec")
     } else NA_character_
 })
@@ -68,7 +68,7 @@ rlang::on_load({
 #'   package so that the steps can function properly within parallel processing
 #'   schemes.
 #' @param x A recipe step.
-#' @return A character vector.
+#' @returns A character vector.
 #' @rdname required_pkgs.tdarec
 #' @keywords internal
 #' @export

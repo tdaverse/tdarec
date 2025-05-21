@@ -59,7 +59,7 @@
 \item{...}{Not used.}
 }
 \value{
-A tibble object.
+A tibble (class \code{tbl_df}).
 }
 \description{
 These functions define what parameters \emph{can} be tuned for

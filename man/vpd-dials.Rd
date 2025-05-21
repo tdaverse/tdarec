@@ -49,6 +49,9 @@ transformation, \code{NULL}.}
 
 \item{values}{A character string of possible values.}
 }
+\value{
+A \code{param} object or list of \code{param} objects.
+}
 \description{
 These tuning functions govern the parameters of
 vectorizations implemented in \strong{TDAvec}.

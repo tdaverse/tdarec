@@ -10,7 +10,8 @@
 #' @param sigma the standard deviation of the gaussian distribution with which
 #'   to convolve `x`; defaults to \eqn{\code{max(dim(x))} / 2^{D+1}}, where
 #'   \eqn{D} is the dimensionality of `x`
-#'
+#' @returns An array of the same dimensions as `x`.
+#' 
 #' @details This function is adapted from `spatstat.explore::blur()`, part of
 #'   the [spatstat package collection](https://spatstat.org/).
 #'

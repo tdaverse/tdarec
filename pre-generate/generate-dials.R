@@ -93,6 +93,7 @@ logistics <- glue::glue(
   doc_wrap("@inheritParams dials::finalize"),
   doc_wrap("@importFrom scales {imported_transforms}"),
   doc_wrap("@inheritParams step_pd_degree"),
+  doc_wrap("@returns A `param` object or list of `param` objects."),
   doc_wrap("@example inst/examples/{basename(ex_file)}"),
   "NULL\n",
   "\n"

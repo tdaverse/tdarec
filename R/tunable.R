@@ -8,6 +8,6 @@
 #' @param x A recipe step object
 #' @param ... Not used.
 #' @name tunable_tdavec
-#' @return A tibble object.
+#' @returns A tibble (class `tbl_df`).
 #' @keywords internal
 NULL

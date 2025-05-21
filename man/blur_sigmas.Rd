@@ -16,6 +16,9 @@ these values should be in the \emph{transformed units}.}
 the default is used which matches the units used in \code{range}. If no
 transformation, \code{NULL}.}
 }
+\value{
+A \code{param} object or list of \code{param} objects.
+}
 \description{
 The standard deviation of the noise function convolved with
 array values to induce blur in raster data.

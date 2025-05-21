@@ -20,6 +20,7 @@
 #' @inheritParams dials::finalize
 #' @inheritParams vpd-finalizers
 #' @param max_dim Bound on the maximum dimension determined from the data.
+#' @returns A `param` object or list of `param` objects.
 #' @example inst/examples/ex-param-hom-degree.R
 #' @export
 hom_degree <- function(range = c(0L, unknown()), trans = NULL) {

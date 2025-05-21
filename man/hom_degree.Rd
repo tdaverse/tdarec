@@ -36,6 +36,9 @@ transformation, \code{NULL}.}
 
 \item{max_dim}{Bound on the maximum dimension determined from the data.}
 }
+\value{
+A \code{param} object or list of \code{param} objects.
+}
 \description{
 The degree of the homology group to vectorize, or the degree at
 which to stop vectorizing.

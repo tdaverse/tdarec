@@ -82,5 +82,5 @@ ops <- par(mfrow = c(1, 3))
 image(topos$pix[[1]])
 image(blur_res$pix[[1]])
 image(with_sigmas$pix[[1]])
-par(mfrow = ops$mfrow)
+par(ops)
 }

@@ -46,6 +46,7 @@
 #' @inheritParams dials::finalize
 #' @importFrom scales transform_log10
 #' @inheritParams step_pd_degree
+#' @returns A `param` object or list of `param` objects.
 #' @example inst/examples/zzz-ex-vpd-param.R
 NULL
 
