@@ -58,10 +58,12 @@ Although most proposed vectorization methods are available in free software, the
 This complicates the comparison process, as researchers must search for available methods and adapt their code to the interface of each specific implementation.
 The goal of [{TDAvec}](https://cran.r-project.org/package=TDAvec) [@Luchinsky2025] is to address this issue.
 
-We (JCB) have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library. For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g. `computePersistenceLandscape()`.
+We (AL and UI) have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library.
+Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters.
+For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g. `computePersistenceLandscape()`.
 Additionally, several new vectorization methods developed by our group are also available within the TDAvec framework.
 
-Here, for example, is how to compute the tropical coordinates proposed by @Kalisnik2019 and a coarse vectorization of our own persistence block transformation [@Chan2022] for the degree-1 persistence diagram above:
+Here, for example, is how to compute the tropical coordinates proposed by @Kalisnik2019 and a coarse vectorization of our own persistence block transformation [@Chan2022] for the degree-1 layer of the persistence diagram above:
 
 ```{r TDAvec}
 library(TDAvec)
@@ -81,8 +83,8 @@ Notably, all vectorizations are written in C++ and exposed to R using {Rcpp}. We
 
 [{tdarec}](https://tdaverse.github.io/tdarec/) provides two primary families of steps:
 
-1. Steps to *calculate persistent homology from data*, which share the naming pattern `step_pd_*()` for **p**ersistent **d**iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.
-2. Steps to *transform and vectorize persistent diagrams*, which share the naming pattern `step_vpd_*()` for **v**ectorized **p**ersistence **d**iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g. multi-level persistence landscapes) that can be used by most predictive model families.
+1. Steps to *calculate persistent homology from data*, which share the naming pattern `step_pd_*()` for **p**ersistence **d**iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.
+2. Steps to *transform and vectorize persistence diagrams*, which share the naming pattern `step_vpd_*()` for **v**ectorized **p**ersistence **d**iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g. multi-level persistence landscapes) that can be used by most predictive model families.
 
 Here is how to incorporate PH (using the default Vietoris--Rips filtration) and the persistence block transformation above into a pre-processing recipe:
 
@@ -91,9 +93,9 @@ suppressMessages(library(tdarec))
 dat <- tibble(source = "torus", sample = list(x))
 recipe(~ sample, data = dat) |> 
   step_pd_point_cloud(sample, max_hom_degree = 2) |> 
-  step_pd_degree(sample_pd, hom_degrees = 1:2) |> 
+  step_pd_degree(sample_pd, hom_degrees = 2) |> 
   step_vpd_persistence_block(
-    sample_pd_1, sample_pd_2,
+    sample_pd_2,
     hom_degree = 2, xseq = xy_seq
   ) -> rec
 rec |> 
@@ -101,6 +103,13 @@ rec |>
   bake(new_data = dat)
 ```
 
-Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters.
+The code chunk uses the additional step `step_pd_degree()` to extract degree-specific layers from multi-degree persistence diagrams; in this case, we are interested in vectorizing only 2-dimensional features.
+Despite this, we must also specify the degree of the features we want in the persistence block step.
+
+## The Potential
+
+Many methods remain to be built into these tools, which will only reach their full potential through user feedback.
+Two issues in particular, [additional vectorizations](https://github.com/uislambekov/TDAvec/issues/3) for {TDAvec} and [additional engines](https://github.com/tdaverse/tdarec/issues/2) for {tdarec}, may remain open---or, ahem, persist---into the foreseeable future.
+We welcome bug reports, feature requests, and code contributions from the community!
 
 ## References

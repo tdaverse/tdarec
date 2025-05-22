@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.353">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -154,16 +154,16 @@ div.csl-indent {
 <h3 class="anchored" data-anchor-id="vectorizations-of-persistent-homology">Vectorizations of persistent homology</h3>
 <p>Vectorization is a crucial step to bridge TDA and ML. Numerous methods have been proposed, and research shows that ML performance on a specific task can depend strongly on the chosen method. Therefore, it is highly desirable to compare several approaches to a given problem and select the one found to be best-suited to it.</p>
 <p>Although most proposed vectorization methods are available in free software, they are scattered across various R and Python packages. This complicates the comparison process, as researchers must search for available methods and adapt their code to the interface of each specific implementation. The goal of <a href="https://cran.r-project.org/package=TDAvec">{TDAvec}</a> <span class="citation" data-cites="Luchinsky2025">(<a href="#ref-Luchinsky2025" role="doc-biblioref">Luchinsky and Islambekov 2025</a>)</span> is to address this issue.</p>
-<p>We (JCB) have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library. For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g.&nbsp;<code>computePersistenceLandscape()</code>. Additionally, several new vectorization methods developed by our group are also available within the TDAvec framework.</p>
-<p>Here, for example, is how to compute the tropical coordinates proposed by <span class="citation" data-cites="Kalisnik2019">Kališnik (<a href="#ref-Kalisnik2019" role="doc-biblioref">2019</a>)</span> and a coarse vectorization of our own persistence block transformation <span class="citation" data-cites="Chan2022">(<a href="#ref-Chan2022" role="doc-biblioref">Chan et al. 2022</a>)</span> for the degree-1 persistence diagram above:</p>
+<p>We (AL and UI) have consolidated all currently available vectorizations (of which we are aware) and implemented them in a single R library. Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters. For ease of comparison, we also use a consistent interface, with a common camelcase naming convention, e.g.&nbsp;<code>computePersistenceLandscape()</code>. Additionally, several new vectorization methods developed by our group are also available within the TDAvec framework.</p>
+<p>Here, for example, is how to compute the tropical coordinates proposed by <span class="citation" data-cites="Kalisnik2019">Kališnik (<a href="#ref-Kalisnik2019" role="doc-biblioref">2019</a>)</span> and a coarse vectorization of our own persistence block transformation <span class="citation" data-cites="Chan2022">(<a href="#ref-Chan2022" role="doc-biblioref">Chan et al. 2022</a>)</span> for the degree-1 layer of the persistence diagram above:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(TDAvec)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">computeTropicalCoordinates</span>(pd<span class="sc">$</span>diagram, <span class="at">homDim =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>         F1          F2          F3          F4          F5          F6 
-  0.8990377   1.7917789   2.3351634   2.8282403  10.4905759   7.1901295 
+  0.9190972   1.6933851   2.2419242   2.7693033   9.8919065   7.2895657 
          F7 
-209.4293666 </code></pre>
+213.1258392 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>xy_seq <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">1.5</span>, .<span class="dv">5</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">computePersistenceBlock</span>(</span>
@@ -171,8 +171,8 @@ div.csl-indent {
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">xSeq =</span> xy_seq, <span class="at">ySeq =</span> xy_seq</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1]  0.48899687  0.37000086  0.00000000  0.37950262 50.17623944 60.17243396
-[7]  0.03300634 64.96390741 79.47811883</code></pre>
+<pre><code>[1]  0.06987947  0.11835125  0.00000000  0.21757876 53.24153027 60.74418318
+[7]  0.15646443 65.75921787 80.39339191</code></pre>
 </div>
 </div>
 <p>Notably, all vectorizations are written in C++ and exposed to R using {Rcpp}. We also utilize the Armadillo package for various matrix operations, which makes all computations extremely fast and efficient.</p>
@@ -182,8 +182,8 @@ div.csl-indent {
 <p>{recipes} is the pre-processing arm of Tidymodels; mostly it provides <code>step_*()</code> functions that pipe together as recipe specifications, to later be applied directly to data or built into workflows. {dials} provides tuning functions for these steps as well as for model families provided by {parsnip}.</p>
 <p><a href="https://tdaverse.github.io/tdarec/">{tdarec}</a> provides two primary families of steps:</p>
 <ol type="1">
-<li>Steps to <em>calculate persistent homology from data</em>, which share the naming pattern <code>step_pd_*()</code> for <strong>p</strong>ersistent <strong>d</strong>iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.</li>
-<li>Steps to <em>transform and vectorize persistent diagrams</em>, which share the naming pattern <code>step_vpd_*()</code> for <strong>v</strong>ectorized <strong>p</strong>ersistence <strong>d</strong>iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g.&nbsp;multi-level persistence landscapes) that can be used by most predictive model families.</li>
+<li>Steps to <em>calculate persistent homology from data</em>, which share the naming pattern <code>step_pd_*()</code> for <strong>p</strong>ersistence <strong>d</strong>iagram. These steps rely on the engines above and are scoped according to the underlying mathematical object encoded in the data: Currently the {ripserr} engine handles point clouds (encoded as coordinate matrices or distance matrices) and rasters (encoded as numerical arrays). These steps accept list-columns of data sets and return list-columns of persistence diagrams.</li>
+<li>Steps to <em>transform and vectorize persistence diagrams</em>, which share the naming pattern <code>step_vpd_*()</code> for <strong>v</strong>ectorized <strong>p</strong>ersistence <strong>d</strong>iagram. These steps rely on {TDAvec} and are scoped as there by transformation. They accept list-columns of persistence diagrams and return numeric columns (sometimes flattened from matrix output, e.g.&nbsp;multi-level persistence landscapes) that can be used by most predictive model families.</li>
 </ol>
 <p>Here is how to incorporate PH (using the default Vietoris–Rips filtration) and the persistence block transformation above into a pre-processing recipe:</p>
 <div class="cell">
@@ -191,30 +191,34 @@ div.csl-indent {
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">source =</span> <span class="st">"torus"</span>, <span class="at">sample =</span> <span class="fu">list</span>(x))</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">recipe</span>(<span class="sc">~</span> sample, <span class="at">data =</span> dat) <span class="sc">|&gt;</span> </span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pd_point_cloud</span>(sample, <span class="at">max_hom_degree =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pd_degree</span>(sample_pd, <span class="at">hom_degrees =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_pd_degree</span>(sample_pd, <span class="at">hom_degrees =</span> <span class="dv">2</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_vpd_persistence_block</span>(</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    sample_pd_1, sample_pd_2,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    sample_pd_2,</span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">hom_degree =</span> <span class="dv">2</span>, <span class="at">xseq =</span> xy_seq</span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  ) <span class="ot">-&gt;</span> rec</span>
 <span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>rec <span class="sc">|&gt;</span> </span>
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">prep</span>(<span class="at">training =</span> dat) <span class="sc">|&gt;</span> </span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bake</span>(<span class="at">new_data =</span> dat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 597
-  sample          sample_pd_1     sample_pd_2 sample_pd_1_pb_1 sample_pd_1_pb_2
-  &lt;list&gt;          &lt;list&gt;          &lt;list&gt;                 &lt;dbl&gt;            &lt;dbl&gt;
-1 &lt;dbl [200 × 3]&gt; &lt;PHom [62 × 3]&gt; &lt;PHom&gt;                     0                0
-# ℹ 592 more variables: sample_pd_1_pb_3 &lt;dbl&gt;, sample_pd_1_pb_4 &lt;dbl&gt;,
-#   sample_pd_1_pb_5 &lt;dbl&gt;, sample_pd_1_pb_6 &lt;dbl&gt;, sample_pd_1_pb_7 &lt;dbl&gt;,
-#   sample_pd_1_pb_8 &lt;dbl&gt;, sample_pd_1_pb_9 &lt;dbl&gt;, sample_pd_1_pb_10 &lt;dbl&gt;,
-#   sample_pd_1_pb_11 &lt;dbl&gt;, sample_pd_1_pb_12 &lt;dbl&gt;, sample_pd_1_pb_13 &lt;dbl&gt;,
-#   sample_pd_1_pb_14 &lt;dbl&gt;, sample_pd_1_pb_15 &lt;dbl&gt;, sample_pd_1_pb_16 &lt;dbl&gt;,
-#   sample_pd_1_pb_17 &lt;dbl&gt;, sample_pd_1_pb_18 &lt;dbl&gt;, sample_pd_1_pb_19 &lt;dbl&gt;,
-#   sample_pd_1_pb_20 &lt;dbl&gt;, sample_pd_1_pb_21 &lt;dbl&gt;, …</code></pre>
+<pre><code># A tibble: 1 × 299
+  sample          sample_pd_2 sample_pd_2_pb_1 sample_pd_2_pb_2 sample_pd_2_pb_3
+  &lt;list&gt;          &lt;list&gt;                 &lt;dbl&gt;            &lt;dbl&gt;            &lt;dbl&gt;
+1 &lt;dbl [200 × 3]&gt; &lt;PHom&gt;                     0                0             40.1
+# ℹ 294 more variables: sample_pd_2_pb_4 &lt;dbl&gt;, sample_pd_2_pb_5 &lt;dbl&gt;,
+#   sample_pd_2_pb_6 &lt;dbl&gt;, sample_pd_2_pb_7 &lt;dbl&gt;, sample_pd_2_pb_8 &lt;dbl&gt;,
+#   sample_pd_2_pb_9 &lt;dbl&gt;, sample_pd_2_pb_10 &lt;dbl&gt;, sample_pd_2_pb_11 &lt;dbl&gt;,
+#   sample_pd_2_pb_12 &lt;dbl&gt;, sample_pd_2_pb_13 &lt;dbl&gt;, sample_pd_2_pb_14 &lt;dbl&gt;,
+#   sample_pd_2_pb_15 &lt;dbl&gt;, sample_pd_2_pb_16 &lt;dbl&gt;, sample_pd_2_pb_17 &lt;dbl&gt;,
+#   sample_pd_2_pb_18 &lt;dbl&gt;, sample_pd_2_pb_19 &lt;dbl&gt;, sample_pd_2_pb_20 &lt;dbl&gt;,
+#   sample_pd_2_pb_21 &lt;dbl&gt;, sample_pd_2_pb_22 &lt;dbl&gt;, …</code></pre>
 </div>
 </div>
-<p>Some of these vectorizations are parameter-free, but others rely on one or several hyperparameters.</p>
+<p>The code chunk uses the additional step <code>step_pd_degree()</code> to extract degree-specific layers from multi-degree persistence diagrams; in this case, we are interested in vectorizing only 2-dimensional features. Despite this, we must also specify the degree of the features we want in the persistence block step.</p>
 </section>
+</section>
+<section id="the-potential" class="level2">
+<h2 class="anchored" data-anchor-id="the-potential">The Potential</h2>
+<p>Many methods remain to be built into these tools, which will only reach their full potential through user feedback. Two issues in particular, <a href="https://github.com/uislambekov/TDAvec/issues/3">additional vectorizations</a> for {TDAvec} and <a href="https://github.com/tdaverse/tdarec/issues/2">additional engines</a> for {tdarec}, may remain open—or, ahem, persist—into the foreseeable future. We welcome bug reports, feature requests, and code contributions from the community!</p>
 </section>
 <section id="references" class="level2 unnumbered">
 
