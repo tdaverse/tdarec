@@ -84,8 +84,8 @@
 hyperparameters</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/tdaverse/tdarec/blob/HEAD/vignettes/hyperparameter-tuning.Rmd" class="external-link"><code>vignettes/hyperparameter-tuning.Rmd</code></a></small>
-      <div class="hidden name"><code>hyperparameter-tuning.Rmd</code></div>
+      <small class="dont-index">Source: <a href="https://github.com/tdaverse/tdarec/blob/HEAD/vignettes/hyperparameter-tuning-orig.Rmd" class="external-link"><code>vignettes/hyperparameter-tuning-orig.Rmd</code></a></small>
+      <div class="hidden name"><code>hyperparameter-tuning-orig.Rmd</code></div>
 
     </div>
 
@@ -99,6 +99,20 @@ will also illustrate how to tune model hyperparameters in the same
 workflow as those of the pre-processing recipe.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Attaching packages</span> ────────────────────────────────────── tidymodels 1.3.0 ──</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">broom       </span> 1.0.8     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">recipes     </span> 1.3.0</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dials       </span> 1.4.0     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">rsample     </span> 1.3.0</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">dplyr       </span> 1.1.4     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tibble      </span> 3.2.1</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">ggplot2     </span> 3.5.2     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tidyr       </span> 1.3.1</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">infer       </span> 1.0.8     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">tune        </span> 1.3.0</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">modeldata   </span> 1.4.0     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">workflows   </span> 1.2.0</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">parsnip     </span> 1.3.1     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">workflowsets</span> 1.1.0</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">purrr       </span> 1.0.4     <span style="color: #00BB00;">✔</span> <span style="color: #0000BB;">yardstick   </span> 1.3.2</span></span>
+<span><span class="co">#&gt; ── <span style="font-weight: bold;">Conflicts</span> ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">purrr</span>::<span style="color: #00BB00;">discard()</span> masks <span style="color: #0000BB;">scales</span>::discard()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">filter()</span>  masks <span style="color: #0000BB;">stats</span>::filter()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">dplyr</span>::<span style="color: #00BB00;">lag()</span>     masks <span style="color: #0000BB;">stats</span>::lag()</span></span>
+<span><span class="co">#&gt; <span style="color: #BB0000;">✖</span> <span style="color: #0000BB;">recipes</span>::<span style="color: #00BB00;">step()</span>  masks <span style="color: #0000BB;">stats</span>::step()</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tdaverse/tdarec" class="external-link">tdarec</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="cubical-persistent-homology">cubical persistent homology<a class="anchor" aria-label="anchor" href="#cubical-persistent-homology"></a>
@@ -128,9 +142,7 @@ caldera take the form of a 2-dimensional numeric array, with each cell
 containing the estimated elevation of a 100–square meter area:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/filled.contour.html" class="external-link">filled.contour</a></span><span class="op">(</span><span class="va">volcano</span>, color.palette <span class="op">=</span> <span class="va">terrain.colors</span>, asp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
-<div class="figure">
-<img src="vignette-volcano-1.png" alt=""><p class="caption">plot of chunk volcano</p>
-</div>
+<p><img src="vignette-volcano-1.png" width="672"></p>
 <p>This is a discretization of a height function from latitude and
 longitude
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mstyle mathvariant="double-struck"><mi>𝕊</mi></mstyle><mn>2</mn></msup><annotation encoding="application/x-tex">\mathbb{S}^2</annotation></semantics></math>,
@@ -164,9 +176,7 @@ each. For example, here are the first six digits, labeled
 <span>    xaxt <span class="op">=</span> <span class="st">"n"</span>, yaxt <span class="op">=</span> <span class="st">"n"</span>, asp <span class="op">=</span> <span class="fl">1</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<div class="figure">
-<img src="vignette-mnist-datum-1.png" alt=""><p class="caption">plot of chunk mnist-datum</p>
-</div>
+<p><img src="vignette-mnist-datum-1.png" width="672"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p>(That the digits are rotated from their usual orientation is not a
@@ -189,15 +199,15 @@ of the resulting model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="va">mnist_folds</span> <span class="op">&lt;-</span> <span class="fu">vfold_cv</span><span class="op">(</span><span class="va">mnist_train</span>, v <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; #  6-fold cross-validation </span></span>
-<span><span class="co">#&gt; # A tibble: 6 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
 <span><span class="co">#&gt;   splits            id   </span></span>
-<span><span class="co">#&gt;   &lt;list&gt;            &lt;chr&gt;</span></span>
-<span><span class="co">#&gt; 1 &lt;split [500/100]&gt; Fold1</span></span>
-<span><span class="co">#&gt; 2 &lt;split [500/100]&gt; Fold2</span></span>
-<span><span class="co">#&gt; 3 &lt;split [500/100]&gt; Fold3</span></span>
-<span><span class="co">#&gt; 4 &lt;split [500/100]&gt; Fold4</span></span>
-<span><span class="co">#&gt; 5 &lt;split [500/100]&gt; Fold5</span></span>
-<span><span class="co">#&gt; 6 &lt;split [500/100]&gt; Fold6</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold2</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold3</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold4</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold5</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> <span style="color: #949494;">&lt;split [500/100]&gt;</span> Fold6</span></span></code></pre></div>
 <p>For reference, we check the range of the values that populate the
 arrays:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -284,7 +294,7 @@ or after applying the blur.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_rec</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Recipe ──────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Recipe</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Inputs</span></span>
 <span><span class="co">#&gt; Number of variables by role</span></span>
@@ -292,9 +302,9 @@ or after applying the blur.</p>
 <span><span class="co">#&gt; image:   1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Operations</span></span>
-<span><span class="co">#&gt; • Gaussian blurring of: digit</span></span>
-<span><span class="co">#&gt; • persistent features from a cubical filtration of: digit</span></span>
-<span><span class="co">#&gt; • persistence landscape of: digit_pd</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Gaussian blurring of: <span style="color: #0000BB;">digit</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistent features from a cubical filtration of: <span style="color: #0000BB;">digit</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_pd</span></span></span></code></pre></div>
 <p>We can check directly whether our role assignments obtained as
 expected:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -302,7 +312,7 @@ expected:</p>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_prep</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Recipe ──────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Recipe</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Inputs</span></span>
 <span><span class="co">#&gt; Number of variables by role</span></span>
@@ -313,50 +323,50 @@ expected:</p>
 <span><span class="co">#&gt; Training data contained 600 data points and no incomplete rows.</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Operations</span></span>
-<span><span class="co">#&gt; • Gaussian blurring of: &lt;none&gt; | Trained</span></span>
-<span><span class="co">#&gt; • persistent features from a cubical filtration of: &lt;none&gt; | Trained</span></span>
-<span><span class="co">#&gt; • persistence landscape of: &lt;none&gt; | Trained</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Gaussian blurring of: <span style="color: #0000BB;">&lt;none&gt;</span> | <span style="font-style: italic;">Trained</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistent features from a cubical filtration of: <span style="color: #0000BB;">&lt;none&gt;</span> | <span style="font-style: italic;">Trained</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">&lt;none&gt;</span> | <span style="font-style: italic;">Trained</span></span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">mnist_prep</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 51 × 4</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 51 × 4</span></span></span>
 <span><span class="co">#&gt;    variable        type      role                source  </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;           &lt;list&gt;    &lt;chr&gt;               &lt;chr&gt;   </span></span>
-<span><span class="co">#&gt;  1 digit           &lt;chr [1]&gt; image               original</span></span>
-<span><span class="co">#&gt;  2 label           &lt;chr [3]&gt; outcome             original</span></span>
-<span><span class="co">#&gt;  3 digit_pd        &lt;chr [1]&gt; persistence diagram derived </span></span>
-<span><span class="co">#&gt;  4 digit_pd_pl_1_1 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt;  5 digit_pd_pl_1_2 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt;  6 digit_pd_pl_1_3 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt;  7 digit_pd_pl_1_4 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt;  8 digit_pd_pl_1_5 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt;  9 digit_pd_pl_1_6 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt; 10 digit_pd_pl_1_7 &lt;chr [2]&gt; predictor           derived </span></span>
-<span><span class="co">#&gt; # ℹ 41 more rows</span></span></code></pre></div>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> digit           <span style="color: #949494;">&lt;chr [1]&gt;</span> image               original</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> label           <span style="color: #949494;">&lt;chr [3]&gt;</span> outcome             original</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> digit_pd        <span style="color: #949494;">&lt;chr [1]&gt;</span> persistence diagram derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> digit_pd_pl_1_1 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> digit_pd_pl_1_2 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> digit_pd_pl_1_3 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> digit_pd_pl_1_4 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> digit_pd_pl_1_5 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> digit_pd_pl_1_6 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> digit_pd_pl_1_7 <span style="color: #949494;">&lt;chr [2]&gt;</span> predictor           derived </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 41 more rows</span></span></span></code></pre></div>
 <p>And we can inspect the result of applying the prepared recipe to the
 training data:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mnist_rec</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">mnist_train</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 600 × 51</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 600 × 51</span></span></span>
 <span><span class="co">#&gt;    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3</span></span>
-<span><span class="co">#&gt;    &lt;list&gt;   &lt;fct&gt; &lt;list&gt;                   &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 &lt;dbl[…]&gt; 1     &lt;PHom [7 × 3]&gt;               0               0            3.15</span></span>
-<span><span class="co">#&gt;  2 &lt;dbl[…]&gt; 6     &lt;PHom [4 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  3 &lt;dbl[…]&gt; 6     &lt;PHom [4 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  4 &lt;dbl[…]&gt; 2     &lt;PHom [6 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  5 &lt;dbl[…]&gt; 7     &lt;PHom [4 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  6 &lt;dbl[…]&gt; 9     &lt;PHom [4 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  7 &lt;dbl[…]&gt; 2     &lt;PHom [5 × 3]&gt;               0               0            5.49</span></span>
-<span><span class="co">#&gt;  8 &lt;dbl[…]&gt; 0     &lt;PHom [7 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt;  9 &lt;dbl[…]&gt; 4     &lt;PHom [5 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt; 10 &lt;dbl[…]&gt; 3     &lt;PHom [5 × 3]&gt;               0               0            0   </span></span>
-<span><span class="co">#&gt; # ℹ 590 more rows</span></span>
-<span><span class="co">#&gt; # ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></code></pre></div>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>               0               0            3.15</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            5.49</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [7 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [5 × 3]&gt;</span>               0               0            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="classification-forest">classification forest<a class="anchor" aria-label="anchor" href="#classification-forest"></a>
@@ -429,7 +439,7 @@ uniformly zero. To prevent this from derailing our workflow, we use the
 <span><span class="co">#&gt; Target node size:                 6 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.7829715</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.7845969</span></span></code></pre></div>
 <p>Note that the model, while not optimized for accuracy on the training
 set, is informed by it through the preparation process, in particular
 the default choice of blur parameter:</p>
@@ -446,40 +456,40 @@ get a sense of what errors are most common.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">mnist_rec</span><span class="op">)</span>, new_data <span class="op">=</span> <span class="va">mnist_test</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mnist_test</span>, <span class="va">label</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_pred</span></span>
-<span><span class="co">#&gt; # A tibble: 100 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 2</span></span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
-<span><span class="co">#&gt;    &lt;fct&gt;       &lt;fct&gt;</span></span>
-<span><span class="co">#&gt;  1 5           0    </span></span>
-<span><span class="co">#&gt;  2 4           1    </span></span>
-<span><span class="co">#&gt;  3 1           4    </span></span>
-<span><span class="co">#&gt;  4 4           1    </span></span>
-<span><span class="co">#&gt;  5 1           2    </span></span>
-<span><span class="co">#&gt;  6 2           0    </span></span>
-<span><span class="co">#&gt;  7 1           4    </span></span>
-<span><span class="co">#&gt;  8 6           9    </span></span>
-<span><span class="co">#&gt;  9 3           6    </span></span>
-<span><span class="co">#&gt; 10 5           0    </span></span>
-<span><span class="co">#&gt; # ℹ 90 more rows</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 4           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 1           4    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 4           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 1           2    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1           4    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 6           9    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 3           6    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 5           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt;          0 1 0 2 3 0 1 0 2 0 0</span></span>
-<span><span class="co">#&gt;          1 0 6 2 0 4 2 0 0 0 0</span></span>
-<span><span class="co">#&gt;          2 2 0 1 0 0 0 1 3 0 0</span></span>
-<span><span class="co">#&gt;          3 0 0 0 0 0 1 2 0 1 0</span></span>
-<span><span class="co">#&gt;          4 0 3 0 1 6 1 0 0 1 0</span></span>
-<span><span class="co">#&gt;          5 5 1 0 4 0 5 2 2 1 5</span></span>
-<span><span class="co">#&gt;          6 1 0 3 1 0 0 2 3 2 3</span></span>
-<span><span class="co">#&gt;          7 0 0 0 0 0 0 0 0 0 0</span></span>
-<span><span class="co">#&gt;          8 1 0 2 1 0 0 3 0 5 2</span></span>
-<span><span class="co">#&gt;          9 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;          0 2 0 3 4 0 0 1 2 0 0</span></span>
+<span><span class="co">#&gt;          1 0 5 1 0 4 2 0 0 0 0</span></span>
+<span><span class="co">#&gt;          2 0 0 0 0 0 0 0 0 0 0</span></span>
+<span><span class="co">#&gt;          3 0 0 0 1 0 1 2 0 3 0</span></span>
+<span><span class="co">#&gt;          4 0 3 1 1 6 1 0 0 1 0</span></span>
+<span><span class="co">#&gt;          5 2 1 0 3 0 4 2 1 1 0</span></span>
+<span><span class="co">#&gt;          6 2 0 5 0 0 0 4 3 4 5</span></span>
+<span><span class="co">#&gt;          7 3 1 0 0 0 2 0 1 0 5</span></span>
+<span><span class="co">#&gt;          8 0 0 0 1 0 0 1 0 1 0</span></span>
+<span><span class="co">#&gt;          9 1 0 0 0 0 0 0 3 0 0</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 accuracy multiclass      0.26</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass      0.24</span></span></code></pre></div>
 <p>The accuracy is poor but clearly better than chance. The confusion
 matrix suggests some reasons for the misclassifications, in that the
 most commonly confused digits are <em>not</em> those with the same
@@ -518,7 +528,7 @@ order.</p>
 <span>  <span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_rec</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ── Recipe ──────────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Recipe</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Inputs</span></span>
 <span><span class="co">#&gt; Number of variables by role</span></span>
@@ -526,9 +536,9 @@ order.</p>
 <span><span class="co">#&gt; image:   1</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Operations</span></span>
-<span><span class="co">#&gt; • Gaussian blurring of: digit</span></span>
-<span><span class="co">#&gt; • persistent features from a cubical filtration of: digit</span></span>
-<span><span class="co">#&gt; • persistence landscape of: digit_pd</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> Gaussian blurring of: <span style="color: #0000BB;">digit</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistent features from a cubical filtration of: <span style="color: #0000BB;">digit</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">•</span> persistence landscape of: <span style="color: #0000BB;">digit_pd</span></span></span></code></pre></div>
 <p>This recipe has three tunable parameters, as we can verify by
 extracting their dials:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
@@ -560,26 +570,26 @@ tuning purposes:</p>
 <span>  <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="va">mnist_train</span><span class="op">)</span> <span class="op">-&gt;</span></span>
 <span>  <span class="va">mnist_bake</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">mnist_bake</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 600 × 51</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 600 × 51</span></span></span>
 <span><span class="co">#&gt;    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3</span></span>
-<span><span class="co">#&gt;    &lt;list&gt;   &lt;fct&gt; &lt;list&gt;                   &lt;dbl&gt;           &lt;dbl&gt;           &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 &lt;dbl[…]&gt; 1     &lt;PHom [6 × 3]&gt;               0            5.19            0   </span></span>
-<span><span class="co">#&gt;  2 &lt;dbl[…]&gt; 6     &lt;PHom [4 × 3]&gt;               0            0               3.85</span></span>
-<span><span class="co">#&gt;  3 &lt;dbl[…]&gt; 6     &lt;PHom [4 × 3]&gt;               0            0              15.2 </span></span>
-<span><span class="co">#&gt;  4 &lt;dbl[…]&gt; 2     &lt;PHom [4 × 3]&gt;               0            0               0   </span></span>
-<span><span class="co">#&gt;  5 &lt;dbl[…]&gt; 7     &lt;PHom [4 × 3]&gt;               0            0               5.33</span></span>
-<span><span class="co">#&gt;  6 &lt;dbl[…]&gt; 9     &lt;PHom [4 × 3]&gt;               0            0               7.97</span></span>
-<span><span class="co">#&gt;  7 &lt;dbl[…]&gt; 2     &lt;PHom [4 × 3]&gt;               0            0               6.87</span></span>
-<span><span class="co">#&gt;  8 &lt;dbl[…]&gt; 0     &lt;PHom [4 × 3]&gt;               0            0               9.98</span></span>
-<span><span class="co">#&gt;  9 &lt;dbl[…]&gt; 4     &lt;PHom [4 × 3]&gt;               0            0               5.14</span></span>
-<span><span class="co">#&gt; 10 &lt;dbl[…]&gt; 3     &lt;PHom [4 × 3]&gt;               0            0              11.1 </span></span>
-<span><span class="co">#&gt; # ℹ 590 more rows</span></span>
-<span><span class="co">#&gt; # ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span>
-<span><span class="co">#&gt; #   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></code></pre></div>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 1     <span style="color: #949494;">&lt;PHom [6 × 3]&gt;</span>               0            5.19            0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               3.85</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 6     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0              15.2 </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               0   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 7     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               5.33</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 9     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               7.97</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 2     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               6.87</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 0     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               9.98</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 4     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0               5.14</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> <span style="color: #949494;">&lt;dbl[…]&gt;</span> 3     <span style="color: #949494;">&lt;PHom [4 × 3]&gt;</span>               0            0              11.1 </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 45 more variables: digit_pd_pl_1_4 &lt;dbl&gt;, digit_pd_pl_1_5 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_6 &lt;dbl&gt;, digit_pd_pl_1_7 &lt;dbl&gt;, digit_pd_pl_1_8 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_9 &lt;dbl&gt;, digit_pd_pl_1_10 &lt;dbl&gt;, digit_pd_pl_1_11 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_12 &lt;dbl&gt;, digit_pd_pl_1_13 &lt;dbl&gt;, digit_pd_pl_1_14 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_1_15 &lt;dbl&gt;, digit_pd_pl_1_16 &lt;dbl&gt;, digit_pd_pl_2_1 &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   digit_pd_pl_2_2 &lt;dbl&gt;, digit_pd_pl_2_3 &lt;dbl&gt;, digit_pd_pl_2_4 &lt;dbl&gt;, …</span></span></span></code></pre></div>
 <p>We use the input <code>digit</code> column to finalize the range of
 blurs and the derived <code>digit_pd</code> column to finalize the range
 of homological degree. We expect the important topological features of
@@ -665,8 +675,8 @@ a workflow:</p>
 <span>  <span class="fu">add_model</span><span class="op">(</span><span class="va">mnist_spec</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_wflow</span></span>
 <span><span class="co">#&gt; ══ Workflow ════════════════════════════════════════════════════════════════════</span></span>
-<span><span class="co">#&gt; Preprocessor: Recipe</span></span>
-<span><span class="co">#&gt; Model: rand_forest()</span></span>
+<span><span class="co">#&gt; <span style="font-style: italic;">Preprocessor:</span> Recipe</span></span>
+<span><span class="co">#&gt; <span style="font-style: italic;">Model:</span> rand_forest()</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ── Preprocessor ────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; 3 Recipe Steps</span></span>
@@ -737,66 +747,43 @@ the finalized ranges:</p>
 <p>The tuning syntax is similar to that of the grid search, but in place
 of the grid we only provide the updated dials. We specify 6 initial
 seeds with 12 tuning iterations each.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>mnist_res <span class="ot">&lt;-</span> <span class="fu">tune_bayes</span>(</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  mnist_wflow,</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> mnist_folds,</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_info =</span> wflow_dials,</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">metrics =</span> <span class="fu">metric_set</span>(accuracy, roc_auc),</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">initial =</span> <span class="dv">6</span>, <span class="at">iter =</span> <span class="dv">12</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; → A | warning: ! 19 columns were requested but there were 16 predictors in the data.</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                ℹ 16 predictors will be used.</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x1 [K</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a> [K→ B <span class="sc">|</span> warning<span class="sc">:</span> <span class="sc">!</span> <span class="dv">48</span> columns were requested but there were <span class="dv">32</span> predictors <span class="cf">in</span> the data.</span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                ℹ 32 predictors will be used.</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; There were issues with some computations   A: x1</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x1   B<span class="sc">:</span> x1 [K</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a> [K→ C <span class="sc">|</span> warning<span class="sc">:</span> <span class="sc">!</span> <span class="dv">38</span> columns were requested but there were <span class="dv">16</span> predictors <span class="cf">in</span> the data.</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                ℹ 16 predictors will be used.</span></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; There were issues with some computations   A: x1   B: x1</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x1   B<span class="sc">:</span> x1   C<span class="sc">:</span> x1 [K</span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x2   B<span class="sc">:</span> x1   C<span class="sc">:</span> x1 [K</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x2   B<span class="sc">:</span> x2   C<span class="sc">:</span> x1 [K</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x2   B<span class="sc">:</span> x2   C<span class="sc">:</span> x2 [K</span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x3   B<span class="sc">:</span> x2   C<span class="sc">:</span> x2 [K</span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-33"><a href="#cb26-33" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x3   B<span class="sc">:</span> x3   C<span class="sc">:</span> x2 [K</span>
-<span id="cb26-34"><a href="#cb26-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-35"><a href="#cb26-35" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x3   B<span class="sc">:</span> x3   C<span class="sc">:</span> x3 [K</span>
-<span id="cb26-36"><a href="#cb26-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-37"><a href="#cb26-37" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x4   B<span class="sc">:</span> x3   C<span class="sc">:</span> x3 [K</span>
-<span id="cb26-38"><a href="#cb26-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-39"><a href="#cb26-39" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x4   B<span class="sc">:</span> x4   C<span class="sc">:</span> x3 [K</span>
-<span id="cb26-40"><a href="#cb26-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-41"><a href="#cb26-41" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x4   B<span class="sc">:</span> x4   C<span class="sc">:</span> x4 [K</span>
-<span id="cb26-42"><a href="#cb26-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-43"><a href="#cb26-43" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x5   B<span class="sc">:</span> x4   C<span class="sc">:</span> x4 [K</span>
-<span id="cb26-44"><a href="#cb26-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-45"><a href="#cb26-45" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x5   B<span class="sc">:</span> x5   C<span class="sc">:</span> x4 [K</span>
-<span id="cb26-46"><a href="#cb26-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-47"><a href="#cb26-47" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x5   B<span class="sc">:</span> x5   C<span class="sc">:</span> x5 [K</span>
-<span id="cb26-48"><a href="#cb26-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-49"><a href="#cb26-49" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x5   C<span class="sc">:</span> x5 [K</span>
-<span id="cb26-50"><a href="#cb26-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-51"><a href="#cb26-51" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x6   C<span class="sc">:</span> x5 [K</span>
-<span id="cb26-52"><a href="#cb26-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-53"><a href="#cb26-53" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x6   C<span class="sc">:</span> x6 [K</span>
-<span id="cb26-54"><a href="#cb26-54" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span> The Gaussian process model is being fit using <span class="dv">5</span> features but only has <span class="dv">6</span></span>
-<span id="cb26-55"><a href="#cb26-55" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   data points to do so. This may cause errors or a poor model fit.</span></span>
-<span id="cb26-56"><a href="#cb26-56" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb26-57"><a href="#cb26-57" aria-hidden="true" tabindex="-1"></a> [K<span class="sc">!</span> No improvement <span class="cf">for</span> <span class="dv">10</span> iterations; returning current results.</span>
-<span id="cb26-58"><a href="#cb26-58" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; There were issues with some computations   A: x6   B: x6   C: x6</span></span>
-<span id="cb26-59"><a href="#cb26-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-60"><a href="#cb26-60" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x6   C<span class="sc">:</span> x6 [K</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">mnist_res</span> <span class="op">&lt;-</span> <span class="fu">tune_bayes</span><span class="op">(</span></span>
+<span>  <span class="va">mnist_wflow</span>,</span>
+<span>  resamples <span class="op">=</span> <span class="va">mnist_folds</span>,</span>
+<span>  param_info <span class="op">=</span> <span class="va">wflow_dials</span>,</span>
+<span>  metrics <span class="op">=</span> <span class="fu">metric_set</span><span class="op">(</span><span class="va">accuracy</span>, <span class="va">roc_auc</span><span class="op">)</span>,</span>
+<span>  initial <span class="op">=</span> <span class="fl">6</span>, iter <span class="op">=</span> <span class="fl">12</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">A</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 19 columns were requested but there were 16 predictors in the data.</span></span>
+<span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 16 predictors will be used.</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1</span></span>
+<span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">B</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 48 columns were requested but there were 32 predictors in the data.</span></span>
+<span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 32 predictors will be used.</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1</span></span>
+<span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">C</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 38 columns were requested but there were 16 predictors in the data.</span></span>
+<span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 16 predictors will be used.</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x1   <span style="color: #BBBB00; font-weight: bold;">B</span>: x1   <span style="color: #BBBB00; font-weight: bold;">C</span>: x1</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x2   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x1</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x2   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x2</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x3   <span style="color: #BBBB00; font-weight: bold;">B</span>: x2   <span style="color: #BBBB00; font-weight: bold;">C</span>: x2</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x3   <span style="color: #BBBB00; font-weight: bold;">B</span>: x3   <span style="color: #BBBB00; font-weight: bold;">C</span>: x2</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x3   <span style="color: #BBBB00; font-weight: bold;">B</span>: x3   <span style="color: #BBBB00; font-weight: bold;">C</span>: x3</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x4   <span style="color: #BBBB00; font-weight: bold;">B</span>: x4   <span style="color: #BBBB00; font-weight: bold;">C</span>: x3</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x4   <span style="color: #BBBB00; font-weight: bold;">B</span>: x4   <span style="color: #BBBB00; font-weight: bold;">C</span>: x4</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x5   <span style="color: #BBBB00; font-weight: bold;">B</span>: x4   <span style="color: #BBBB00; font-weight: bold;">C</span>: x4</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x5   <span style="color: #BBBB00; font-weight: bold;">B</span>: x5   <span style="color: #BBBB00; font-weight: bold;">C</span>: x4</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x5   <span style="color: #BBBB00; font-weight: bold;">B</span>: x5   <span style="color: #BBBB00; font-weight: bold;">C</span>: x5</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x5</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6</span></span>
+<span><span class="co">#&gt; <span style="color: #BBBB00;">!</span> <span style="color: #BBBB00;">The Gaussian process model is being fit using 5 features but only has 6</span></span></span>
+<span><span class="co">#&gt;   <span style="color: #BBBB00;">data points to do so. This may cause errors or a poor model fit.</span></span></span>
+<span><span class="co">#&gt; → <span style="color: #BBBB00; font-weight: bold;">D</span> | <span style="color: #BBBB00;">warning</span>: <span style="color: #BBBB00;">!</span> 28 columns were requested but there were 16 predictors in the data.</span></span>
+<span><span class="co">#&gt;                <span style="color: #00BBBB;">ℹ</span> 16 predictors will be used.</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x1</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x4</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x6</span></span>
+<span><span class="co">#&gt; There were issues with some computations   <span style="color: #BBBB00; font-weight: bold;">A</span>: x6   <span style="color: #BBBB00; font-weight: bold;">B</span>: x6   <span style="color: #BBBB00; font-weight: bold;">C</span>: x6   <span style="color: #BBBB00; font-weight: bold;">D</span>: x6</span></span></code></pre></div>
 <p>Whereas in the previous section we fit only a single model, in this
 section we have obtained results for numerous hyperparameter settings
 and must choose among them for the final model. We first inspect the top
@@ -808,31 +795,33 @@ we use only the former to inform this choice.</p>
 <code class="sourceCode R"><span><span class="fu">collect_metrics</span><span class="op">(</span><span class="va">mnist_res</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.metric</span> <span class="op">==</span> <span class="st">"accuracy"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 16 × 12</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 18 × 12</span></span></span>
 <span><span class="co">#&gt;    blur_sd pl_deg pl_lev rf_pred rf_node .metric  .estimator  mean     n std_err</span></span>
-<span><span class="co">#&gt;      &lt;dbl&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1   4.50       0      3      10      32 accuracy multiclass 0.388     6 0.0101 </span></span>
-<span><span class="co">#&gt;  2   4.96       0      3      27      13 accuracy multiclass 0.375     6 0.0138 </span></span>
-<span><span class="co">#&gt;  3   4.91       0      3      24      39 accuracy multiclass 0.37      6 0.00730</span></span>
-<span><span class="co">#&gt;  4   5.12       0      3       6      27 accuracy multiclass 0.35      6 0.0106 </span></span>
-<span><span class="co">#&gt;  5   0.746      0      1       1       6 accuracy multiclass 0.342     6 0.0220 </span></span>
-<span><span class="co">#&gt;  6   3.77       0      3       8      28 accuracy multiclass 0.337     6 0.0136 </span></span>
-<span><span class="co">#&gt;  7   0.655      0      1      19      17 accuracy multiclass 0.335     6 0.0229 </span></span>
-<span><span class="co">#&gt;  8   6.80       0      3       6      34 accuracy multiclass 0.323     6 0.0143 </span></span>
-<span><span class="co">#&gt;  9   4.66       0      3       2       5 accuracy multiclass 0.322     6 0.0180 </span></span>
-<span><span class="co">#&gt; 10   2.72       0      2      25      39 accuracy multiclass 0.302     6 0.0243 </span></span>
-<span><span class="co">#&gt; 11   4.99       1      3      28      15 accuracy multiclass 0.3       6 0.0169 </span></span>
-<span><span class="co">#&gt; 12   2.68       1      2      48      40 accuracy multiclass 0.293     6 0.0209 </span></span>
-<span><span class="co">#&gt; 13   4.85       1      3       4      40 accuracy multiclass 0.265     6 0.0225 </span></span>
-<span><span class="co">#&gt; 14   1.47       1      3      29       2 accuracy multiclass 0.223     6 0.0216 </span></span>
-<span><span class="co">#&gt; 15   7.20       1      2       1      24 accuracy multiclass 0.182     6 0.0230 </span></span>
-<span><span class="co">#&gt; 16  11.2        0      1      38       9 accuracy multiclass 0.17      6 0.00365</span></span>
-<span><span class="co">#&gt; # ℹ 2 more variables: .config &lt;chr&gt;, .iter &lt;int&gt;</span></span>
+<span><span class="co">#&gt;      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span>   0.670      0      2       2      15 accuracy multiclass 0.412     6 0.012<span style="text-decoration: underline;">5</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span>   4.87       0      3      20      39 accuracy multiclass 0.41      6 0.015<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span>   4.50       0      3      10      32 accuracy multiclass 0.388     6 0.007<span style="text-decoration: underline;">03</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span>   5.42       0      3      11      17 accuracy multiclass 0.383     6 0.012<span style="text-decoration: underline;">8</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span>   4.55       0      3      32       3 accuracy multiclass 0.383     6 0.018<span style="text-decoration: underline;">2</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span>   5.25       0      3      33      39 accuracy multiclass 0.373     6 0.013<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span>   0.690      0      1      12      22 accuracy multiclass 0.36      6 0.019<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span>   0.914      0      1       1       7 accuracy multiclass 0.357     6 0.012<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span>   0.655      0      1      19      17 accuracy multiclass 0.352     6 0.019<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span>   3.98       0      3       6       6 accuracy multiclass 0.333     6 0.005<span style="text-decoration: underline;">58</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span>   4.81       1      3      48      39 accuracy multiclass 0.303     6 0.017<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span>   4.09       1      2       3      38 accuracy multiclass 0.282     6 0.019<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span>   2.68       1      2      48      40 accuracy multiclass 0.267     6 0.019<span style="text-decoration: underline;">1</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span>   2.43       0      3       3      40 accuracy multiclass 0.248     6 0.007<span style="text-decoration: underline;">03</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span>   5.10       0      1      28      40 accuracy multiclass 0.238     6 0.020<span style="text-decoration: underline;">9</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span>   1.47       1      3      29       2 accuracy multiclass 0.212     6 0.017<span style="text-decoration: underline;">6</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span>   7.20       1      2       1      24 accuracy multiclass 0.158     6 0.018<span style="text-decoration: underline;">0</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span>  11.2        0      1      38       9 accuracy multiclass 0.153     6 0.017<span style="text-decoration: underline;">3</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: .config &lt;chr&gt;, .iter &lt;int&gt;</span></span></span>
 <span><span class="op">(</span><span class="va">mnist_best</span> <span class="op">&lt;-</span> <span class="fu">select_best</span><span class="op">(</span><span class="va">mnist_res</span>, metric <span class="op">=</span> <span class="st">"accuracy"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 6</span></span>
-<span><span class="co">#&gt;   blur_sd pl_deg pl_lev rf_pred rf_node .config             </span></span>
-<span><span class="co">#&gt;     &lt;dbl&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;               </span></span>
-<span><span class="co">#&gt; 1    4.50      0      3      10      32 Preprocessor4_Model1</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 6</span></span></span>
+<span><span class="co">#&gt;   blur_sd pl_deg pl_lev rf_pred rf_node .config</span></span>
+<span><span class="co">#&gt;     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>   0.670      0      2       2      15 Iter12</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="fitting-and-evaluation-1">fitting and evaluation<a class="anchor" aria-label="anchor" href="#fitting-and-evaluation-1"></a>
@@ -851,17 +840,17 @@ we use only the former to inform this choice.</p>
 <span><span class="co">#&gt; Ranger result</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~10L,      x), num.trees = ~300, min.node.size = min_rows(~32L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
+<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~2L,      x), num.trees = ~300, min.node.size = min_rows(~15L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Type:                             Probability estimation </span></span>
 <span><span class="co">#&gt; Number of trees:                  300 </span></span>
 <span><span class="co">#&gt; Sample size:                      600 </span></span>
-<span><span class="co">#&gt; Number of independent variables:  48 </span></span>
-<span><span class="co">#&gt; Mtry:                             10 </span></span>
-<span><span class="co">#&gt; Target node size:                 32 </span></span>
+<span><span class="co">#&gt; Number of independent variables:  32 </span></span>
+<span><span class="co">#&gt; Mtry:                             2 </span></span>
+<span><span class="co">#&gt; Target node size:                 15 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.648305</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.5821558</span></span></code></pre></div>
 <p>The resulting RF correctly classifies roughly half of the images “out
 of bag”—not great, but much better than the model using intuited
 hyperparameter values (and than pure chance). (Note also that the
@@ -873,40 +862,40 @@ the sources of error:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">mnist_fin</span>, new_data <span class="op">=</span> <span class="va">mnist_train</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mnist_train</span>, <span class="va">label</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_pred</span></span>
-<span><span class="co">#&gt; # A tibble: 600 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 600 × 2</span></span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
-<span><span class="co">#&gt;    &lt;fct&gt;       &lt;fct&gt;</span></span>
-<span><span class="co">#&gt;  1 1           1    </span></span>
-<span><span class="co">#&gt;  2 6           6    </span></span>
-<span><span class="co">#&gt;  3 9           6    </span></span>
-<span><span class="co">#&gt;  4 0           2    </span></span>
-<span><span class="co">#&gt;  5 3           7    </span></span>
-<span><span class="co">#&gt;  6 9           9    </span></span>
-<span><span class="co">#&gt;  7 4           2    </span></span>
-<span><span class="co">#&gt;  8 6           0    </span></span>
-<span><span class="co">#&gt;  9 4           4    </span></span>
-<span><span class="co">#&gt; 10 9           3    </span></span>
-<span><span class="co">#&gt; # ℹ 590 more rows</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 6           6    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 6           6    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 6           2    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 3           7    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 9           9    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 2           2    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 0           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 4           4    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 7           3    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 590 more rows</span></span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction  0  1  2  3  4  5  6  7  8  9</span></span>
-<span><span class="co">#&gt;          0 42  0  2  2  1  0  7  2  3  0</span></span>
-<span><span class="co">#&gt;          1  0 52  3  1  9  4  3  4  3  3</span></span>
-<span><span class="co">#&gt;          2  5  0 28  2  0  3  2  3  1  1</span></span>
-<span><span class="co">#&gt;          3  3  0  9 43  1  8  4  5 11  3</span></span>
-<span><span class="co">#&gt;          4  3  0  6  0 38  7  5  4  1  4</span></span>
-<span><span class="co">#&gt;          5  1  0  7  4  1 34  1  2  8  0</span></span>
-<span><span class="co">#&gt;          6  2  0  2  1  4  0 26  3  0  7</span></span>
-<span><span class="co">#&gt;          7  3  0  2  1  0  1  3 24  1  4</span></span>
-<span><span class="co">#&gt;          8  0  0  0  4  0  0  0  0 29  1</span></span>
-<span><span class="co">#&gt;          9  1  8  1  2  6  3  9 13  3 37</span></span>
+<span><span class="co">#&gt;          0 52  0  0  2  0  1  2  0  0  3</span></span>
+<span><span class="co">#&gt;          1  0 54  4  6  8 13  3 20  0  2</span></span>
+<span><span class="co">#&gt;          2  0  0 20  0  0  0  0  0  0  1</span></span>
+<span><span class="co">#&gt;          3  0  2  5 24  6  9  1  4  0  1</span></span>
+<span><span class="co">#&gt;          4  0  0  5  2 24  5  1  5  0  0</span></span>
+<span><span class="co">#&gt;          5  1  1  7 12 11 27  1 11  0  1</span></span>
+<span><span class="co">#&gt;          6  2  0  7  0  4  0 43  0  3  3</span></span>
+<span><span class="co">#&gt;          7  0  3  7 14  6  4  3 20  0  0</span></span>
+<span><span class="co">#&gt;          8  2  0  1  0  0  0  1  0 52  1</span></span>
+<span><span class="co">#&gt;          9  3  0  4  0  1  1  5  0  5 48</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 accuracy multiclass     0.588</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass     0.607</span></span></code></pre></div>
 <p>Among the most-confused digits in previous runs of these experiments
 are
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
@@ -930,40 +919,40 @@ data from the original partition.</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span>new_data <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">mnist_fin</span>, new_data <span class="op">=</span> <span class="va">mnist_test</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_cols.html" class="external-link">bind_cols</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mnist_test</span>, <span class="va">label</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">mnist_pred</span></span>
-<span><span class="co">#&gt; # A tibble: 100 × 2</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 100 × 2</span></span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
-<span><span class="co">#&gt;    &lt;fct&gt;       &lt;fct&gt;</span></span>
-<span><span class="co">#&gt;  1 2           0    </span></span>
-<span><span class="co">#&gt;  2 9           1    </span></span>
-<span><span class="co">#&gt;  3 4           4    </span></span>
-<span><span class="co">#&gt;  4 1           1    </span></span>
-<span><span class="co">#&gt;  5 1           2    </span></span>
-<span><span class="co">#&gt;  6 0           0    </span></span>
-<span><span class="co">#&gt;  7 1           4    </span></span>
-<span><span class="co">#&gt;  8 9           9    </span></span>
-<span><span class="co">#&gt;  9 7           6    </span></span>
-<span><span class="co">#&gt; 10 0           0    </span></span>
-<span><span class="co">#&gt; # ℹ 90 more rows</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 5           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> 1           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> 4           4    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> 1           1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> 6           2    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> 0           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> 1           4    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> 9           9    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> 6           6    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 0           0    </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 90 more rows</span></span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt;          0 7 0 2 0 0 0 1 1 3 0</span></span>
-<span><span class="co">#&gt;          1 0 8 1 0 3 0 0 0 0 1</span></span>
-<span><span class="co">#&gt;          2 1 0 2 1 2 2 0 4 0 1</span></span>
-<span><span class="co">#&gt;          3 0 0 3 5 0 4 2 0 3 0</span></span>
-<span><span class="co">#&gt;          4 0 0 0 0 5 2 0 0 1 0</span></span>
-<span><span class="co">#&gt;          5 0 0 2 2 0 0 0 1 1 0</span></span>
-<span><span class="co">#&gt;          6 0 0 0 1 0 1 0 1 0 1</span></span>
-<span><span class="co">#&gt;          7 0 0 0 0 0 0 3 2 0 0</span></span>
-<span><span class="co">#&gt;          8 0 0 0 1 0 0 0 0 2 0</span></span>
-<span><span class="co">#&gt;          9 2 2 0 0 0 1 4 1 0 7</span></span>
+<span><span class="co">#&gt;          0 7 0 0 0 0 0 1 0 0 0</span></span>
+<span><span class="co">#&gt;          1 0 8 1 5 2 1 0 4 0 0</span></span>
+<span><span class="co">#&gt;          2 0 0 2 1 0 0 3 0 0 0</span></span>
+<span><span class="co">#&gt;          3 0 0 0 3 1 3 2 1 0 1</span></span>
+<span><span class="co">#&gt;          4 0 0 0 0 3 1 0 0 1 0</span></span>
+<span><span class="co">#&gt;          5 1 0 2 1 1 2 0 4 0 0</span></span>
+<span><span class="co">#&gt;          6 0 0 4 0 1 0 3 0 0 2</span></span>
+<span><span class="co">#&gt;          7 0 2 0 0 2 2 0 1 0 0</span></span>
+<span><span class="co">#&gt;          8 0 0 0 0 0 0 0 0 9 0</span></span>
+<span><span class="co">#&gt;          9 2 0 1 0 0 1 1 0 0 7</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 3</span></span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 accuracy multiclass      0.38</span></span></code></pre></div>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> accuracy multiclass      0.45</span></span></code></pre></div>
 <p>Some patterns in the training set hold up, though others don’t, and
 some frequent confusion pairings are new. The accuracy is significantly
 lower than on the training set—a reminder of the importance of
