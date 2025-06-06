@@ -7,7 +7,7 @@
 ^README\.Rmd$
 ^CODE_OF_CONDUCT\.md$
 ^man-roxygen$
-^vignettes/.*-orig\.Rmd$
+^vignettes/\_.*\.Rmd$
 ^vignettes/figure$
 ^pre-generate$
 ^pre-compile$
