@@ -57,12 +57,10 @@ recipe step that will separate data sets of persistent pairs by homological
 degree. The input and output must be list-columns.
 }
 \details{
-Additional details...
-
-The \code{hom_degrees} argument sets the homological degrees for which to return
-new list-columns. If not \code{NULL} (the default), it is intersected with the
-degrees found in any specified columns of the training data; otherwise all
-found degrees are used. This parameter cannot be tuned.
+The \code{hom_degrees} argument sets the homological degrees for which to
+return new list-columns. If not \code{NULL} (the default), it is intersected
+with the degrees found in any specified columns of the training data;
+otherwise all found degrees are used. This parameter cannot be tuned.
 }
 \examples{
 dat <- data.frame(

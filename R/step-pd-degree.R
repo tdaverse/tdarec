@@ -4,13 +4,11 @@
 #'   recipe step that will separate data sets of persistent pairs by homological
 #'   degree. The input and output must be list-columns.
 #'
-#' @details Additional details...
-#'
-#'   The `hom_degrees` argument sets the homological degrees for which to return
-#'   new list-columns. If not `NULL` (the default), it is intersected with the
-#'   degrees found in any specified columns of the training data; otherwise all
-#'   found degrees are used. This parameter cannot be tuned.
-#'
+#' @details The `hom_degrees` argument sets the homological degrees for which to
+#'   return new list-columns. If not `NULL` (the default), it is intersected
+#'   with the degrees found in any specified columns of the training data;
+#'   otherwise all found degrees are used. This parameter cannot be tuned.
+#' 
 
 #' @import recipes
 #' @importFrom dials new_quant_param unknown
