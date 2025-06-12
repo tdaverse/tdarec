@@ -8,6 +8,7 @@
 #' @name tdarec
 #' @importFrom rlang on_load run_on_load
 #' @importFrom dials new_qual_param new_quant_param unknown
+#' @keywords internal
 "_PACKAGE"
 
 #' @importFrom rlang "%||%"

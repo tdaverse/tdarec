@@ -1,0 +1,50 @@
+url: ~
+template:
+  bootstrap: 5
+  light-switch: true
+
+reference:
+- title: "'tdarec' package"
+  desc: >
+    A 'recipes' and 'dials' extension for persistent homology and its
+    vectorizations.
+  contents:
+  - '`tdarec`'
+- title: Data sets
+  desc: >
+    Data sets provided to illustrate pre-processing steps.
+  contents:
+  - "`mnist`"
+- title: Recipe steps to precede persistent homology
+  desc: >
+    Functions that specify pre-processing steps
+    to prepare data sets for persistent homology.
+  contents:
+  - "`step_blur`"
+- title: Recipe steps to compute persistent homology
+  desc: >
+    Functions that specify pre-processing steps
+    to compute persistent homology of data sets.
+  contents:
+  - starts_with("step_pd_")
+- title: Recipe steps to vectorize persistent homology
+  desc: >
+    Functions that specify pre-processing steps
+    to vectorize persistent homology.
+  contents:
+  - starts_with("step_vpd_")
+- title: Dials for the recipe steps
+  desc: >
+    Dials to control the tunable parameters of pre-processing steps.
+  contents:
+  - "`blur_sigmas`"
+  - "vpd-dials"
+- title: Summarize data and finalize parameters
+  desc: >
+    Helper functions to summarize topological data and
+    finalizers for topological transformation parameters.
+  contents:
+  - "`blur`"
+  - "vpd-summarizers"
+  - "`get_blur_range`"
+  - "vpd-finalizers"
