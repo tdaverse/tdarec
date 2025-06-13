@@ -717,7 +717,10 @@ test_param_vals <- c(
   img_sigma = 10,
   num_levels = 3L,
   dist_power = 2,
-  block_size = .5
+  block_size = .5,
+  tent_size = 1000L,
+  num_bins = 5L,
+  tent_shift = 100L
 )
 
 # rm appropriate lines from template (as vector of character strings)
@@ -757,7 +760,7 @@ for (fn in tdavec_functions$name) {
     strsplit("\\|") |> unlist() |> unname() |> 
     intersect(param_tuners) |> deparse()
   
-  glue::glue("tests/testthat/{build_prefix}-test-step-vpd-{fn_hname}.R") |> 
+  glue::glue("tests/testthat/test-{build_prefix}-step-vpd-{fn_hname}.R") |> 
     here::here() ->
     test_file
   cat(build_warning, file = test_file, append = FALSE)

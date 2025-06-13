@@ -17,7 +17,7 @@ test_that("`step_vpd_tent_template_functions()` agrees with raw function", {
   pl_rec <- dist_rec |> 
     step_vpd_tent_template_functions(
       everything(),
-      hom_degree = 0,
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
       keep_original_cols = FALSE
     )
   
@@ -29,7 +29,7 @@ test_that("`step_vpd_tent_template_functions()` agrees with raw function", {
   pl_exp <- dist_test$dist[[1L]] |> 
     ripserr::vietoris_rips() |> as.matrix() |> 
     TDAvec::computeTemplateFunction(
-      homDim = 0
+      homDim = 0, delta = 1000, d = 5, epsilon = 100
     ) |> 
     as.vector()
   
