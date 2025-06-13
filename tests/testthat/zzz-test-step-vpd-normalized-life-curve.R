@@ -9,7 +9,7 @@ dist_test <- data.frame(
   dist = I(list(UScitiesD))
 )
 dist_rec <- recipe(~ ., data = dist_train) |> 
-  step_phom_point_cloud(everything(), keep_original_cols = FALSE)
+  step_pd_point_cloud(everything(), keep_original_cols = FALSE)
 scale_seq <- seq(0, 5000, 100)
 
 test_that("`step_vpd_normalized_life_curve()` agrees with raw function", {
