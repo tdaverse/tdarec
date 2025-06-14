@@ -486,9 +486,11 @@ build_bake <- function(fn) {
     "    vph_data[[paste(col_name, \"{fn_abbr}\", sep = \"_\")]] <- col_vpd\n",
     "  }}\n",
     # unnest data-framed matrices to ensure commensurate columns
+    "  vph_col_names <- if (length(col_names) == 0L) col_names else\n",
+    "    paste(col_names, \"{fn_abbr}\", sep = \"_\")\n",
     "  vph_data <- tidyr::unnest(\n",
     "    vph_data,\n",
-    "    cols = tidyr::all_of(paste(col_names, \"{fn_abbr}\", sep = \"_\")),\n",
+    "    cols = tidyr::all_of(vph_col_names),\n",
     "    names_sep = \"_\"\n",
     "  )\n",
     "  \n",

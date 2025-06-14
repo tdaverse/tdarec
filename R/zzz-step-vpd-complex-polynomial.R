@@ -150,9 +150,11 @@ bake.step_vpd_complex_polynomial <- function(object, new_data, ...) {
     )
     vph_data[[paste(col_name, "cp", sep = "_")]] <- col_vpd
   }
+  vph_col_names <- if (length(col_names) == 0L) col_names else
+    paste(col_names, "cp", sep = "_")
   vph_data <- tidyr::unnest(
     vph_data,
-    cols = tidyr::all_of(paste(col_names, "cp", sep = "_")),
+    cols = tidyr::all_of(vph_col_names),
     names_sep = "_"
   )
   

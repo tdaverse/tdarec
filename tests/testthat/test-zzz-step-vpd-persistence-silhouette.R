@@ -3,20 +3,22 @@
 # ------------------------------------------------------------------------------
 
 dist_train <- data.frame(
+  pins = "cities",
   dist = I(list(eurodist))
 )
 dist_test <- data.frame(
+  pins = "cities",
   dist = I(list(UScitiesD))
 )
 dist_rec <- recipe(~ ., data = dist_train) |> 
-  step_pd_point_cloud(everything(), keep_original_cols = FALSE)
+  step_pd_point_cloud(dist, keep_original_cols = FALSE)
 scale_seq <- seq(0, 5000, 100)
 
 test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_persistence_silhouette(
-      everything(),
+      dist_pd,
       xseq = scale_seq,
       hom_degree = 0,
       keep_original_cols = FALSE
@@ -25,6 +27,7 @@ test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
   vpd_prep <- prep(vpd_rec, training = dist_train)
   
   vpd_pred <- bake(vpd_prep, new_data = dist_test) |> 
+    select(-pins) |> 
     unlist() |> unname()
   
   vpd_exp <- dist_test$dist[[1L]] |> 
@@ -41,7 +44,7 @@ test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
 test_that("`tunable()` returns standard names", {
   
   vpd_rec <- dist_rec |> 
-    step_vpd_persistence_silhouette(everything(), keep_original_cols = FALSE)
+    step_vpd_persistence_silhouette(dist_pd, keep_original_cols = FALSE)
   tun <- tunable(vpd_rec$steps[[2]])
   
   expect_equal(
@@ -54,4 +57,121 @@ test_that("`tunable()` returns standard names", {
   )
   expect_equal(unique(tun$source), "recipe")
   expect_true(is.list(tun$call_info))
+})
+
+# infrastructure tests
+# prompted by issue #14
+
+test_that("recipe and preparation printing is consistent", {
+  vpd_rec <- dist_rec |>
+    step_vpd_persistence_silhouette(
+      dist_pd,
+      xseq = scale_seq,
+      hom_degree = 0,
+      keep_original_cols = FALSE
+    )
+  
+  expect_snapshot(print(vpd_rec))
+  expect_snapshot(prep(vpd_rec))
+})
+
+test_that("data with 0 or 1 rows works with `bake()` method", {
+  skip(message = "Revisit after addressing #19.")
+  
+  vpd_prep <- dist_rec |> 
+    step_vpd_persistence_silhouette(
+      dist_pd,
+      xseq = scale_seq,
+      hom_degree = 0,
+      keep_original_cols = FALSE
+    ) |> 
+    prep()
+  
+  expect_identical(
+    nrow(bake(vpd_prep, slice(dist_train, 1L))),
+    1L
+  )
+  expect_identical(
+    nrow(bake(vpd_prep, slice(dist_train, 0L))),
+    0L
+  )
+})
+
+test_that("`bake()` method errs needed non-standard role columns are missing", {
+  
+  vpd_rec <- dist_rec |> 
+    step_vpd_persistence_silhouette(
+      dist_pd,
+      xseq = scale_seq,
+      hom_degree = 0,
+      keep_original_cols = FALSE
+    ) |>
+    update_role(
+      dist,
+      new_role = "yam"
+    ) |>
+    update_role_requirements(role = "yam", bake = FALSE)
+  
+  vpd_prep <- prep(vpd_rec, training = dist_train)
+  
+  expect_snapshot(
+    error = TRUE,
+    bake(vpd_prep, new_data = subset(dist_test, select = -c(dist)))
+  )
+})
+
+test_that("recipe successfully prints with empty predictors", {
+  skip(message = "Revisit after addressing #19.")
+  
+  vpd_rec <- dist_rec |> 
+    step_vpd_persistence_silhouette(
+      xseq = scale_seq,
+      hom_degree = 0,
+      keep_original_cols = FALSE
+    )
+  
+  expect_snapshot(vpd_rec)
+  
+  vpd_prep <- prep(vpd_rec, training = dist_train)
+  
+  expect_snapshot(vpd_prep)
+})
+
+test_that("recipe with empty selection incurs no `prep()` or `bake()` change", {
+  skip(message = "Revisit after addressing #19.")
+  
+  vpd_rec1 <- dist_rec
+  vpd_rec2 <- step_vpd_persistence_silhouette(
+    vpd_rec1,
+    xseq = scale_seq,
+    hom_degree = 0,
+    keep_original_cols = FALSE
+  )
+  
+  vpd_prep1 <- prep(vpd_rec1, dist_train)
+  vpd_prep2 <- prep(vpd_rec2, dist_train)
+  
+  vpd_bake1 <- bake(vpd_prep1, dist_train)
+  vpd_bake2 <- bake(vpd_prep2, dist_train)
+  
+  expect_identical(vpd_bake1, vpd_bake2)
+})
+
+test_that("tidy method for empty selection works", {
+  skip(message = "Revisit after addressing #19.")
+  
+  vpd_rec <- step_vpd_persistence_silhouette(
+    dist_rec,
+    xseq = scale_seq,
+    hom_degree = 0,
+    keep_original_cols = FALSE
+  )
+  
+  expect <- tibble(terms = character(), value = double(), id = character())
+  
+  expect_identical(tidy(vpd_rec, number = 1), expect)
+  
+  vpd_prep <- prep(vpd_rec, dist_train)
+  
+  expect_identical(tidy(vpd_prep, number = 1), expect)
 })
