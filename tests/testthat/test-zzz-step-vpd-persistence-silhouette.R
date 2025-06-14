@@ -14,7 +14,7 @@ scale_seq <- seq(0, 5000, 100)
 
 test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
   
-  pl_rec <- dist_rec |> 
+  vpd_rec <- dist_rec |> 
     step_vpd_persistence_silhouette(
       everything(),
       xseq = scale_seq,
@@ -22,12 +22,12 @@ test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
       keep_original_cols = FALSE
     )
   
-  pl_prep <- prep(pl_rec, training = dist_train)
+  vpd_prep <- prep(vpd_rec, training = dist_train)
   
-  pl_pred <- bake(pl_prep, new_data = dist_test) |> 
+  vpd_pred <- bake(vpd_prep, new_data = dist_test) |> 
     unlist() |> unname()
   
-  pl_exp <- dist_test$dist[[1L]] |> 
+  vpd_exp <- dist_test$dist[[1L]] |> 
     ripserr::vietoris_rips() |> as.matrix() |> 
     TDAvec::computePersistenceSilhouette(
       scaleSeq = scale_seq,
@@ -35,14 +35,14 @@ test_that("`step_vpd_persistence_silhouette()` agrees with raw function", {
     ) |> 
     as.vector()
   
-  expect_equal(pl_pred, pl_exp)
+  expect_equal(vpd_pred, vpd_exp)
 })
 
 test_that("`tunable()` returns standard names", {
   
-  pl_rec <- dist_rec |> 
+  vpd_rec <- dist_rec |> 
     step_vpd_persistence_silhouette(everything(), keep_original_cols = FALSE)
-  tun <- tunable(pl_rec$steps[[2]])
+  tun <- tunable(vpd_rec$steps[[2]])
   
   expect_equal(
     names(tun),
