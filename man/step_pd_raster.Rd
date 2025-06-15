@@ -8,7 +8,7 @@
 step_pd_raster(
   recipe,
   ...,
-  role = NA,
+  role = NA_character_,
   trained = FALSE,
   filtration = "cubical",
   value_max = 9999L,

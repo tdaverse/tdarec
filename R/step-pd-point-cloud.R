@@ -58,7 +58,7 @@ step_pd_point_cloud <- function(
     recipe,
     ...,
     # standard inputs
-    role = NA,
+    role = NA_character_,
     trained = FALSE,
     # custom parameters
     filtration = "Rips",

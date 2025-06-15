@@ -8,7 +8,7 @@
 step_pd_point_cloud(
   recipe,
   ...,
-  role = NA,
+  role = NA_character_,
   trained = FALSE,
   filtration = "Rips",
   max_hom_degree = 1L,

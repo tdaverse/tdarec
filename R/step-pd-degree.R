@@ -23,7 +23,7 @@ step_pd_degree <- function(
     recipe,
     ...,
     # standard inputs
-    role = NA,
+    role = NA_character_,
     trained = FALSE,
     # custom parameters
     hom_degrees = NULL,

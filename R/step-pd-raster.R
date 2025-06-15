@@ -48,7 +48,7 @@ step_pd_raster <- function(
     recipe,
     ...,
     # standard inputs
-    role = NA,
+    role = NA_character_,
     trained = FALSE,
     # custom parameters
     filtration = "cubical",

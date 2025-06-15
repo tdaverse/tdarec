@@ -8,7 +8,7 @@
 step_pd_degree(
   recipe,
   ...,
-  role = NA,
+  role = NA_character_,
   trained = FALSE,
   hom_degrees = NULL,
   columns = NULL,
