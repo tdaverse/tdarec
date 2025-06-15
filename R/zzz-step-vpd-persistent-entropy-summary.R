@@ -130,6 +130,8 @@ bake.step_vpd_persistent_entropy_summary <- function(object, new_data, ...) {
   check_new_data(col_names, object, new_data)
   for (col_name in col_names) class(new_data[[col_name]]) <- "list"
   
+  if (nrow(new_data) == 0L) return(new_data)
+  
   vph_data <- tibble::tibble(.rows = nrow(new_data))
   for (col_name in col_names) {
     col_vpd <- purrr::map(

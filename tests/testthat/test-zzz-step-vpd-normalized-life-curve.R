@@ -74,7 +74,6 @@ test_that("recipe and preparation printing is consistent", {
 })
 
 test_that("data with 0 or 1 rows works with `bake()` method", {
-  skip(message = "Revisit after addressing #19.")
   
   vpd_prep <- dist_rec |> 
     step_vpd_normalized_life_curve(
