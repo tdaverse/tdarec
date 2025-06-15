@@ -19,20 +19,19 @@ Because the logic and syntax can become confusing, the vignette will also illust
 ``` r
 library(tidymodels)
 #> ── Attaching packages ────────────────────────────────────── tidymodels 1.3.0 ──
-#> ✔ broom        1.0.8     ✔ recipes      1.3.0
-#> ✔ dials        1.4.0     ✔ rsample      1.3.0
-#> ✔ dplyr        1.1.4     ✔ tibble       3.2.1
+#> ✔ broom        1.0.8     ✔ tibble       3.2.1
 #> ✔ ggplot2      3.5.2     ✔ tidyr        1.3.1
 #> ✔ infer        1.0.8     ✔ tune         1.3.0
 #> ✔ modeldata    1.4.0     ✔ workflows    1.2.0
 #> ✔ parsnip      1.3.1     ✔ workflowsets 1.1.0
 #> ✔ purrr        1.0.4     ✔ yardstick    1.3.2
+#> ✔ rsample      1.3.0
 #> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
 #> ✖ purrr::discard() masks scales::discard()
 #> ✖ dplyr::filter()  masks stats::filter()
 #> ✖ dplyr::lag()     masks stats::lag()
-#> ✖ recipes::step()  masks stats::step()
-#> • Learn how to get started at https://www.tidymodels.org/start/
+#> ✖ tdarec::step()   masks recipes::step(), stats::step()
+#> • Use suppressPackageStartupMessages() to eliminate package startup messages
 library(tdarec)
 ```
 
@@ -135,7 +134,7 @@ This is likely to be a problem in the classification of digits, as for example t
 3. {TDAvec} provides over a dozen vectorization methods for persistence diagrams, and each carries strengths and weaknesses. Our choice to use persistence landscapes in this vignette is somewhat arbitrary, but the nuance of the step allows us to illustrate optimization using two hyperparameters (the homological degree of the diagram to transform and the number of landscape levels to vectorize) and to point out some adjustable default behavior. We use our knowledge of the value range to specify a grid.
 
 Only the final pre-processing step yields new numeric columns that can be used as predictors in a conventional model.
-For this reason, the PH step by default assigns the placeholder role `"persistence diagram"` to its output, so that the new `digit_pd` column will not accidentally be used as a predictor.
+For this reason, the PH step by default assigns the placeholder role `"persistence diagram"` to its output, so that the transformed column will not accidentally be used as a predictor.
 In contrast, the blur step modifies its column `digit` in place, and [the modified column inherits the role(s) of the original](https://recipes.tidymodels.org/articles/Roles.html#role-inheritance).
 This requires us to update the role of `digit`, but this can be done before or after applying the blur.
 
@@ -147,7 +146,7 @@ recipe(mnist_train) |>
   step_blur(digit) |>
   step_pd_raster(digit) |> 
   step_vpd_persistence_landscape(
-    digit_pd,
+    digit,
     hom_degree = 1,
     xmin = 0, xmax = 255, xby = 16,
     num_levels = 3
@@ -164,7 +163,7 @@ recipe(mnist_train) |>
 #> ── Operations
 #> • Gaussian blurring of: digit
 #> • persistent features from a cubical filtration of: digit
-#> • persistence landscape of: digit_pd
+#> • persistence landscape of: digit
 ```
 
 We can check directly whether our role assignments obtained as expected:
@@ -190,20 +189,20 @@ mnist_rec |>
 #> • persistent features from a cubical filtration of: <none> | Trained
 #> • persistence landscape of: <none> | Trained
 summary(mnist_prep)
-#> # A tibble: 51 × 4
-#>    variable        type      role                source  
-#>    <chr>           <list>    <chr>               <chr>   
-#>  1 digit           <chr [1]> image               original
-#>  2 label           <chr [3]> outcome             original
-#>  3 digit_pd        <chr [1]> persistence diagram derived 
-#>  4 digit_pd_pl_1_1 <chr [2]> predictor           derived 
-#>  5 digit_pd_pl_1_2 <chr [2]> predictor           derived 
-#>  6 digit_pd_pl_1_3 <chr [2]> predictor           derived 
-#>  7 digit_pd_pl_1_4 <chr [2]> predictor           derived 
-#>  8 digit_pd_pl_1_5 <chr [2]> predictor           derived 
-#>  9 digit_pd_pl_1_6 <chr [2]> predictor           derived 
-#> 10 digit_pd_pl_1_7 <chr [2]> predictor           derived 
-#> # ℹ 41 more rows
+#> # A tibble: 50 × 4
+#>    variable     type      role      source  
+#>    <chr>        <list>    <chr>     <chr>   
+#>  1 digit        <chr [1]> image     original
+#>  2 label        <chr [3]> outcome   original
+#>  3 digit_pl_1_1 <chr [2]> predictor derived 
+#>  4 digit_pl_1_2 <chr [2]> predictor derived 
+#>  5 digit_pl_1_3 <chr [2]> predictor derived 
+#>  6 digit_pl_1_4 <chr [2]> predictor derived 
+#>  7 digit_pl_1_5 <chr [2]> predictor derived 
+#>  8 digit_pl_1_6 <chr [2]> predictor derived 
+#>  9 digit_pl_1_7 <chr [2]> predictor derived 
+#> 10 digit_pl_1_8 <chr [2]> predictor derived 
+#> # ℹ 40 more rows
 ```
 
 And we can inspect the result of applying the prepared recipe to the training data:
@@ -213,26 +212,26 @@ And we can inspect the result of applying the prepared recipe to the training da
 mnist_rec |> 
   prep() |> 
   bake(new_data = mnist_train)
-#> # A tibble: 600 × 51
-#>    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3
-#>    <list>   <fct> <list>                   <dbl>           <dbl>           <dbl>
-#>  1 <dbl[…]> 1     <PHom [7 × 3]>               0               0            3.15
-#>  2 <dbl[…]> 6     <PHom [4 × 3]>               0               0            0   
-#>  3 <dbl[…]> 6     <PHom [4 × 3]>               0               0            0   
-#>  4 <dbl[…]> 2     <PHom [6 × 3]>               0               0            0   
-#>  5 <dbl[…]> 7     <PHom [4 × 3]>               0               0            0   
-#>  6 <dbl[…]> 9     <PHom [4 × 3]>               0               0            0   
-#>  7 <dbl[…]> 2     <PHom [5 × 3]>               0               0            5.49
-#>  8 <dbl[…]> 0     <PHom [7 × 3]>               0               0            0   
-#>  9 <dbl[…]> 4     <PHom [5 × 3]>               0               0            0   
-#> 10 <dbl[…]> 3     <PHom [5 × 3]>               0               0            0   
+#> # A tibble: 600 × 50
+#>    digit  label digit_pl_1_1 digit_pl_1_2 digit_pl_1_3 digit_pl_1_4 digit_pl_1_5
+#>    <list> <fct>        <dbl>        <dbl>        <dbl>        <dbl>        <dbl>
+#>  1 <PHom> 1                0            0         3.15       20.2          24.4 
+#>  2 <PHom> 6                0            0         0           0             3.87
+#>  3 <PHom> 6                0            0         0           0            13.4 
+#>  4 <PHom> 2                0            0         0           0            15.5 
+#>  5 <PHom> 7                0            0         0           0             0   
+#>  6 <PHom> 9                0            0         0           0            10.0 
+#>  7 <PHom> 2                0            0         5.49       22.5          39.5 
+#>  8 <PHom> 0                0            0         0           0.233        16.1 
+#>  9 <PHom> 4                0            0         0           9.77         26.8 
+#> 10 <PHom> 3                0            0         0           1.05         18.1 
 #> # ℹ 590 more rows
-#> # ℹ 45 more variables: digit_pd_pl_1_4 <dbl>, digit_pd_pl_1_5 <dbl>,
-#> #   digit_pd_pl_1_6 <dbl>, digit_pd_pl_1_7 <dbl>, digit_pd_pl_1_8 <dbl>,
-#> #   digit_pd_pl_1_9 <dbl>, digit_pd_pl_1_10 <dbl>, digit_pd_pl_1_11 <dbl>,
-#> #   digit_pd_pl_1_12 <dbl>, digit_pd_pl_1_13 <dbl>, digit_pd_pl_1_14 <dbl>,
-#> #   digit_pd_pl_1_15 <dbl>, digit_pd_pl_1_16 <dbl>, digit_pd_pl_2_1 <dbl>,
-#> #   digit_pd_pl_2_2 <dbl>, digit_pd_pl_2_3 <dbl>, digit_pd_pl_2_4 <dbl>, …
+#> # ℹ 43 more variables: digit_pl_1_6 <dbl>, digit_pl_1_7 <dbl>,
+#> #   digit_pl_1_8 <dbl>, digit_pl_1_9 <dbl>, digit_pl_1_10 <dbl>,
+#> #   digit_pl_1_11 <dbl>, digit_pl_1_12 <dbl>, digit_pl_1_13 <dbl>,
+#> #   digit_pl_1_14 <dbl>, digit_pl_1_15 <dbl>, digit_pl_1_16 <dbl>,
+#> #   digit_pl_2_1 <dbl>, digit_pl_2_2 <dbl>, digit_pl_2_3 <dbl>,
+#> #   digit_pl_2_4 <dbl>, digit_pl_2_5 <dbl>, digit_pl_2_6 <dbl>, …
 ```
 
 ## classification forest
@@ -296,7 +295,7 @@ fit(
 #> Target node size:                 6 
 #> Variable importance mode:         none 
 #> Splitrule:                        gini 
-#> OOB prediction error (Brier s.):  0.786414
+#> OOB prediction error (Brier s.):  0.784527
 ```
 
 Note that the model, while not optimized for accuracy on the training set, is informed by it through the preparation process, in particular the default choice of blur parameter:
@@ -321,13 +320,13 @@ mnist_fit |>
 #>    .pred_class label
 #>    <fct>       <fct>
 #>  1 7           0    
-#>  2 4           1    
-#>  3 4           4    
-#>  4 4           1    
+#>  2 2           1    
+#>  3 1           4    
+#>  4 1           1    
 #>  5 1           2    
 #>  6 2           0    
 #>  7 1           4    
-#>  8 2           9    
+#>  8 6           9    
 #>  9 3           6    
 #> 10 7           0    
 #> # ℹ 90 more rows
@@ -335,22 +334,22 @@ mnist_pred |>
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
 #> Prediction 0 1 2 3 4 5 6 7 8 9
-#>          0 1 0 2 4 0 0 1 2 0 0
-#>          1 0 6 1 0 2 1 0 0 0 0
-#>          2 2 0 1 0 0 0 0 4 0 1
-#>          3 1 0 3 2 0 1 4 0 3 1
-#>          4 0 3 1 1 8 2 0 0 1 0
-#>          5 0 1 0 1 0 2 0 0 0 0
-#>          6 0 0 1 0 0 0 1 0 2 0
-#>          7 5 0 0 2 0 4 2 2 1 5
-#>          8 1 0 1 0 0 0 2 2 3 3
-#>          9 0 0 0 0 0 0 0 0 0 0
+#>          0 1 0 2 4 0 1 0 2 0 0
+#>          1 0 7 1 0 4 2 0 0 0 0
+#>          2 2 1 1 0 0 0 1 0 0 0
+#>          3 0 0 0 1 0 1 2 0 2 0
+#>          4 0 1 1 1 6 1 0 0 1 0
+#>          5 0 0 0 0 0 1 0 0 0 0
+#>          6 1 0 3 1 0 0 1 2 3 3
+#>          7 5 1 0 3 0 4 2 2 1 5
+#>          8 0 0 2 0 0 0 4 0 3 1
+#>          9 1 0 0 0 0 0 0 4 0 1
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy multiclass      0.26
+#> 1 accuracy multiclass      0.24
 ```
 
 The accuracy is poor but clearly better than chance. The confusion matrix suggests some reasons for the misclassifications, in that the most commonly confused digits are _not_ those with the same degree-1 homology; they are more geometrically than topologically similar.
@@ -374,7 +373,7 @@ recipe(mnist_train) |>
   step_blur(digit, blur_sigmas = tune("blur_sd")) |>
   step_pd_raster(digit) |> 
   step_vpd_persistence_landscape(
-    digit_pd,
+    digit,
     hom_degree = tune("pl_deg"),
     xmin = 0, xmax = 255, xby = 16,
     num_levels = tune("pl_lev")
@@ -391,7 +390,7 @@ recipe(mnist_train) |>
 #> ── Operations
 #> • Gaussian blurring of: digit
 #> • persistent features from a cubical filtration of: digit
-#> • persistence landscape of: digit_pd
+#> • persistence landscape of: digit
 ```
 
 This recipe has three tunable parameters, as we can verify by extracting their dials:
@@ -425,29 +424,29 @@ mnist_rec |>
   bake(new_data = mnist_train) ->
   mnist_bake
 print(mnist_bake)
-#> # A tibble: 600 × 51
-#>    digit    label digit_pd       digit_pd_pl_1_1 digit_pd_pl_1_2 digit_pd_pl_1_3
-#>    <list>   <fct> <list>                   <dbl>           <dbl>           <dbl>
-#>  1 <dbl[…]> 1     <PHom [6 × 3]>               0            5.19            0   
-#>  2 <dbl[…]> 6     <PHom [4 × 3]>               0            0               3.85
-#>  3 <dbl[…]> 6     <PHom [4 × 3]>               0            0              15.2 
-#>  4 <dbl[…]> 2     <PHom [4 × 3]>               0            0               0   
-#>  5 <dbl[…]> 7     <PHom [4 × 3]>               0            0               5.33
-#>  6 <dbl[…]> 9     <PHom [4 × 3]>               0            0               7.97
-#>  7 <dbl[…]> 2     <PHom [4 × 3]>               0            0               6.87
-#>  8 <dbl[…]> 0     <PHom [4 × 3]>               0            0               9.98
-#>  9 <dbl[…]> 4     <PHom [4 × 3]>               0            0               5.14
-#> 10 <dbl[…]> 3     <PHom [4 × 3]>               0            0              11.1 
+#> # A tibble: 600 × 50
+#>    digit  label digit_pl_1_1 digit_pl_1_2 digit_pl_1_3 digit_pl_1_4 digit_pl_1_5
+#>    <list> <fct>        <dbl>        <dbl>        <dbl>        <dbl>        <dbl>
+#>  1 <PHom> 1                0         5.19         0            0               0
+#>  2 <PHom> 6                0         0            3.85         8.77            0
+#>  3 <PHom> 6                0         0           15.2          0               0
+#>  4 <PHom> 2                0         0            0           13.2             0
+#>  5 <PHom> 7                0         0            5.33         3.96            0
+#>  6 <PHom> 9                0         0            7.97        11.3             0
+#>  7 <PHom> 2                0         0            6.87         0               0
+#>  8 <PHom> 0                0         0            9.98         0               0
+#>  9 <PHom> 4                0         0            5.14         0               0
+#> 10 <PHom> 3                0         0           11.1          0               0
 #> # ℹ 590 more rows
-#> # ℹ 45 more variables: digit_pd_pl_1_4 <dbl>, digit_pd_pl_1_5 <dbl>,
-#> #   digit_pd_pl_1_6 <dbl>, digit_pd_pl_1_7 <dbl>, digit_pd_pl_1_8 <dbl>,
-#> #   digit_pd_pl_1_9 <dbl>, digit_pd_pl_1_10 <dbl>, digit_pd_pl_1_11 <dbl>,
-#> #   digit_pd_pl_1_12 <dbl>, digit_pd_pl_1_13 <dbl>, digit_pd_pl_1_14 <dbl>,
-#> #   digit_pd_pl_1_15 <dbl>, digit_pd_pl_1_16 <dbl>, digit_pd_pl_2_1 <dbl>,
-#> #   digit_pd_pl_2_2 <dbl>, digit_pd_pl_2_3 <dbl>, digit_pd_pl_2_4 <dbl>, …
+#> # ℹ 43 more variables: digit_pl_1_6 <dbl>, digit_pl_1_7 <dbl>,
+#> #   digit_pl_1_8 <dbl>, digit_pl_1_9 <dbl>, digit_pl_1_10 <dbl>,
+#> #   digit_pl_1_11 <dbl>, digit_pl_1_12 <dbl>, digit_pl_1_13 <dbl>,
+#> #   digit_pl_1_14 <dbl>, digit_pl_1_15 <dbl>, digit_pl_1_16 <dbl>,
+#> #   digit_pl_2_1 <dbl>, digit_pl_2_2 <dbl>, digit_pl_2_3 <dbl>,
+#> #   digit_pl_2_4 <dbl>, digit_pl_2_5 <dbl>, digit_pl_2_6 <dbl>, …
 ```
 
-We use the input `digit` column to finalize the range of blurs and the derived `digit_pd` column to finalize the range of homological degree.
+We use the input `digit` column to finalize the range of blurs and the derived `digit` column to finalize the range of homological degree.
 We expect the important topological features of the digits number at most 2 per image, so we manually prescribe a narrow range for `num_levels`, though it could also be learned from the training set.
 Each finalized range is printed for reference:
 
@@ -457,7 +456,7 @@ Each finalized range is printed for reference:
 #> Gaussian Blur std. dev.s (quantitative)
 #> Transformer: log1p [-1, Inf]
 #> Range (transformed scale): [0.504, 2.5]
-( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit_pd)) )
+( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit)) )
 #> Homological Degree (quantitative)
 #> Range: [0, 1]
 ( pl_lev_fin <- num_levels(range = c(1, 3)) )
@@ -621,9 +620,11 @@ mnist_res <- tune_bayes(
 #>                ℹ 16 predictors will be used.
 #> There were issues with some computations   A: x1   B: x1There were issues with some computations   A: x1   B: x1   C: x1[KThere were issues with some computations   A: x2   B: x1   C: x1[KThere were issues with some computations   A: x2   B: x2   C: x1[KThere were issues with some computations   A: x2   B: x2   C: x2[KThere were issues with some computations   A: x3   B: x2   C: x2[KThere were issues with some computations   A: x3   B: x3   C: x2[KThere were issues with some computations   A: x3   B: x3   C: x3[KThere were issues with some computations   A: x4   B: x3   C: x3[KThere were issues with some computations   A: x4   B: x4   C: x3[KThere were issues with some computations   A: x4   B: x4   C: x4[KThere were issues with some computations   A: x5   B: x4   C: x4[KThere were issues with some computations   A: x5   B: x5   C: x4[KThere were issues with some computations   A: x5   B: x5   C: x5[KThere were issues with some computations   A: x6   B: x5   C: x5[KThere were issues with some computations   A: x6   B: x6   C: x5[KThere were issues with some computations   A: x6   B: x6   C: x6[K! The Gaussian process model is being fit using 5 features but only has 6
 #>   data points to do so. This may cause errors or a poor model fit.
-#> [K→ D | warning: ! 35 columns were requested but there were 32 predictors in the data.
-#>                ℹ 32 predictors will be used.
-#> There were issues with some computations   A: x6   B: x6   C: x6There were issues with some computations   A: x6   B: x6   C: x6   D: x1[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x2[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x3[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x4[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x5[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6[K
+#> [K→ D | warning: ! 22 columns were requested but there were 16 predictors in the data.
+#>                ℹ 16 predictors will be used.
+#> There were issues with some computations   A: x6   B: x6   C: x6There were issues with some computations   A: x6   B: x6   C: x6   D: x1[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x2[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x3[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x4[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x5[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6[K[K→ E | warning: ! 39 columns were requested but there were 16 predictors in the data.
+#>                ℹ 16 predictors will be used.
+#> There were issues with some computations   A: x6   B: x6   C: x6   D: x6There were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x1[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x2[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x3[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x4[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x5[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x6[KThere were issues with some computations   A: x6   B: x6   C: x6   D: x6   E: x6[K
 ```
 
 Whereas in the previous section we fit only a single model, in this section we have obtained results for numerous hyperparameter settings and must choose among them for the final model.
@@ -638,30 +639,30 @@ collect_metrics(mnist_res) |>
 #> # A tibble: 18 × 12
 #>    blur_sd pl_deg pl_lev rf_pred rf_node .metric  .estimator  mean     n std_err
 #>      <dbl>  <int>  <int>   <int>   <int> <chr>    <chr>      <dbl> <int>   <dbl>
-#>  1   0.776      0      3      29      39 accuracy multiclass 0.47      6  0.0214
-#>  2   0.985      0      2       6      31 accuracy multiclass 0.442     6  0.0154
-#>  3   0.682      0      3      22      27 accuracy multiclass 0.438     6  0.0158
-#>  4   0.671      0      2      35      39 accuracy multiclass 0.428     6  0.0189
-#>  5   0.717      0      3      43      33 accuracy multiclass 0.427     6  0.0186
-#>  6   0.993      0      2      27      23 accuracy multiclass 0.427     6  0.0167
-#>  7   0.952      0      1       9      30 accuracy multiclass 0.403     6  0.0174
-#>  8   0.880      0      3       1      38 accuracy multiclass 0.39      6  0.01  
-#>  9   4.50       0      3      10      32 accuracy multiclass 0.387     6  0.0120
-#> 10   0.655      0      1      19      17 accuracy multiclass 0.368     6  0.0199
-#> 11   1.68       0      3      28      34 accuracy multiclass 0.3       6  0.0188
-#> 12   2.68       1      2      48      40 accuracy multiclass 0.283     6  0.0136
-#> 13   5.17       0      2       3      31 accuracy multiclass 0.28      6  0.0258
-#> 14   2.03       0      1       8      23 accuracy multiclass 0.273     6  0.0158
-#> 15   8.87       0      2      13       2 accuracy multiclass 0.258     6  0.0250
-#> 16   1.47       1      3      29       2 accuracy multiclass 0.21      6  0.0155
-#> 17  11.2        0      1      38       9 accuracy multiclass 0.175     6  0.0138
-#> 18   7.20       1      2       1      24 accuracy multiclass 0.142     6  0.0247
+#>  1   0.910      0      3       5      23 accuracy multiclass 0.465     6 0.0159 
+#>  2   0.925      0      3      11       8 accuracy multiclass 0.462     6 0.0162 
+#>  3   0.941      0      3       5      21 accuracy multiclass 0.45      6 0.0110 
+#>  4   0.805      0      3       9      20 accuracy multiclass 0.443     6 0.0189 
+#>  5   1.14       0      3      42      40 accuracy multiclass 0.418     6 0.00792
+#>  6   0.697      0      3      39       7 accuracy multiclass 0.408     6 0.0189 
+#>  7   0.885      0      1      39       4 accuracy multiclass 0.403     6 0.0109 
+#>  8   0.655      0      1      19      17 accuracy multiclass 0.385     6 0.015  
+#>  9   4.50       0      3      10      32 accuracy multiclass 0.372     6 0.0160 
+#> 10   1.57       0      2      11      16 accuracy multiclass 0.33      6 0.0113 
+#> 11   1.88       0      1      22      40 accuracy multiclass 0.297     6 0.0120 
+#> 12   3.42       0      2       2      18 accuracy multiclass 0.292     6 0.0223 
+#> 13   2.68       1      2      48      40 accuracy multiclass 0.272     6 0.0185 
+#> 14   9.83       0      3      16      19 accuracy multiclass 0.238     6 0.00872
+#> 15   6.20       0      1       5      21 accuracy multiclass 0.23      6 0.0153 
+#> 16   1.47       1      3      29       2 accuracy multiclass 0.228     6 0.00946
+#> 17  11.2        0      1      38       9 accuracy multiclass 0.18      6 0.0169 
+#> 18   7.20       1      2       1      24 accuracy multiclass 0.122     6 0.0158 
 #> # ℹ 2 more variables: .config <chr>, .iter <int>
 (mnist_best <- select_best(mnist_res, metric = "accuracy"))
 #> # A tibble: 1 × 6
 #>   blur_sd pl_deg pl_lev rf_pred rf_node .config
 #>     <dbl>  <int>  <int>   <int>   <int> <chr>  
-#> 1   0.776      0      3      29      39 Iter6
+#> 1   0.910      0      3       5      23 Iter10
 ```
 
 ## fitting and evaluation
@@ -682,17 +683,17 @@ fit(
 #> Ranger result
 #> 
 #> Call:
-#>  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~29L,      x), num.trees = ~300, min.node.size = min_rows(~39L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) 
+#>  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~5L,      x), num.trees = ~300, min.node.size = min_rows(~23L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) 
 #> 
 #> Type:                             Probability estimation 
 #> Number of trees:                  300 
 #> Sample size:                      600 
 #> Number of independent variables:  48 
-#> Mtry:                             29 
-#> Target node size:                 39 
+#> Mtry:                             5 
+#> Target node size:                 23 
 #> Variable importance mode:         none 
 #> Splitrule:                        gini 
-#> OOB prediction error (Brier s.):  0.5064056
+#> OOB prediction error (Brier s.):  0.532131
 ```
 
 The resulting RF correctly classifies roughly half of the images "out of bag"---not great, but much better than the model using intuited hyperparameter values (and than pure chance).
@@ -712,33 +713,33 @@ mnist_fit |>
 #>  2 6           6    
 #>  3 6           6    
 #>  4 2           2    
-#>  5 1           7    
+#>  5 5           7    
 #>  6 9           9    
-#>  7 7           2    
+#>  7 2           2    
 #>  8 0           0    
-#>  9 4           4    
-#> 10 3           3    
+#>  9 5           4    
+#> 10 7           3    
 #> # ℹ 590 more rows
 mnist_pred |> 
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
 #> Prediction  0  1  2  3  4  5  6  7  8  9
-#>          0 50  0  0  1  0  0  3  0  1  2
-#>          1  0 51  2  5  7  6  1 13  0  0
-#>          2  2  1 26  0  0  1  2  0  4  4
-#>          3  0  1  4 26  4  2  3  2  0  1
-#>          4  0  0  9  2 35  6  1  8  0  0
-#>          5  0  1  6 18  3 37  0  7  0  0
-#>          6  2  0  4  0  2  0 41  0  3  7
-#>          7  1  6  6  7  6  7  5 30  0  1
-#>          8  2  0  1  0  0  0  1  0 49  1
-#>          9  3  0  2  1  3  1  3  0  3 44
+#>          0 51  0  0  2  0  0  2  0  0  3
+#>          1  0 56  0  7  8  2  4 14  0  3
+#>          2  0  0 26  0  0  0  2  0  0  2
+#>          3  1  0  0 10  0  0  1  0  0  0
+#>          4  0  0  0  1 12  0  1  1  0  0
+#>          5  0  0 20 30 28 48  1 13  0  0
+#>          6  3  0  3  0  3  0 38  0  5  5
+#>          7  0  4  9 10  7  8  4 32  0  0
+#>          8  2  0  1  0  0  0  1  0 53  0
+#>          9  3  0  1  0  2  2  6  0  2 47
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy multiclass     0.648
+#> 1 accuracy multiclass     0.622
 ```
 
 Among the most-confused digits in previous runs of these experiments are $1$ and $7$, $2$ and $5$, and $3$ and $5$. (The results above should be similar but will depend somewhat on the state of the random number generator.) This is more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
@@ -756,35 +757,35 @@ mnist_fit |>
 #>    <fct>       <fct>
 #>  1 5           0    
 #>  2 1           1    
-#>  3 4           4    
+#>  3 7           4    
 #>  4 1           1    
-#>  5 2           2    
+#>  5 6           2    
 #>  6 0           0    
-#>  7 4           4    
+#>  7 1           4    
 #>  8 9           9    
-#>  9 9           6    
+#>  9 6           6    
 #> 10 0           0    
 #> # ℹ 90 more rows
 mnist_pred |> 
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
-#> Prediction  0  1  2  3  4  5  6  7  8  9
-#>          0  8  0  0  0  0  0  1  0  0  0
-#>          1  0 10  1  0  0  1  0  1  0  0
-#>          2  0  0  5  1  0  0  1  0  0  2
-#>          3  0  0  0  1  0  2  3  2  1  0
-#>          4  0  0  0  0  5  2  1  4  0  0
-#>          5  1  0  2  5  2  4  0  0  0  0
-#>          6  0  0  2  0  1  0  2  0  1  1
-#>          7  0  0  0  3  2  1  0  3  0  0
-#>          8  0  0  0  0  0  0  0  0  8  0
-#>          9  1  0  0  0  0  0  2  0  0  7
+#> Prediction 0 1 2 3 4 5 6 7 8 9
+#>          0 7 0 0 0 0 1 1 0 0 0
+#>          1 0 9 0 0 1 1 3 2 0 0
+#>          2 0 0 1 1 0 0 0 0 0 0
+#>          3 0 0 0 0 0 0 0 0 1 0
+#>          4 0 0 0 0 0 0 0 1 0 0
+#>          5 1 0 2 9 6 7 1 7 0 0
+#>          6 0 0 6 0 1 0 3 0 1 2
+#>          7 0 1 1 0 2 1 1 0 0 0
+#>          8 0 0 0 0 0 0 0 0 8 0
+#>          9 2 0 0 0 0 0 1 0 0 8
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy multiclass      0.53
+#> 1 accuracy multiclass      0.43
 ```
 
 Some patterns in the training set hold up, though others don't, and some frequent confusion pairings are new.

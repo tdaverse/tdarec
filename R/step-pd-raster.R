@@ -1,7 +1,7 @@
 #' @title Persistent homology of raster data (images)
 #'
-#' @description The function `step_pd_raster()` creates a _specification_ of
-#'   a recipe step that will convert compatible data formats (numerical arrays,
+#' @description The function `step_pd_raster()` creates a _specification_ of a
+#'   recipe step that will convert compatible data formats (numerical arrays,
 #'   including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 #'   representations of persistence diagram data. The input and output must be
 #'   list-columns.
@@ -15,7 +15,7 @@
 #'   function from a cubical mesh to a finite value range.
 #'
 #'   Cubical Ripser is an efficient implementation of cubical PH and is ported
-#'   to R through [`ripserr`][ripserr::ripserr-package]. It accepts numerical
+#'   to R through **[ripserr][ripserr::ripserr-package]**. It accepts numerical
 #'   arrays.
 #'
 #'   The `value_max` argument bounds the value range along which PH is computed.
@@ -48,7 +48,7 @@ step_pd_raster <- function(
     recipe,
     ...,
     # standard inputs
-    role = "persistence diagram",
+    role = NA,
     trained = FALSE,
     # custom parameters
     filtration = "cubical",
@@ -57,7 +57,6 @@ step_pd_raster <- function(
     engine = NULL,
     # standard parameters
     columns = NULL,
-    keep_original_cols = TRUE,
     skip = FALSE,
     id = rand_id("pd_raster")
 ) {
@@ -75,7 +74,6 @@ step_pd_raster <- function(
       method = method,
       engine = engine,
       columns = columns,
-      keep_original_cols = keep_original_cols,
       skip = skip,
       id = id
     )
@@ -88,7 +86,7 @@ step_pd_raster_new <- function(
     filtration,
     value_max, method,
     engine,
-    columns, keep_original_cols,
+    columns,
     skip, id
 ) {
   step(
@@ -101,7 +99,6 @@ step_pd_raster_new <- function(
     method = method,
     engine = engine,
     columns = columns,
-    keep_original_cols = keep_original_cols,
     skip = skip,
     id = id
   )
@@ -180,7 +177,6 @@ prep.step_pd_raster <- function(x, training, info = NULL, ...) {
     method = x$method,
     engine = x$engine,
     columns = col_names,
-    keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
     id = x$id
   )
@@ -196,12 +192,10 @@ bake.step_pd_raster <- function(object, new_data, ...) {
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
-  # TODO: Move {ggtda} procedure for passing data to engine to helper package.
   # TODO: include `.ripserr_version` in helper package
   # tabulate persistent homology from each data column
-  pd_data <- tibble::tibble(.rows = nrow(new_data))
   for (term in object$terms) {
-    term_pd <- if (.ripserr_version == "0.1.1") {
+    new_data[[term]] <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
         function(d) ripserr::cubical(
@@ -221,12 +215,8 @@ bake.step_pd_raster <- function(object, new_data, ...) {
         )
       )
     }
-    pd_data[[paste(term, "pd", sep = "_")]] <- term_pd
   }
   
-  check_name(pd_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, pd_data)
-  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 

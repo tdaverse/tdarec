@@ -8,14 +8,13 @@
 step_pd_raster(
   recipe,
   ...,
-  role = "persistence diagram",
+  role = NA,
   trained = FALSE,
   filtration = "cubical",
   value_max = 9999L,
   method = c("link_join", "compute_pairs"),
   engine = NULL,
   columns = NULL,
-  keep_original_cols = TRUE,
   skip = FALSE,
   id = rand_id("pd_raster")
 )
@@ -45,9 +44,6 @@ defaults are chosen based on \code{filtration}.}
 \item{columns}{A character string of the selected variable names. This field
 is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
 
-\item{keep_original_cols}{A logical to keep the original variables in the
-output. Defaults to \code{FALSE}.}
-
 \item{skip}{A logical. Should the step be skipped when the recipe is baked by
 \code{\link[recipes:bake]{bake()}}? While all operations are baked when \code{\link[recipes:prep]{prep()}} is run, some
 operations may not be able to be conducted on new data (e.g. processing the
@@ -61,8 +57,8 @@ An updated version of \code{recipe} with the new step added to the
 sequence of any existing operations.
 }
 \description{
-The function \code{step_pd_raster()} creates a \emph{specification} of
-a recipe step that will convert compatible data formats (numerical arrays,
+The function \code{step_pd_raster()} creates a \emph{specification} of a
+recipe step that will convert compatible data formats (numerical arrays,
 including matrices, of 2, 3, or 4 dimensions) to 3-column matrix
 representations of persistence diagram data. The input and output must be
 list-columns.
@@ -81,7 +77,7 @@ from the cubical filtration of the pixel or voxel array, treated as a
 function from a cubical mesh to a finite value range.
 
 Cubical Ripser is an efficient implementation of cubical PH and is ported
-to R through \code{\link[ripserr:ripserr]{ripserr}}. It accepts numerical
+to R through \strong{\link[ripserr:ripserr]{ripserr}}. It accepts numerical
 arrays.
 
 The \code{value_max} argument bounds the value range along which PH is computed.
@@ -109,7 +105,7 @@ ph_res <- bake(ph_prep, topos)
 tidy(ph_rec, number = 1)
 tidy(ph_prep, number = 1)
 
-with(ph_res$pix_pd[[1]], plot(
+with(ph_res$pix[[1]], plot(
   x = birth, y = death, pch = dimension + 1, col = dimension + 1,
   xlab = NA, ylab = "", asp = 1
 ))

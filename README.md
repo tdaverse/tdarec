@@ -143,30 +143,30 @@ optimization.
 
 ### Specifications
 
+To prevent the model from using the data set column as a predictor, we
+assign it a new role, which is preserved by the persistent homology step
+and ignored by the vectorization step (which outputs new predictor
+columns).
+
 ``` r
 # specify a pre-processing recipe
 scale_seq <- seq(0, 3, by = .05)
 recipe(embedding ~ sample, data = klein_train) |> 
-  step_pd_point_cloud(
-    sample, max_hom_degree = tune("vr_degree"),
-    keep_original_cols = FALSE
-  ) |> 
-  step_vpd_euler_characteristic_curve(
-    sample_pd, xseq = scale_seq,
-    keep_original_cols = FALSE
-  ) |> 
+  update_role(sample, new_role = "data set") |> 
+  step_pd_point_cloud(sample, max_hom_degree = tune("vr_degree")) |> 
+  step_vpd_euler_characteristic_curve(sample, xseq = scale_seq) |> 
   print() -> klein_rec
 #> 
 #> ── Recipe ──────────────────────────────────────────────────────────────────────
 #> 
 #> ── Inputs
 #> Number of variables by role
-#> outcome:   1
-#> predictor: 1
+#> outcome:  1
+#> data set: 1
 #> 
 #> ── Operations
 #> • persistent features from a Rips filtration of: sample
-#> • Euler characteristic curve of: sample_pd
+#> • Euler characteristic curve of: sample
 ```
 
 For simplicity, we choose a common model for ML classification,

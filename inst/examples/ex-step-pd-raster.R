@@ -8,7 +8,7 @@ ph_res <- bake(ph_prep, topos)
 tidy(ph_rec, number = 1)
 tidy(ph_prep, number = 1)
 
-with(ph_res$pix_pd[[1]], plot(
+with(ph_res$pix[[1]], plot(
   x = birth, y = death, pch = dimension + 1, col = dimension + 1,
   xlab = NA, ylab = "", asp = 1
 ))

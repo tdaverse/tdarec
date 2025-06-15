@@ -8,7 +8,7 @@
 step_pd_point_cloud(
   recipe,
   ...,
-  role = "persistence diagram",
+  role = NA,
   trained = FALSE,
   filtration = "Rips",
   max_hom_degree = 1L,
@@ -17,7 +17,6 @@ step_pd_point_cloud(
   field_order = 2L,
   engine = NULL,
   columns = NULL,
-  keep_original_cols = TRUE,
   skip = FALSE,
   id = rand_id("pd_point_cloud")
 )
@@ -46,9 +45,6 @@ defaults are chosen based on \code{filtration}.}
 
 \item{columns}{A character string of the selected variable names. This field
 is a placeholder and will be populated once \code{\link[recipes:prep]{prep()}} is used.}
-
-\item{keep_original_cols}{A logical to keep the original variables in the
-output. Defaults to \code{FALSE}.}
 
 \item{skip}{A logical. Should the step be skipped when the recipe is baked by
 \code{\link[recipes:bake]{bake()}}? While all operations are baked when \code{\link[recipes:prep]{prep()}} is run, some
@@ -83,15 +79,14 @@ Vietoris--Rips, Čech, or alpha) along an increasing distance threshold.
 
 Ripser is a highly efficient implementation of PH on a point cloud (a
 finite metric space) via the Vietoris--Rips filtration and is ported to R
-through \code{\link[ripserr:ripserr]{ripserr}}. \code{\link[TDA:TDA-package]{TDA}}
-calls the Dionysus, PHAT, and GUDHI libraries to compute PH via
-Vietoris--Rips and alpha filtrations. The \code{filtration} parameter controls
-the choice of filtration while the \code{engine} parameter allows the user to
-manually select an implementation.
+through \strong{\link[ripserr:ripserr]{ripserr}}.
+\strong{\link[TDA:TDA-package]{TDA}} calls the Dionysus, PHAT, and GUDHI libraries
+to compute PH via Vietoris--Rips and alpha filtrations. The \code{filtration}
+parameter controls the choice of filtration while the \code{engine} parameter
+allows the user to manually select an implementation.
 
-Both engines accept data sets in distance matrix, coordinate matrix, and
-data frame formats. While \strong{ripserr} computes PH for time series data,
-this is not currently supported in \strong{tdarec}.
+Both engines accept data sets in distance matrix, coordinate matrix, data
+frame, and time series formats.
 
 The \code{max_hom_degree} argument determines the highest-dimensional features
 to be calculated. Either \code{diameter_max} (preferred) or \code{radius_max} can be
@@ -123,7 +118,7 @@ tidy(ph_prep, number = 1)
 
 ops <- par(mfrow = c(1, 2), mar = c(2, 2, 0, 0) + 0.1)
 for (i in seq(nrow(ph_res))) {
-  with(ph_res$dist_pd[[i]], plot(
+  with(ph_res$dist[[i]], plot(
     x = birth, y = death, pch = dimension + 1, col = dimension + 1,
     xlab = NA, ylab = "", asp = 1
   ))

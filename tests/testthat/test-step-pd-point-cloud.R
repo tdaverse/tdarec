@@ -10,17 +10,17 @@ test_that("`step_pd_point_cloud()` accepts multiple data classes", {
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
-test_that("`prep()` requires at least one variable", {
+test_that("`prep()` passes when no variables are provided", {
   rec <- recipe(~ ., data = dat) |> 
     step_pd_point_cloud()
-  expect_error(prep(rec, training = dat), "name")
+  expect_no_error(prep(rec, training = dat))
 })
 
-test_that("`prep()` checks names", {
-  dat2 <- transform(dat, dists_pd = 0)
+test_that("`prep()` checks for list columns", {
+  dat2 <- transform(dat, dists = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
-    step_pd_point_cloud(dists)
-  expect_message(prep(rec2, training = dat2), "[Nn]ew names")
+    step_pd_point_cloud(dists, dataframes)
+  expect_error(prep(rec2, training = dat2), "list-columns")
 })
 
 test_that("`tunable()` return standard names", {
@@ -70,7 +70,7 @@ test_that("within-step and without-step calculations agree", {
   pd_train <- prep(pd_extract, training = sphere_train)
   pd_test <- bake(pd_train, new_data = sphere_test)
   manual_calc <- lapply(sphere_test$sample, ripserr::vietoris_rips)
-  expect_equal(pd_test$sample_pd, manual_calc)
+  expect_equal(pd_test$sample, manual_calc)
   
   # data-determined maximum diameter
   pd_extract <- pd_rec |> 
@@ -81,7 +81,7 @@ test_that("within-step and without-step calculations agree", {
     sphere_test$sample,
     ripserr::vietoris_rips, threshold = diam_max
   )
-  expect_equal(pd_test$sample_pd, manual_calc)
+  expect_equal(pd_test$sample, manual_calc)
   
   # non-trivial maximum diameter
   pd_extract <- pd_rec |> 
@@ -92,7 +92,7 @@ test_that("within-step and without-step calculations agree", {
     sphere_test$sample,
     ripserr::vietoris_rips, threshold = diam_max/6
   )
-  expect_equal(pd_test$sample_pd, manual_calc)
+  expect_equal(pd_test$sample, manual_calc)
   
   # higher homological degree
   pd_extract <- pd_rec |> 
@@ -104,6 +104,6 @@ test_that("within-step and without-step calculations agree", {
   } else {
     lapply(sphere_test$sample, ripserr::vietoris_rips, max_dim = 2)
   }
-  expect_equal(pd_test$sample_pd, manual_calc)
+  expect_equal(pd_test$sample, manual_calc)
   
 })

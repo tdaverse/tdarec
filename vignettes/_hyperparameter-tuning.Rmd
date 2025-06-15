@@ -102,7 +102,7 @@ This is likely to be a problem in the classification of digits, as for example t
 3. {TDAvec} provides over a dozen vectorization methods for persistence diagrams, and each carries strengths and weaknesses. Our choice to use persistence landscapes in this vignette is somewhat arbitrary, but the nuance of the step allows us to illustrate optimization using two hyperparameters (the homological degree of the diagram to transform and the number of landscape levels to vectorize) and to point out some adjustable default behavior. We use our knowledge of the value range to specify a grid.
 
 Only the final pre-processing step yields new numeric columns that can be used as predictors in a conventional model.
-For this reason, the PH step by default assigns the placeholder role `"persistence diagram"` to its output, so that the new `digit_pd` column will not accidentally be used as a predictor.
+For this reason, the PH step by default assigns the placeholder role `"persistence diagram"` to its output, so that the transformed column will not accidentally be used as a predictor.
 In contrast, the blur step modifies its column `digit` in place, and [the modified column inherits the role(s) of the original](https://recipes.tidymodels.org/articles/Roles.html#role-inheritance).
 This requires us to update the role of `digit`, but this can be done before or after applying the blur.
 
@@ -113,7 +113,7 @@ recipe(mnist_train) |>
   step_blur(digit) |>
   step_pd_raster(digit) |> 
   step_vpd_persistence_landscape(
-    digit_pd,
+    digit,
     hom_degree = 1,
     xmin = 0, xmax = 255, xby = 16,
     num_levels = 3
@@ -216,7 +216,7 @@ recipe(mnist_train) |>
   step_blur(digit, blur_sigmas = tune("blur_sd")) |>
   step_pd_raster(digit) |> 
   step_vpd_persistence_landscape(
-    digit_pd,
+    digit,
     hom_degree = tune("pl_deg"),
     xmin = 0, xmax = 255, xby = 16,
     num_levels = tune("pl_lev")
@@ -243,13 +243,13 @@ mnist_rec |>
 print(mnist_bake)
 ```
 
-We use the input `digit` column to finalize the range of blurs and the derived `digit_pd` column to finalize the range of homological degree.
+We use the input `digit` column to finalize the range of blurs and the derived `digit` column to finalize the range of homological degree.
 We expect the important topological features of the digits number at most 2 per image, so we manually prescribe a narrow range for `num_levels`, though it could also be learned from the training set.
 Each finalized range is printed for reference:
 
 ```{r finalize recipe tuners}
 ( blur_sd_fin <- finalize(blur_sigmas(), mnist_train |> select(digit)) )
-( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit_pd)) )
+( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit)) )
 ( pl_lev_fin <- num_levels(range = c(1, 3)) )
 ```
 

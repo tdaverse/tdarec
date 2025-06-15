@@ -23,7 +23,7 @@ step_pd_degree <- function(
     recipe,
     ...,
     # standard inputs
-    role = "persistence diagram",
+    role = NA,
     trained = FALSE,
     # custom parameters
     hom_degrees = NULL,

@@ -15,15 +15,14 @@
 #'
 #'   Ripser is a highly efficient implementation of PH on a point cloud (a
 #'   finite metric space) via the Vietoris--Rips filtration and is ported to R
-#'   through [`ripserr`][ripserr::ripserr-package]. [`TDA`][TDA::TDA-package]
-#'   calls the Dionysus, PHAT, and GUDHI libraries to compute PH via
-#'   Vietoris--Rips and alpha filtrations. The `filtration` parameter controls
-#'   the choice of filtration while the `engine` parameter allows the user to
-#'   manually select an implementation.
+#'   through **[ripserr][ripserr::ripserr-package]**.
+#'   **[TDA][TDA::TDA-package]** calls the Dionysus, PHAT, and GUDHI libraries
+#'   to compute PH via Vietoris--Rips and alpha filtrations. The `filtration`
+#'   parameter controls the choice of filtration while the `engine` parameter
+#'   allows the user to manually select an implementation.
 #'
-#'   Both engines accept data sets in distance matrix, coordinate matrix, and
-#'   data frame formats. While **ripserr** computes PH for time series data,
-#'   this is not currently supported in **tdarec**.
+#'   Both engines accept data sets in distance matrix, coordinate matrix, data
+#'   frame, and time series formats.
 #'
 #'   The `max_hom_degree` argument determines the highest-dimensional features
 #'   to be calculated. Either `diameter_max` (preferred) or `radius_max` can be
@@ -59,7 +58,7 @@ step_pd_point_cloud <- function(
     recipe,
     ...,
     # standard inputs
-    role = "persistence diagram",
+    role = NA,
     trained = FALSE,
     # custom parameters
     filtration = "Rips",
@@ -69,7 +68,6 @@ step_pd_point_cloud <- function(
     engine = NULL,
     # standard parameters
     columns = NULL,
-    keep_original_cols = TRUE,
     skip = FALSE,
     id = rand_id("pd_point_cloud")
 ) {
@@ -88,7 +86,6 @@ step_pd_point_cloud <- function(
       field_order = field_order,
       engine = engine,
       columns = columns,
-      keep_original_cols = keep_original_cols,
       skip = skip,
       id = id
     )
@@ -101,7 +98,7 @@ step_pd_point_cloud_new <- function(
     filtration,
     max_hom_degree, radius_max, diameter_max, field_order,
     engine,
-    columns, keep_original_cols,
+    columns,
     skip, id
 ) {
   step(
@@ -115,7 +112,6 @@ step_pd_point_cloud_new <- function(
     field_order = field_order,
     engine = engine,
     columns = columns,
-    keep_original_cols = keep_original_cols,
     skip = skip,
     id = id
   )
@@ -135,7 +131,7 @@ prep.step_pd_point_cloud <- function(x, training, info = NULL, ...) {
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (col_name in col_names) class(training[[col_name]]) <- "list"
   
-  # TODO: Make these into a tools for a {ggtda}/{tdarec} helper package.
+  # TODO: Make these into tools for a {ggtda}/{tdarec} helper package.
 
   # pre-process filtration parameters
 
@@ -225,7 +221,6 @@ prep.step_pd_point_cloud <- function(x, training, info = NULL, ...) {
     field_order = x$field_order,
     engine = x$engine,
     columns = col_names,
-    keep_original_cols = get_keep_original_cols(x),
     skip = x$skip,
     id = x$id
   )
@@ -241,12 +236,10 @@ bake.step_pd_point_cloud <- function(object, new_data, ...) {
   # remove troublesome 'AsIs' class (and any other non-'list' classes)
   for (term in object$terms) class(new_data[[term]]) <- "list"
   
-  # TODO: Move {ggtda} procedure for passing data to engine to helper package.
   # TODO: include `.ripserr_version` in helper package
   # tabulate persistent homology from each data column
-  pd_data <- tibble::tibble(.rows = nrow(new_data))
   for (term in object$terms) {
-    term_pd <- if (.ripserr_version == "0.1.1") {
+    new_data[[term]] <- if (.ripserr_version == "0.1.1") {
       purrr::map(
         new_data[[term]],
         function(d) ripserr::vietoris_rips(
@@ -268,12 +261,8 @@ bake.step_pd_point_cloud <- function(object, new_data, ...) {
         )
       )
     }
-    pd_data[[paste(term, "pd", sep = "_")]] <- term_pd
   }
   
-  check_name(pd_data, new_data, object)
-  new_data <- vctrs::vec_cbind(new_data, pd_data)
-  new_data <- remove_original_cols(new_data, object, col_names)
   new_data
 }
 

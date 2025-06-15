@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * algebraic functions of: dist_pd
+      * algebraic functions of: dist
 
 ---
 

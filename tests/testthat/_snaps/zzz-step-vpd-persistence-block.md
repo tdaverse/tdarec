@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * persistence block of: dist_pd
+      * persistence block of: dist
 
 ---
 

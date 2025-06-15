@@ -10,7 +10,7 @@ tidy(ph_prep, number = 1)
 
 ops <- par(mfrow = c(1, 2), mar = c(2, 2, 0, 0) + 0.1)
 for (i in seq(nrow(ph_res))) {
-  with(ph_res$dist_pd[[i]], plot(
+  with(ph_res$dist[[i]], plot(
     x = birth, y = death, pch = dimension + 1, col = dimension + 1,
     xlab = NA, ylab = "", asp = 1
   ))

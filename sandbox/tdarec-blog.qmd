@@ -93,9 +93,9 @@ suppressMessages(library(tdarec))
 dat <- tibble(source = "torus", sample = list(x))
 recipe(~ sample, data = dat) |> 
   step_pd_point_cloud(sample, max_hom_degree = 2) |> 
-  step_pd_degree(sample_pd, hom_degrees = 2) |> 
+  step_pd_degree(sample, hom_degrees = 2) |> 
   step_vpd_persistence_block(
-    sample_pd_2,
+    sample_2,
     hom_degree = 2, xseq = xy_seq
   ) -> rec
 rec |> 

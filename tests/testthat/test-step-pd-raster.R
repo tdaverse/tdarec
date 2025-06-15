@@ -56,17 +56,17 @@ test_that("`step_pd_raster()` accepts different values and dimensions", {
   expect_no_error(bake(prep(rec, training = dat), new_data = dat))
 })
 
-test_that("`prep()` requires at least one variable", {
+test_that("`prep()` passes when no variables are selected", {
   rec <- recipe(~ ., data = dat) |> 
     step_pd_raster()
-  expect_error(prep(rec, training = dat), "name")
+  expect_no_error(prep(rec, training = dat))
 })
 
-test_that("`prep()` checks names", {
-  dat2 <- transform(dat, img_pd = 0)
+test_that("`prep()` checks for list columns", {
+  dat2 <- transform(dat, img = 0)
   rec2 <- recipe(~ ., data = dat2) |> 
     step_pd_raster(img)
-  expect_message(prep(rec2, training = dat2), "[Nn]ew names")
+  expect_error(prep(rec2, training = dat2), "list-columns")
 })
 
 test_that("`tunable()` return standard names", {
@@ -93,7 +93,7 @@ test_that("within-step and without-step calculations agree", {
   pd_train <- prep(pd_extract, training = dat)
   pd_test <- bake(pd_train, new_data = dat)
   manual_calc <- lapply(dat$img, ripserr::cubical)
-  expect_equal(pd_test$img_pd, manual_calc)
+  expect_equal(pd_test$img, manual_calc)
   
   # data-determined maximum value
   pd_extract <- pd_rec |> 
@@ -104,7 +104,7 @@ test_that("within-step and without-step calculations agree", {
     dat$img,
     ripserr::cubical, threshold = 1000
   )
-  expect_equal(pd_test$img_pd, manual_calc)
+  expect_equal(pd_test$img, manual_calc)
   
   # higher homological degree
   pd_extract <- pd_rec |> 
@@ -112,12 +112,12 @@ test_that("within-step and without-step calculations agree", {
   pd_train <- prep(pd_extract, training = dat)
   pd_test <- bake(pd_train, new_data = dat)
   # not equal to result using link-join method
-  expect_error(expect_equal(pd_test$img_pd, manual_calc))
+  expect_error(expect_equal(pd_test$img, manual_calc))
   manual_calc <- if (.ripserr_version < "0.2.0") {
     lapply(dat$img, ripserr::cubical, method = 1)
   } else {
     lapply(dat$img, ripserr::cubical, method = "cp")
   }
-  expect_equal(pd_test$img_pd, manual_calc)
+  expect_equal(pd_test$img, manual_calc)
   
 })

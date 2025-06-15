@@ -739,6 +739,7 @@ keep_scales <- function(x, scales) {
 for (fn in tdavec_functions$name) {
   fn_sname <- vec_sname(fn)
   fn_hname <- gsub("\\_", "-", fn_sname)
+  fn_abbr <- tolower(gsub("[a-z]", "", fn))
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
@@ -771,6 +772,7 @@ for (fn in tdavec_functions$name) {
     gsub(pattern = "\\{orig_fun\\}", replacement = fn) |> 
     gsub(pattern = "step_vpd_", replacement = paste0("step_vpd_", fn_sname)) |> 
     gsub(pattern = "\\{param_vals\\}", replacement = fn_param_vals) |> 
+    gsub(pattern = "\\{name_suffix\\}", replacement = fn_abbr) |> 
     gsub(pattern = "\\{arg_vals\\}", replacement = fn_arg_vals) |> 
     gsub(pattern = "\\{fun_params\\}", replacement = fn_params) |> 
     keep_scales(scales = fn_scales) |> 

@@ -7,24 +7,23 @@ dist_test <- data.frame(
   dist = I(list(UScitiesD))
 )
 dist_rec <- recipe(~ ., data = dist_train) |> 
-  step_pd_point_cloud(dist, keep_original_cols = FALSE)
+  step_pd_point_cloud(dist)
 scale_seq <- seq(0, 5000, 100)
 
 test_that("`step_vpd_()` agrees with raw function", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_(
-      dist_pd,
+      dist,
       xseq = scale_seq,
       yseq = scale_seq,
-      {param_vals},
-      keep_original_cols = FALSE
+      {param_vals}
     )
   
   vpd_prep <- prep(vpd_rec, training = dist_train)
   
   vpd_pred <- bake(vpd_prep, new_data = dist_test) |> 
-    select(-pins) |> 
+    select(contains("_{name_suffix}_")) |> 
     unlist() |> unname()
   
   vpd_exp <- dist_test$dist[[1L]] |> 
@@ -43,7 +42,7 @@ test_that("`step_vpd_()` agrees with raw function", {
 test_that("`tunable()` returns standard names", {
   
   vpd_rec <- dist_rec |> 
-    step_vpd_(dist_pd, keep_original_cols = FALSE)
+    step_vpd_(dist)
   tun <- tunable(vpd_rec$steps[[2]])
   
   expect_equal(
@@ -64,11 +63,10 @@ test_that("`tunable()` returns standard names", {
 test_that("recipe and preparation printing is consistent", {
   vpd_rec <- dist_rec |>
     step_vpd_(
-      dist_pd,
+      dist,
       xseq = scale_seq,
       yseq = scale_seq,
-      {param_vals},
-      keep_original_cols = FALSE
+      {param_vals}
     )
   
   expect_snapshot(print(vpd_rec))
@@ -80,11 +78,10 @@ test_that("data with 0 or 1 rows works with `bake()` method", {
   
   vpd_prep <- dist_rec |> 
     step_vpd_(
-      dist_pd,
+      dist,
       xseq = scale_seq,
       yseq = scale_seq,
-      {param_vals},
-      keep_original_cols = FALSE
+      {param_vals}
     ) |> 
     prep()
   
@@ -102,11 +99,10 @@ test_that("`bake()` method errs needed non-standard role columns are missing", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_(
-      dist_pd,
+      dist,
       xseq = scale_seq,
       yseq = scale_seq,
-      {param_vals},
-      keep_original_cols = FALSE
+      {param_vals}
     ) |>
     update_role(
       dist,
@@ -129,8 +125,7 @@ test_that("recipe successfully prints with empty predictors", {
     step_vpd_(
       xseq = scale_seq,
       yseq = scale_seq,
-      {param_vals},
-      keep_original_cols = FALSE
+      {param_vals}
     )
   
   expect_snapshot(vpd_rec)
@@ -148,8 +143,7 @@ test_that("recipe with empty selection incurs no `prep()` or `bake()` change", {
     vpd_rec1,
     xseq = scale_seq,
     yseq = scale_seq,
-    {param_vals},
-    keep_original_cols = FALSE
+    {param_vals}
   )
   
   vpd_prep1 <- prep(vpd_rec1, dist_train)
@@ -168,8 +162,7 @@ test_that("tidy method for empty selection works", {
     dist_rec,
     xseq = scale_seq,
     yseq = scale_seq,
-    {param_vals},
-    keep_original_cols = FALSE
+    {param_vals}
   )
   
   expect <- tibble(terms = character(), value = double(), id = character())

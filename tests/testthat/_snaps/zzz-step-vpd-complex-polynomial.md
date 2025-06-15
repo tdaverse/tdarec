@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * complex polynomial of: dist_pd
+      * complex polynomial of: dist
 
 ---
 

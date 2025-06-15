@@ -65,7 +65,7 @@ sample_train %>%
   recipe() %>%
   update_role(id, new_role = "id") %>%
   step_pd_point_cloud(sample, engine = "ripserr") %>%
-  step_vpd_(sample_pd, keep_original_cols = FALSE) %>%
+  step_vpd_(sample, keep_original_cols = FALSE) %>%
   prep(training = sample_train, strings_as_factors = FALSE) ->
   sample_rec
 print(sample_rec)

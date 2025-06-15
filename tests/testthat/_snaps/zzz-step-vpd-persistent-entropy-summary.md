@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * persistent entropy summary of: dist_pd
+      * persistent entropy summary of: dist
 
 ---
 

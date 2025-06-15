@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * Betti curve of: dist_pd
+      * Betti curve of: dist
 
 ---
 

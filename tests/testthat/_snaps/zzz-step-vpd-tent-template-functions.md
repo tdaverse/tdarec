@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * tent template functions of: dist_pd
+      * tent template functions of: dist
 
 ---
 

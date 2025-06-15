@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * Euler characteristic curve of: dist_pd
+      * Euler characteristic curve of: dist
 
 ---
 

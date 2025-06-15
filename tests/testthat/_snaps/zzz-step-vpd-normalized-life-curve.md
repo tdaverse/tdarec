@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * normalized life curve of: dist_pd
+      * normalized life curve of: dist
 
 ---
 

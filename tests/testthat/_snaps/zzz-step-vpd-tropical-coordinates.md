@@ -12,7 +12,7 @@
       
       -- Operations 
       * persistent features from a Rips filtration of: dist
-      * tropical coordinates of: dist_pd
+      * tropical coordinates of: dist
 
 ---
 

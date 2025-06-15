@@ -11,22 +11,21 @@ dist_test <- data.frame(
   dist = I(list(UScitiesD))
 )
 dist_rec <- recipe(~ ., data = dist_train) |> 
-  step_pd_point_cloud(dist, keep_original_cols = FALSE)
+  step_pd_point_cloud(dist)
 scale_seq <- seq(0, 5000, 100)
 
 test_that("`step_vpd_tent_template_functions()` agrees with raw function", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_tent_template_functions(
-      dist_pd,
-      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-      keep_original_cols = FALSE
+      dist,
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
     )
   
   vpd_prep <- prep(vpd_rec, training = dist_train)
   
   vpd_pred <- bake(vpd_prep, new_data = dist_test) |> 
-    select(-pins) |> 
+    select(contains("_tf_")) |> 
     unlist() |> unname()
   
   vpd_exp <- dist_test$dist[[1L]] |> 
@@ -42,7 +41,7 @@ test_that("`step_vpd_tent_template_functions()` agrees with raw function", {
 test_that("`tunable()` returns standard names", {
   
   vpd_rec <- dist_rec |> 
-    step_vpd_tent_template_functions(dist_pd, keep_original_cols = FALSE)
+    step_vpd_tent_template_functions(dist)
   tun <- tunable(vpd_rec$steps[[2]])
   
   expect_equal(
@@ -63,9 +62,8 @@ test_that("`tunable()` returns standard names", {
 test_that("recipe and preparation printing is consistent", {
   vpd_rec <- dist_rec |>
     step_vpd_tent_template_functions(
-      dist_pd,
-      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-      keep_original_cols = FALSE
+      dist,
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
     )
   
   expect_snapshot(print(vpd_rec))
@@ -77,9 +75,8 @@ test_that("data with 0 or 1 rows works with `bake()` method", {
   
   vpd_prep <- dist_rec |> 
     step_vpd_tent_template_functions(
-      dist_pd,
-      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-      keep_original_cols = FALSE
+      dist,
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
     ) |> 
     prep()
   
@@ -97,9 +94,8 @@ test_that("`bake()` method errs needed non-standard role columns are missing", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_tent_template_functions(
-      dist_pd,
-      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-      keep_original_cols = FALSE
+      dist,
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
     ) |>
     update_role(
       dist,
@@ -120,8 +116,7 @@ test_that("recipe successfully prints with empty predictors", {
   
   vpd_rec <- dist_rec |> 
     step_vpd_tent_template_functions(
-      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-      keep_original_cols = FALSE
+      hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
     )
   
   expect_snapshot(vpd_rec)
@@ -137,8 +132,7 @@ test_that("recipe with empty selection incurs no `prep()` or `bake()` change", {
   vpd_rec1 <- dist_rec
   vpd_rec2 <- step_vpd_tent_template_functions(
     vpd_rec1,
-    hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-    keep_original_cols = FALSE
+    hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
   )
   
   vpd_prep1 <- prep(vpd_rec1, dist_train)
@@ -155,8 +149,7 @@ test_that("tidy method for empty selection works", {
   
   vpd_rec <- step_vpd_tent_template_functions(
     dist_rec,
-    hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100,
-    keep_original_cols = FALSE
+    hom_degree = 0, tent_size = 1000, num_bins = 5, tent_shift = 100
   )
   
   expect <- tibble(terms = character(), value = double(), id = character())
