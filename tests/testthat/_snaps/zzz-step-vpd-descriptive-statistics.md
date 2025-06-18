@@ -41,3 +41,38 @@
       Error in `step_pd_point_cloud()`:
       ! The following required column is missing from `new_data`: dist.
 
+# recipe successfully prints with empty predictors
+
+    Code
+      vpd_rec
+    Message
+      
+      -- Recipe ----------------------------------------------------------------------
+      
+      -- Inputs 
+      Number of variables by role
+      predictor: 2
+      
+      -- Operations 
+      * persistent features from a Rips filtration of: dist
+      * descriptive statistics of: <none>
+
+---
+
+    Code
+      vpd_prep
+    Message
+      
+      -- Recipe ----------------------------------------------------------------------
+      
+      -- Inputs 
+      Number of variables by role
+      predictor: 2
+      
+      -- Training information 
+      Training data contained 1 data points and no incomplete rows.
+      
+      -- Operations 
+      * persistent features from a Vietoris-Rips filtration of: <none> | Trained
+      * descriptive statistics of: <none> | Trained
+

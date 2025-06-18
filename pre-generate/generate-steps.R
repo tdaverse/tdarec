@@ -457,7 +457,7 @@ build_bake <- function(fn) {
     "  for (col_name in col_names) class(new_data[[col_name]]) <- \"list\"\n",
     "  \n",
     # if data have no cases (rows), then introduce no columns
-    "  if (nrow(new_data) == 0L) return(new_data)\n",
+    "  if (nrow(new_data) == 0L || length(col_names) == 0L) return(new_data)\n",
     "  \n",
     # tabulate vectorizations of each persistence data column
     "  vph_data <- tibble::tibble(.rows = nrow(new_data))\n",

@@ -111,7 +111,6 @@ test_that("`bake()` method errs needed non-standard role columns are missing", {
 })
 
 test_that("recipe successfully prints with empty predictors", {
-  skip(message = "Revisit after addressing #19.")
   
   vpd_rec <- dist_rec |> 
     step_vpd_algebraic_functions(
@@ -126,7 +125,6 @@ test_that("recipe successfully prints with empty predictors", {
 })
 
 test_that("recipe with empty selection incurs no `prep()` or `bake()` change", {
-  skip(message = "Revisit after addressing #19.")
   
   vpd_rec1 <- dist_rec
   vpd_rec2 <- step_vpd_algebraic_functions(
