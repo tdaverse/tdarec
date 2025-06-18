@@ -149,7 +149,6 @@ test_that("recipe with empty selection incurs no `prep()` or `bake()` change", {
 })
 
 test_that("tidy method for empty selection works", {
-  skip(message = "Revisit after addressing #19.")
   
   vpd_rec <- step_vpd_persistence_silhouette(
     dist_rec,
@@ -159,9 +158,9 @@ test_that("tidy method for empty selection works", {
   
   expect <- tibble(terms = character(), value = double(), id = character())
   
-  expect_identical(tidy(vpd_rec, number = 1), expect)
+  expect_identical(tidy(vpd_rec, number = 2L), expect)
   
   vpd_prep <- prep(vpd_rec, dist_train)
   
-  expect_identical(tidy(vpd_prep, number = 1), expect)
+  expect_identical(tidy(vpd_prep, number = 2L), expect)
 })
