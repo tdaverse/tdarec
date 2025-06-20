@@ -11,6 +11,11 @@ Users now also lose access to the data set list-column unless they explicitly du
 This patch debugs the vectorization tests, which had failed to run due to a prefix in the names of the generated test files.
 Once corrected, the tent template functions step failed one test due to missing parameters; this has been corrected.
 
+## default scale sequences
+
+Default scale sequences derived from persistence diagrams now use extrema calculated after infinite values are dropped.
+This accommodates an upgrade to {ripserr} that returns features with deaths at infinity.
+
 # tdarec 0.1.0
 
 * Initial CRAN submission.
