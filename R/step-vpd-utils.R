@@ -42,6 +42,10 @@ get_hom_degrees <- function(data) {
   sort(unique(unlist(degs)))
 }
 
+# extrema excluding infinities
+min_finite <- function(x) min(x[is.finite(x)])
+max_finite <- function(x) max(x[is.finite(x)])
+
 # reconcile scale sequence parameters
 reconcile_scale_seq <- function(x, data, axis) {
   stopifnot(axis %in% c("x", "y"))
@@ -65,12 +69,18 @@ reconcile_scale_seq <- function(x, data, axis) {
   } else {
     # if needed, determine scale sequence
     if (is.null(xymax)) {
-      train_xmax <- purrr::map(data, function(x) purrr::map_dbl(x, function(m) max(m[, 3L])))
+      train_xmax <- purrr::map(
+        data,
+        function(x) purrr::map_dbl(x, function(m) max_finite(m[, 3L]))
+      )
       train_xmax <- min(unlist(train_xmax))
       xymax <- max(train_xmax, 0)
     }
     if (is.null(xymin)) {
-      train_xmin <- purrr::map(data, function(x) purrr::map_dbl(x, function(m) min(m[, 2L])))
+      train_xmin <- purrr::map(
+        data,
+        function(x) purrr::map_dbl(x, function(m) min_finite(m[, 2L]))
+      )
       train_xmin <- min(unlist(train_xmin))
       # TODO: Consult with specialists about this convention.
       # only deviate from zero if it would reduce the grid size by at least half
