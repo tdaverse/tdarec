@@ -1,4 +1,4 @@
-# tdarec 0.1.1
+# tdarec 0.2.0
 
 ## column modification - BREAKING CHANGE
 
@@ -8,7 +8,7 @@ Users now also lose access to the data set list-column unless they explicitly du
 
 ## unit tests
 
-This patch debugs the vectorization tests, which had failed to run due to a prefix in the names of the generated test files.
+The minor version incorporates a patch to debug the vectorization tests, which had failed to run due to a prefix in the names of the generated test files.
 Once corrected, the tent template functions step failed one test due to missing parameters; this has been corrected.
 
 ## default scale sequences
