@@ -10,8 +10,5 @@ inst/doc
 # development
 ignore
 
-# website
-docs
-
 # publication
 sandbox/tdarec-blog_files
