@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tdarec</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -58,6 +58,21 @@
     </div>
 
     <div class="section level2">
+<h2 class="page-header" data-toc-text="0.2.0" id="tdarec-020">tdarec 0.2.0<small>2025-06-20</small><a class="anchor" aria-label="anchor" href="#tdarec-020"></a></h2>
+<div class="section level3">
+<h3 id="column-modification---breaking-change-0-2-0">column modification - BREAKING CHANGE<a class="anchor" aria-label="anchor" href="#column-modification---breaking-change-0-2-0"></a></h3>
+<p>Per issue <a href="https://github.com/tdaverse/tdarec/issues/19" class="external-link">#19</a>, the persistent homology computation steps now modify data set list-columns in place, and these and the disaggregation steps assign roles as conventional {recipes} steps. Previously, users could ignore the presence of persistence diagram list-columns because they were assigned the new role <code>"persistent homology"</code>. They must now be manually removed or their roles updated. Alternatively, and preferably, the data set list-columns can have their roles updated to something other than <code>"predictor"</code>, as illustrated in the README. Users now also lose access to the data set list-column unless they explicitly duplicate it before computing persistent homology.</p>
+</div>
+<div class="section level3">
+<h3 id="unit-tests-0-2-0">unit tests<a class="anchor" aria-label="anchor" href="#unit-tests-0-2-0"></a></h3>
+<p>The minor version incorporates a patch to debug the vectorization tests, which had failed to run due to a prefix in the names of the generated test files. Once corrected, the tent template functions step failed one test due to missing parameters; this has been corrected.</p>
+</div>
+<div class="section level3">
+<h3 id="default-scale-sequences-0-2-0">default scale sequences<a class="anchor" aria-label="anchor" href="#default-scale-sequences-0-2-0"></a></h3>
+<p>Default scale sequences derived from persistence diagrams now use extrema calculated after infinite values are dropped. This accommodates an upgrade to {ripserr} that returns features with deaths at infinity.</p>
+</div>
+</div>
+    <div class="section level2">
 <h2 class="page-header" data-toc-text="0.1.0" id="tdarec-010">tdarec 0.1.0<small>2025-05-26</small><a class="anchor" aria-label="anchor" href="#tdarec-010"></a></h2>
 <ul><li>Initial CRAN submission.</li>
 </ul></div>
@@ -75,7 +90,7 @@
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>

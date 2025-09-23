@@ -21,7 +21,7 @@ list-columns."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/li
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">tdarec</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.2.0</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@ list-columns.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">step_pd_point_cloud</span><span class="op">(</span></span>
 <span>  <span class="va">recipe</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  role <span class="op">=</span> <span class="st">"persistence diagram"</span>,</span>
+<span>  role <span class="op">=</span> <span class="cn">NA_character_</span>,</span>
 <span>  trained <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  filtration <span class="op">=</span> <span class="st">"Rips"</span>,</span>
 <span>  max_hom_degree <span class="op">=</span> <span class="fl">1L</span>,</span>
@@ -83,7 +83,6 @@ list-columns.</p>
 <span>  field_order <span class="op">=</span> <span class="fl">2L</span>,</span>
 <span>  engine <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  columns <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  keep_original_cols <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  skip <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  id <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/rand_id.html" class="external-link">rand_id</a></span><span class="op">(</span><span class="st">"pd_point_cloud"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -133,11 +132,6 @@ defaults are chosen based on <code>filtration</code>.</p></dd>
 is a placeholder and will be populated once <code><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep()</a></code> is used.</p></dd>
 
 
-<dt id="arg-keep-original-cols">keep_original_cols<a class="anchor" aria-label="anchor" href="#arg-keep-original-cols"></a></dt>
-<dd><p>A logical to keep the original variables in the
-output. Defaults to <code>FALSE</code>.</p></dd>
-
-
 <dt id="arg-skip">skip<a class="anchor" aria-label="anchor" href="#arg-skip"></a></dt>
 <dd><p>A logical. Should the step be skipped when the recipe is baked by
 <code><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake()</a></code>? While all operations are baked when <code><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep()</a></code> is run, some
@@ -171,14 +165,13 @@ computation relies on a sequence of maps between discrete topological spaces
 Vietoris–Rips, Čech, or alpha) along an increasing distance threshold.</p>
 <p>Ripser is a highly efficient implementation of PH on a point cloud (a
 finite metric space) via the Vietoris–Rips filtration and is ported to R
-through <code><a href="https://rdrr.io/pkg/ripserr/man/ripserr.html" class="external-link">ripserr</a></code>. <code><a href="https://rdrr.io/pkg/TDA/man/TDA-package.html" class="external-link">TDA</a></code>
-calls the Dionysus, PHAT, and GUDHI libraries to compute PH via
-Vietoris–Rips and alpha filtrations. The <code>filtration</code> parameter controls
-the choice of filtration while the <code>engine</code> parameter allows the user to
-manually select an implementation.</p>
-<p>Both engines accept data sets in distance matrix, coordinate matrix, and
-data frame formats. While <strong>ripserr</strong> computes PH for time series data,
-this is not currently supported in <strong>tdarec</strong>.</p>
+through <strong><a href="https://rdrr.io/pkg/ripserr/man/ripserr.html" class="external-link">ripserr</a></strong>.
+<strong><a href="https://rdrr.io/pkg/TDA/man/TDA-package.html" class="external-link">TDA</a></strong> calls the Dionysus, PHAT, and GUDHI libraries
+to compute PH via Vietoris–Rips and alpha filtrations. The <code>filtration</code>
+parameter controls the choice of filtration while the <code>engine</code> parameter
+allows the user to manually select an implementation.</p>
+<p>Both engines accept data sets in distance matrix, coordinate matrix, data
+frame, and time series formats.</p>
 <p>The <code>max_hom_degree</code> argument determines the highest-dimensional features
 to be calculated. Either <code>diameter_max</code> (preferred) or <code>radius_max</code> can be
 used to bound the distance threshold along which PH is computed. The
@@ -213,16 +206,16 @@ of coefficients used in the computation. In most applications, only
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   terms value id                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> dist     <span style="color: #BB0000;">NA</span> pd_point_cloud_xwT1j</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> dist     <span style="color: #BB0000;">NA</span> pd_point_cloud_uKl5I</span>
 <span class="r-in"><span><span class="fu"><a href="https://generics.r-lib.org/reference/tidy.html" class="external-link">tidy</a></span><span class="op">(</span><span class="va">ph_prep</span>, number <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   terms value id                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> dist     <span style="color: #BB0000;">NA</span> pd_point_cloud_xwT1j</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> dist     <span style="color: #BB0000;">NA</span> pd_point_cloud_uKl5I</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ops</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ph_res</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">ph_res</span><span class="op">$</span><span class="va">dist_pd</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/with.html" class="external-link">with</a></span><span class="op">(</span><span class="va">ph_res</span><span class="op">$</span><span class="va">dist</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    x <span class="op">=</span> <span class="va">birth</span>, y <span class="op">=</span> <span class="va">death</span>, pch <span class="op">=</span> <span class="va">dimension</span> <span class="op">+</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="va">dimension</span> <span class="op">+</span> <span class="fl">1</span>,</span></span>
 <span class="r-in"><span>    xlab <span class="op">=</span> <span class="cn">NA</span>, ylab <span class="op">=</span> <span class="st">""</span>, asp <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span><span class="op">)</span></span></span>
@@ -234,11 +227,11 @@ of coefficients used in the computation. In most applications, only
 <span class="r-in"><span>  <span class="fu">step_pd_point_cloud</span><span class="op">(</span><span class="va">dist</span>, max_hom_degree <span class="op">=</span> <span class="fl">1</span>, diameter_max <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">with_max</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="va">with_max</span>, training <span class="op">=</span> <span class="va">roads</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">with_max</span>, <span class="va">roads</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   dist         dist_pd       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #949494;">&lt;dist [210]&gt;</span> <span style="color: #949494;">&lt;PHom [2 × 3]&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #949494;">&lt;dist [45]&gt;</span>  <span style="color: #949494;">&lt;PHom [0 × 3]&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 1</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dist           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;list&gt;</span>         </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> <span style="color: #949494;">&lt;PHom [21 × 3]&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> <span style="color: #949494;">&lt;PHom [10 × 3]&gt;</span></span>
 </code></pre></div>
     </div>
   </div>
@@ -253,7 +246,7 @@ of coefficients used in the computation. In most applications, only
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer></div>
