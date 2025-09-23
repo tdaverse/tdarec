@@ -5,8 +5,10 @@ vignette: >
   %\VignetteIndexEntry{Tuning persistent homological hyperparameters}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{tidymodels,ranger}
+  %\VignetteDepends{TDA,tidymodels,ranger}
 ---
+
+<!-- The vignette 'hyperparameter-tuning.Rmd' is pre-compiled from the (ignored) file '_hyperparameter-tuning.Rmd'. To revise the vignette, edit the ignored file and re-compile via 'pre-compile/compile-vignettes.R'. -->
 
 ```{r options, include = FALSE}
 knitr::opts_chunk$set(
@@ -28,19 +30,27 @@ library(tdarec)
 
 ## cubical persistent homology
 
-The persistent homology (PH) of a real-valued function on a manifold is determined by the _sublevel set filtration_:
+The persistent homology (PH) of a real-valued function on a manifold is usually determined by the _sublevel set filtration_:
 Given $f : X \to \mathbb{R}$, for each value $r \in \mathbb{R}$ define $X_r = f^{-1}(-\infty,r]$, so that $X_r \subseteq X_s$ whenever $r < s$.
 Then the induced homomorphisms $H_k(X_r) \to H_k(X_s)$ between (singular) homology groups form a _persistence module_ whose decomposition obtains the birth--death pairs that comprise the $k^\text{th}$ persistence diagram of $X$.
 
 While some such computations can be done analytically, most data come in the form of discrete measurements rather than functional relationships.
 For example, the topographic data for the Maunga Whau caldera take the form of a 2-dimensional numeric array, with each cell containing the estimated elevation of a 100--square meter area:
 
-```{r volcano, fig.height=5, fig.width=7}
+```{r volcano}
 filled.contour(volcano, color.palette = terrain.colors, asp = 1)
 ```
 
-This is a discretization of a height function from latitude and longitude ($\mathbb{S}^2$, approximated locally by $\mathbb{R}^2$) to elevation ($\mathbb{R}$), and cubical persistent homology is an alternative to the simplicial computation designed specifically for data in this form.
+This is a discretized function from latitude--longitude pairs ($\mathbb{S}^2$, approximated locally by $\mathbb{R}^2$) to elevation ($\mathbb{R}$), and cubical persistent homology is an alternative to the simplicial computation designed specifically for data in this form.
 The {ripserr} package ports the Cubical Ripser algorithm to R and serves as the engine for this pre-processing step.
+In the interest of identifying peaks and ridges rather than troughs and valleys, here is the _superlevel_ set persistence diagram for this image based on negated elevations:
+
+```{r volcano persistence}
+volcano_pd <- ripserr::cubical(-volcano)
+TDA::plot.diagram(volcano_pd, asp = 1)
+```
+
+While there are several peaks recognized as degree-0 persistent features, the caldera ridge obtains the sole degree-1 feature.
 
 ## handwritten digits data
 
@@ -48,7 +58,7 @@ The [MNIST handwritten digits data set](https://en.wikipedia.org/wiki/MNIST_data
 The images are partitioned into a training set of 60,000 and a testing set of 10,000, and {tdavec} comes with a 1% random sample from each.
 For example, here are the first six digits, labeled $`r paste0(mnist_train$label[seq(6)], collapse = ", ")`$:
 
-```{r mnist-datum, fig.height=5, fig.width=7}
+```{r mnist-datum}
 par(mfrow = c(2, 3), mar = c(.5, .5, .5, .5))
 for (r in seq(6)) {
   image(
@@ -250,7 +260,7 @@ Each finalized range is printed for reference:
 ```{r finalize recipe tuners}
 ( blur_sd_fin <- finalize(blur_sigmas(), mnist_train |> select(digit)) )
 ( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit)) )
-( pl_lev_fin <- num_levels(range = c(1, 3)) )
+( pl_lev_fin <- num_levels(range = c(1, 12)) )
 ```
 
 Note that the homological degree ranges only from $0$ to $1$ because the image has dimension 2.
@@ -349,7 +359,24 @@ mnist_res <- tune_bayes(
 ```
 
 Whereas in the previous section we fit only a single model, in this section we have obtained results for numerous hyperparameter settings and must choose among them for the final model.
-We first inspect the top several models, for a sense of how rapidly performance drops away from the optimal settings, then select the top-performing settings for the final model.
+We first plot the parameter paths, for a sense of how each was tuned:
+
+```{r parameter plot of tuning results}
+autoplot(mnist_res, type = "parameters")
+```
+
+In this experiment, the pre-processing parameters quickly converged, whereas the model parameters were more difficult to optimize.
+Better results were obtained with less blur, lower-degree features, and more landscape levels.
+We also visualize the distribution of performance metrics at each iteration, to see what improvement each step incurred:
+
+```{r performance plot of tuning results}
+autoplot(mnist_res, type = "performance")
+```
+
+The diminishing returns suggest that further optimization would not have significantly improved performance.
+We can also see that the dips at some iterations may have been associated with deviations from optimal landscape settings.
+
+We can now select settings from the top-performing models for the final model.
 We computed both accuracy and area under the ROC curve, but we use only the former to inform this choice.
 
 ```{r select hyperparameter settings}
