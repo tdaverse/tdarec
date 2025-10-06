@@ -11,20 +11,46 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 status](https://www.r-pkg.org/badges/version/tdarec)](https://CRAN.R-project.org/package=tdarec)
 <!-- badges: end -->
 
-The goal of {tdarec} is to provide
-[{recipes}](https://cran.r-project.org/package=recipes)-style
-preprocessing steps to compute persistent homology (PH) and calculate
-vectorizations of persistence diagrams (PDs), and to provide
-[{dials}](https://cran.r-project.org/package=dials)-style hyperparameter
-tuners to optimize these steps in ML workflows.
+{tdarec} provides
 
-You can install the development version of tdarec from
-[GitHub](https://github.com/) with:
+- [{recipes}](https://cran.r-project.org/package=recipes)-style
+  preprocessing steps to compute persistent homology and calculate
+  vectorizations of persistence diagrams and
+- [{dials}](https://cran.r-project.org/package=dials)-style
+  hyperparameter tuners to optimize these steps in machine learning
+  workflows.
+
+The most recent release can be installed from
+[CRAN](https://cran.r-project.org/package=tdarec):
+
+``` r
+install.packages("tdarec")
+```
+
+You can also install the development version from
+[GitHub](https://github.com/):
 
 ``` r
 # install.packages("pak")
 pak::pak("tdaverse/tdarec")
 ```
+
+## Motivation
+
+The rich theory of persistent homology (PH) has inspired a great volume
+and diversity of applications to domains beyond mathematics. Many,
+possibly most, publications on this front are curated at the [Database
+of Original & Non-theoretical Uses of
+Topology](https://donut.topology.rocks/), which can be searched
+specifically for statistical inference or machine learning, for example.
+
+Some of these applications are highly specialized, but others require
+only that a few new topological tools be coupled with conventional
+statistical designs. As researchers implement and test new specialized
+tools, they should also establish conditions and develop standards for
+their use. The goal of {tdarec} is to make this more standardized work
+more efficient, transparent, and reproducible, including by providing
+additional steps and dials as methods mature.
 
 ## Design
 
@@ -41,13 +67,13 @@ issue](https://github.com/tdaverse/tdarec/issues/2) for plans):
   {ripserr}
 
 Also included are a pre-processing step to introduce **Gaussian blur**
-to rasters and a post-processing step to select PDs for **specific
-homological degrees**.
+to rasters and a post-processing step to select persistence diagrams
+(PDs) for **specific homological degrees**.
 
 Finally, this version provides steps that deploy the highly efficient
-**vectorizations** implemented in
+**vectorizations** for PDs implemented in
 [{TDAvec}](https://github.com/uislambekov/TDAvec). These were written
-with {Rcpp} specifically for ML applications.
+with {Rcpp} specifically for machine learning applications.
 
 ### Tunable parameters
 
@@ -63,10 +89,10 @@ is vectorized. An implementation is underway.
 
 While the most common {recipes} are designed for structured tabular
 data, i.e. columns with numeric or categorical entries, almost all data
-subjected to machine learning with persistent homology has been in forms
-like point clouds or greyscale images that must be stored in
-list-columns. All {tdarec} examples use data in this form, and the data
-installed with the package is pre-processed for such use.
+subjected to machine learning with PH has been in forms like point
+clouds or greyscale images that must be stored in list-columns. All
+{tdarec} examples use data in this form, and the data installed with the
+package is pre-processed for such use.
 
 ## Example
 
@@ -79,11 +105,11 @@ installed.
 
 ### Setup
 
-While not required, we attach Tidyverse and Tidymodels for convenience
+While not required, we attach tidyverse and tidymodels for convenience
 (with messages suppressed):
 
 ``` r
-# prepare a Tidymodels session and attach {tdarec}
+# prepare a tidymodels session and attach {tdarec}
 library(tidyverse)
 library(tidymodels)
 library(tdarec)
@@ -132,21 +158,19 @@ klein_test <- testing(klein_split)
 klein_folds <- vfold_cv(klein_train, v = 3L)
 ```
 
-In this example, we adopt a common transformation of persistence
-diagrams, Euler characteristic curves. For their vectorization, we need
-a scale sequence that spans the birth and death times of any persistent
-features, and for this we choose a round number larger than the
-diameters of both point clouds (based on the sampler documentation) as
-an upper bound. Rather than choose *a priori* to use homology up to
-degree 0, 1, 2, or 3, we prepare to tune the maximum degree during
-optimization.
+In this example, we adopt a common transformation of PDs, Euler
+characteristic curves. For their vectorization, we need a scale sequence
+that spans the birth and death times of any persistent features, and for
+this we choose a round number larger than the diameters of both point
+clouds (based on the sampler documentation) as an upper bound. Rather
+than choose *a priori* to use homology up to degree 0, 1, 2, or 3, we
+prepare to tune the maximum degree during optimization.
 
 ### Specifications
 
 To prevent the model from using the data set column as a predictor, we
-assign it a new role, which is preserved by the persistent homology step
-and ignored by the vectorization step (which outputs new predictor
-columns).
+assign it a new role, which is preserved by the PH step and ignored by
+the vectorization step (which outputs new predictor columns).
 
 ``` r
 # specify a pre-processing recipe
@@ -169,10 +193,9 @@ recipe(embedding ~ sample, data = klein_train) |>
 #> • Euler characteristic curve of: sample
 ```
 
-For simplicity, we choose a common model for ML classification,
-penalized logistic regression. We fix the mixture coefficient to use
-LASSO rather than ridge regression but prepare the penalty parameter for
-tuning.
+For simplicity, we choose a common model for classification, penalized
+logistic regression. We fix the mixture coefficient to use LASSO rather
+than ridge regression but prepare the penalty parameter for tuning.
 
 ``` r
 # specify a classification model
@@ -228,9 +251,9 @@ klein_res |>
   select_best(metric = "roc_auc") |> 
   print() -> klein_best
 #> # A tibble: 1 × 3
-#>        penalty vr_degree .config             
-#>          <dbl>     <int> <chr>               
-#> 1 0.0000000001         1 Preprocessor1_Model1
+#>        penalty vr_degree .config        
+#>          <dbl>     <int> <chr>          
+#> 1 0.0000000001         1 pre1_mod1_post0
 ```
 
 ### Evaluation
@@ -274,7 +297,7 @@ By contributing to this project, you agree to abide by its terms.
 
 ### Generated code
 
-Much of the code exposing {TDAvec} tools to Tidymodels is generated by
+Much of the code exposing {TDAvec} tools to tidymodels is generated by
 elaborate scripts rather than written manually. While maintenance of
 these scripts takes effort, it prevents (or at least flags) errors
 arising from cascading implications of changes to the original
