@@ -8,7 +8,7 @@ vignette: >
   %\VignetteDepends{TDA,tidymodels,ranger}
 ---
 
-<!-- The vignette 'hyperparameter-tuning.Rmd' is generated from the (ignored) file '_hyperparameter-tuning.Rmd'; please edit that file. -->
+<!-- The vignette 'hyperparameter-tuning.Rmd' is pre-compiled from the (ignored) file '_hyperparameter-tuning.Rmd'. To revise the vignette, edit the ignored file and re-compile via 'pre-compile/compile-vignettes.R'. -->
 
 
 
@@ -21,20 +21,20 @@ Because the logic and syntax can become confusing, the vignette will also illust
 ``` r
 library(tidymodels)
 #> ── Attaching packages ────────────────────────────────────── tidymodels 1.4.1 ──
-#> ✔ broom        1.0.9          ✔ recipes      1.3.1     
-#> ✔ dials        1.4.2.9001     ✔ rsample      1.3.1     
-#> ✔ dplyr        1.1.4          ✔ tailor       0.1.0     
-#> ✔ ggplot2      4.0.0          ✔ tidyr        1.3.1     
-#> ✔ infer        1.0.9          ✔ tune         2.0.0     
+#> ✔ broom        1.0.11         ✔ recipes      1.3.1     
+#> ✔ dials        1.4.2          ✔ rsample      1.3.1     
+#> ✔ dplyr        1.2.1          ✔ tailor       0.1.0     
+#> ✔ ggplot2      4.0.2          ✔ tidyr        1.3.2     
+#> ✔ infer        1.1.0          ✔ tune         2.0.1     
 #> ✔ modeldata    1.5.1          ✔ workflows    1.3.0     
-#> ✔ parsnip      1.3.3.9001     ✔ workflowsets 1.1.1     
-#> ✔ purrr        1.1.0          ✔ yardstick    1.3.2
+#> ✔ parsnip      1.4.1.9004     ✔ workflowsets 1.1.1     
+#> ✔ purrr        1.2.1          ✔ yardstick    1.3.2.9000
 #> ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
 #> ✖ purrr::discard() masks scales::discard()
 #> ✖ dplyr::filter()  masks stats::filter()
 #> ✖ dplyr::lag()     masks stats::lag()
 #> ✖ recipes::step()  masks stats::step()
-#> • Search for functions across packages at https://www.tidymodels.org/find/
+#> • Use tidymodels_prefer() to resolve common conflicts.
 library(tdarec)
 ```
 
@@ -64,7 +64,7 @@ volcano_pd <- ripserr::cubical(-volcano)
 TDA::plot.diagram(volcano_pd, asp = 1)
 ```
 
-![plot of chunk volcano persistence](vignette-volcano persistence-1.png)
+![plot of chunk volcano-persistence](vignette-volcano-persistence-1.png)
 
 While there are several peaks recognized as degree-0 persistent features, the caldera ridge obtains the sole degree-1 feature.
 
@@ -309,7 +309,7 @@ fit(
 #> Target node size:                 6 
 #> Variable importance mode:         none 
 #> Splitrule:                        gini 
-#> OOB prediction error (Brier s.):  0.7866124
+#> OOB prediction error (Brier s.):  0.7864582
 ```
 
 Note that the model, while not optimized for accuracy on the training set, is informed by it through the preparation process, in particular the default choice of blur parameter:
@@ -333,8 +333,8 @@ mnist_fit |>
 #> # A tibble: 100 × 2
 #>    .pred_class label
 #>    <fct>       <fct>
-#>  1 5           0    
-#>  2 4           1    
+#>  1 7           0    
+#>  2 2           1    
 #>  3 1           4    
 #>  4 1           1    
 #>  5 1           2    
@@ -348,22 +348,22 @@ mnist_pred |>
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
 #> Prediction 0 1 2 3 4 5 6 7 8 9
-#>          0 1 0 2 4 0 0 0 2 0 0
-#>          1 0 7 1 0 4 2 0 0 0 0
-#>          2 1 0 1 0 0 0 1 0 0 0
-#>          3 1 0 2 2 0 1 3 0 5 1
-#>          4 0 2 1 1 6 1 0 0 1 0
-#>          5 1 1 0 1 0 2 0 1 0 1
-#>          6 2 0 2 0 0 0 2 6 2 4
-#>          7 4 0 0 2 0 4 2 1 1 4
-#>          8 0 0 1 0 0 0 2 0 1 0
+#>          0 1 0 3 4 0 0 1 2 0 0
+#>          1 0 7 2 0 4 2 0 0 0 0
+#>          2 2 1 0 0 0 0 0 4 0 0
+#>          3 1 0 0 0 0 1 3 0 2 1
+#>          4 0 1 0 0 6 1 0 0 1 0
+#>          5 1 1 0 1 0 4 2 1 0 2
+#>          6 0 0 3 1 0 0 1 0 2 2
+#>          7 4 0 0 2 0 2 0 1 1 3
+#>          8 1 0 2 2 0 0 3 2 4 2
 #>          9 0 0 0 0 0 0 0 0 0 0
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy multiclass      0.23
+#> 1 accuracy multiclass      0.24
 ```
 
 The accuracy is poor but clearly better than chance. The confusion matrix suggests some reasons for the misclassifications, in that the most commonly confused digits are _not_ those with the same degree-1 homology; they are more geometrically than topologically similar.
@@ -630,9 +630,7 @@ mnist_res <- tune_bayes(
 #>                ℹ 16 predictors will be used.
 #> There were issues with some computations   A: x1[KThere were issues with some computations   A: x2[KThere were issues with some computations   A: x3[KThere were issues with some computations   A: x4[KThere were issues with some computations   A: x5[KThere were issues with some computations   A: x6[K! The Gaussian process model is being fit using 5 features but only has 6
 #>   data points to do so. This may cause errors or a poor model fit.
-#> [K→ B | warning: ! 18 columns were requested but there were 16 predictors in the data.
-#>                ℹ 16 predictors will be used.
-#> There were issues with some computations   A: x6There were issues with some computations   A: x6   B: x1[KThere were issues with some computations   A: x6   B: x2[KThere were issues with some computations   A: x6   B: x3[KThere were issues with some computations   A: x6   B: x4[KThere were issues with some computations   A: x6   B: x5[KThere were issues with some computations   A: x6   B: x6[KThere were issues with some computations   A: x6   B: x6[K
+#> There were issues with some computations   A: x6[K
 ```
 
 Whereas in the previous section we fit only a single model, in this section we have obtained results for numerous hyperparameter settings and must choose among them for the final model.
@@ -643,7 +641,7 @@ We first plot the parameter paths, for a sense of how each was tuned:
 autoplot(mnist_res, type = "parameters")
 ```
 
-![plot of chunk parameter plot of tuning results](vignette-parameter plot of tuning results-1.png)
+![plot of chunk parameter-plot-of-tuning-results](vignette-parameter-plot-of-tuning-results-1.png)
 
 In this experiment, the pre-processing parameters quickly converged, whereas the model parameters were more difficult to optimize.
 Better results were obtained with less blur, lower-degree features, and more landscape levels.
@@ -654,7 +652,7 @@ We also visualize the distribution of performance metrics at each iteration, to 
 autoplot(mnist_res, type = "performance")
 ```
 
-![plot of chunk performance plot of tuning results](vignette-performance plot of tuning results-1.png)
+![plot of chunk performance-plot-of-tuning-results](vignette-performance-plot-of-tuning-results-1.png)
 
 The diminishing returns suggest that further optimization would not have significantly improved performance.
 We can also see that the dips at some iterations may have been associated with deviations from optimal landscape settings.
@@ -668,32 +666,32 @@ collect_metrics(mnist_res) |>
   filter(.metric == "accuracy") |> 
   arrange(desc(mean))
 #> # A tibble: 18 × 12
-#>    blur_sd pl_deg pl_lev rf_pred rf_node .metric .estimator   mean     n std_err
-#>      <dbl>  <int>  <int>   <int>   <int> <chr>   <chr>       <dbl> <int>   <dbl>
-#>  1   0.949      0      5      43       3 accura… multiclass 0.475      6 0.0126 
-#>  2   0.750      0      6      35      10 accura… multiclass 0.445      6 0.0136 
-#>  3   0.872      0      7       4       4 accura… multiclass 0.407      6 0.00715
-#>  4   1.14       0      6      17       3 accura… multiclass 0.403      6 0.0201 
-#>  5   1.06       0      4      24      23 accura… multiclass 0.397      6 0.0145 
-#>  6   1.12       0      8      20      21 accura… multiclass 0.392      6 0.0147 
-#>  7   1.11       0     12       9      12 accura… multiclass 0.372      6 0.0192 
-#>  8   1.30       0      6       7      39 accura… multiclass 0.352      6 0.0255 
-#>  9   0.655      0      1      19      17 accura… multiclass 0.34       6 0.00816
-#> 10   1.07       0      1      18       4 accura… multiclass 0.335      6 0.0196 
-#> 11   4.50       0      9      10      32 accura… multiclass 0.332      6 0.0154 
-#> 12   2.10       0     11      17       3 accura… multiclass 0.278      6 0.0270 
-#> 13   1.71       0      8      41       2 accura… multiclass 0.267      6 0.0128 
-#> 14   2.68       1      7      48      40 accura… multiclass 0.255      6 0.0167 
-#> 15   1.47       1     12      29       2 accura… multiclass 0.205      6 0.0163 
-#> 16  11.2        0     11      15       4 accura… multiclass 0.205      6 0.0281 
-#> 17  11.2        0      3      38       9 accura… multiclass 0.185      6 0.0205 
-#> 18   7.20       1      5       1      24 accura… multiclass 0.0783     6 0.0209 
+#>    blur_sd pl_deg pl_lev rf_pred rf_node .metric  .estimator  mean     n std_err
+#>      <dbl>  <int>  <int>   <int>   <int> <chr>    <chr>      <dbl> <int>   <dbl>
+#>  1   0.703      0     12      44      31 accuracy multiclass 0.465     6 0.0138 
+#>  2   0.667      0     11      44      36 accuracy multiclass 0.463     6 0.0169 
+#>  3   0.739      0     12      47      26 accuracy multiclass 0.46      6 0.0214 
+#>  4   0.697      0     12      47      22 accuracy multiclass 0.453     6 0.0150 
+#>  5   0.790      0      8      46      34 accuracy multiclass 0.443     6 0.0131 
+#>  6   0.826      0     12      45      36 accuracy multiclass 0.435     6 0.0128 
+#>  7   0.746      0     12       6      39 accuracy multiclass 0.408     6 0.0273 
+#>  8   1.20       0     11      48      34 accuracy multiclass 0.392     6 0.00910
+#>  9   0.676      0      9       2      25 accuracy multiclass 0.39      6 0.0191 
+#> 10   0.845      0      4       1      26 accuracy multiclass 0.37      6 0.0219 
+#> 11   0.754      0     11       2       2 accuracy multiclass 0.352     6 0.0162 
+#> 12   0.655      0      1      19      17 accuracy multiclass 0.332     6 0.0215 
+#> 13   4.50       0      9      10      32 accuracy multiclass 0.312     6 0.0246 
+#> 14   2.68       1      7      48      40 accuracy multiclass 0.258     6 0.0125 
+#> 15   2.42       0      2       2       5 accuracy multiclass 0.243     6 0.0228 
+#> 16   1.47       1     12      29       2 accuracy multiclass 0.212     6 0.0149 
+#> 17  11.2        0      3      38       9 accuracy multiclass 0.2       6 0.0207 
+#> 18   7.20       1      5       1      24 accuracy multiclass 0.12      6 0.0181 
 #> # ℹ 2 more variables: .config <chr>, .iter <int>
 (mnist_best <- select_best(mnist_res, metric = "accuracy"))
 #> # A tibble: 1 × 6
 #>   blur_sd pl_deg pl_lev rf_pred rf_node .config
 #>     <dbl>  <int>  <int>   <int>   <int> <chr>  
-#> 1   0.949      0      5      43       3 iter11
+#> 1   0.703      0     12      44      31 iter12
 ```
 
 ## fitting and evaluation
@@ -714,17 +712,17 @@ fit(
 #> Ranger result
 #> 
 #> Call:
-#>  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~43L,      x), num.trees = ~300, min.node.size = min_rows(~3L, x), num.threads = 1,      verbose = FALSE, seed = sample.int(10^5, 1), probability = TRUE) 
+#>  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~44L,      x), num.trees = ~300, min.node.size = min_rows(~31L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) 
 #> 
 #> Type:                             Probability estimation 
 #> Number of trees:                  300 
 #> Sample size:                      600 
-#> Number of independent variables:  80 
-#> Mtry:                             43 
-#> Target node size:                 3 
+#> Number of independent variables:  192 
+#> Mtry:                             44 
+#> Target node size:                 31 
 #> Variable importance mode:         none 
 #> Splitrule:                        gini 
-#> OOB prediction error (Brier s.):  0.4787972
+#> OOB prediction error (Brier s.):  0.5178114
 ```
 
 The resulting RF correctly classifies roughly half of the images "out of bag"---not great, but much better than the model using intuited hyperparameter values (and than pure chance).
@@ -743,34 +741,34 @@ mnist_fit |>
 #>  1 1           1    
 #>  2 6           6    
 #>  3 6           6    
-#>  4 2           2    
-#>  5 7           7    
+#>  4 6           2    
+#>  5 4           7    
 #>  6 9           9    
 #>  7 2           2    
 #>  8 0           0    
-#>  9 4           4    
+#>  9 5           4    
 #> 10 3           3    
 #> # ℹ 590 more rows
 mnist_pred |> 
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
 #> Prediction  0  1  2  3  4  5  6  7  8  9
-#>          0 60  0  0  0  0  0  0  0  0  0
-#>          1  0 55  0  0  0  0  0  2  0  0
-#>          2  0  0 35  0  0  0  0  0  0  0
-#>          3  0  0  1 26  0  0  0  1  0  0
-#>          4  0  0  0  1 35  0  0  1  0  0
-#>          5  0  1 20 28 22 57  3 11  0  0
-#>          6  0  0  0  0  0  0 56  0  0  0
-#>          7  0  4  4  5  3  3  1 45  0  0
-#>          8  0  0  0  0  0  0  0  0 60  0
-#>          9  0  0  0  0  0  0  0  0  0 60
+#>          0 50  0  0  1  0  0  2  0  0  0
+#>          1  0 56  5  4  4  3  1 14  0  1
+#>          2  0  0 26  0  0  1  2  0  1  4
+#>          3  0  3  4 38  3  1  2  5  0  1
+#>          4  0  1  5  1 40 10  0  4  0  0
+#>          5  1  0 10 13  8 44  3 12  0  0
+#>          6  3  0  6  1  3  0 42  0  5  4
+#>          7  0  0  2  2  0  0  2 25  0  0
+#>          8  2  0  1  0  0  0  1  0 51  1
+#>          9  4  0  1  0  2  1  5  0  3 49
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
 #>   .metric  .estimator .estimate
 #>   <chr>    <chr>          <dbl>
-#> 1 accuracy multiclass     0.815
+#> 1 accuracy multiclass     0.702
 ```
 
 Among the most-confused digits in previous runs of these experiments are $1$ and $7$, $2$ and $5$, and $3$ and $5$. (The results above should be similar but will depend somewhat on the state of the random number generator.) This is more in keeping with the topological similarities of the digits, though geometry is also clearly playing a role.
@@ -787,12 +785,12 @@ mnist_fit |>
 #>    .pred_class label
 #>    <fct>       <fct>
 #>  1 5           0    
-#>  2 7           1    
-#>  3 4           4    
+#>  2 1           1    
+#>  3 7           4    
 #>  4 1           1    
 #>  5 6           2    
 #>  6 0           0    
-#>  7 4           4    
+#>  7 1           4    
 #>  8 9           9    
 #>  9 9           6    
 #> 10 0           0    
@@ -801,16 +799,16 @@ mnist_pred |>
   conf_mat(truth = label, estimate = .pred_class)
 #>           Truth
 #> Prediction 0 1 2 3 4 5 6 7 8 9
-#>          0 7 0 0 0 0 0 1 0 0 1
-#>          1 0 8 0 0 0 0 2 2 0 0
-#>          2 0 0 1 0 0 0 0 0 0 0
-#>          3 0 0 0 2 2 1 0 2 1 0
-#>          4 0 0 0 0 3 1 0 1 0 0
-#>          5 1 0 3 7 4 7 1 2 0 0
-#>          6 0 0 5 1 0 0 3 0 0 3
-#>          7 0 2 0 0 0 1 2 3 0 0
-#>          8 0 0 0 0 0 0 0 0 8 0
-#>          9 2 0 1 0 1 0 1 0 1 6
+#>          0 8 0 0 0 0 1 1 0 0 0
+#>          1 0 9 0 2 2 1 2 2 0 0
+#>          2 0 0 4 3 0 1 2 0 0 1
+#>          3 0 0 0 1 0 1 1 0 0 0
+#>          4 0 1 0 0 2 2 0 2 1 0
+#>          5 1 0 3 4 4 4 0 4 0 0
+#>          6 0 0 2 0 1 0 2 0 0 2
+#>          7 0 0 0 0 1 0 0 2 0 0
+#>          8 0 0 0 0 0 0 0 0 9 0
+#>          9 1 0 1 0 0 0 2 0 0 7
 mnist_pred |> 
   accuracy(truth = label, estimate = .pred_class)
 #> # A tibble: 1 × 3
