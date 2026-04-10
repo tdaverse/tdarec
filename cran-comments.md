@@ -1,15 +1,8 @@
-## version 0.2.0
+## version 0.2.1
 
-This minor version (rather than a patch) is being sooner than planned for two reasons:
-
-1. It makes a change to column transformation naming conventions, recommended by a Tidymodels maintainer, that introduces a breaking change.
-2. It revises the taking of minima and maxima for grid defaults to exclude infinities, precluding a bug that would be incurred with an upcoming upgrade to the `Suggests` dependency {ripserr}.
+This patch is in response to a change in {dials}; see PR #25.
 
 There are no reverse dependencies on CRAN or Bioconductor.
-
-## Long-running vignette
-
-The vignette is pre-built to avoid inflating checktime.
 
 ## R CMD checks
 
@@ -20,6 +13,7 @@ All local tests used {TDAvec} version 0.1.41.
 * local OS X install, R 4.2.3
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
+  * `devtools::check(manual = TRUE, remote = TRUE)`
 * local OS X install, R 4.4.2
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`

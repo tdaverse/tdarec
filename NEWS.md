@@ -1,3 +1,9 @@
+# tdarec 0.2.1
+
+This patch fixes an insecure URL and several non-portable file names.
+
+It also adjusts the use of `check_param()` to comport with an upgrade to {dials}; thanks to @hfrick.
+
 # tdarec 0.2.0
 
 ## column modification - BREAKING CHANGE
