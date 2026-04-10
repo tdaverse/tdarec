@@ -14,7 +14,7 @@ All local tests used {TDAvec} version 0.1.41.
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
   * `devtools::check(manual = TRUE, remote = TRUE)`
-* local OS X install, R 4.4.2
+* local OS X install, R 4.5.3
   * `devtools::check()`
   * `devtools::check(env_vars = c('_R_CHECK_DEPENDS_ONLY_' = "true"))`
   * `devtools::check(manual = TRUE, remote = TRUE)`
