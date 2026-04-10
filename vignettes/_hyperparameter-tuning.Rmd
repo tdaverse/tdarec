@@ -45,7 +45,7 @@ This is a discretized function from latitude--longitude pairs ($\mathbb{S}^2$, a
 The {ripserr} package ports the Cubical Ripser algorithm to R and serves as the engine for this pre-processing step.
 In the interest of identifying peaks and ridges rather than troughs and valleys, here is the _superlevel_ set persistence diagram for this image based on negated elevations:
 
-```{r volcano persistence}
+```{r volcano-persistence}
 volcano_pd <- ripserr::cubical(-volcano)
 TDA::plot.diagram(volcano_pd, asp = 1)
 ```
@@ -83,13 +83,13 @@ mnist_test$label <- factor(mnist_test$label, sort(unique(mnist_test$label)))
 Following a standard ML approach, we prepare the training set for 6-fold cross-validation, which will be used to choose hyperparameter settings that maximize the accuracy of a classifier.
 The optimized settings will be used to classify the digits in the testing set, and a comparison with the true labels will provide an estimate of the accuracy of the resulting model.
 
-```{r data partition}
+```{r data-partition}
 (mnist_folds <- vfold_cv(mnist_train, v = 6))
 ```
 
 For reference, we check the range of the values that populate the arrays:
 
-```{r value range}
+```{r value-range}
 print(range(unlist(mnist_train$digit)))
 ```
 
@@ -116,7 +116,7 @@ For this reason, the PH step by default assigns the placeholder role `"persisten
 In contrast, the blur step modifies its column `digit` in place, and [the modified column inherits the role(s) of the original](https://recipes.tidymodels.org/articles/Roles.html#role-inheritance).
 This requires us to update the role of `digit`, but this can be done before or after applying the blur.
 
-```{r persistent homological recipe}
+```{r persistent-homological-recipe}
 recipe(mnist_train) |> 
   update_role(label, new_role = "outcome") |> 
   update_role(digit, new_role = "image") |> 
@@ -133,7 +133,7 @@ recipe(mnist_train) |>
 
 We can check directly whether our role assignments obtained as expected:
 
-```{r recipe summary}
+```{r recipe-summary}
 mnist_rec |> 
   prep() |> 
   print() -> mnist_prep
@@ -142,7 +142,7 @@ summary(mnist_prep)
 
 And we can inspect the result of applying the prepared recipe to the training data:
 
-```{r trained recipe}
+```{r trained-recipe}
 mnist_rec |> 
   prep() |> 
   bake(new_data = mnist_train)
@@ -162,7 +162,7 @@ The {randomForest} engine is strict in its requirements: If all predictors have 
 This is a serious possibility for our setting, for instance if no degree-1 features are detected so that the persistence landscapes are uniformly zero.
 To prevent this from derailing our workflow, we use the {ranger} engine, which is tolerant of this situation, instead.
 
-```{r random forest specification}
+```{r random-forest-specification}
 rand_forest(
   trees = 300,
   min_n = 6,
@@ -177,7 +177,7 @@ rand_forest(
 
 We fit the model to the pre-processed training data:
 
-```{r model fit}
+```{r model-fit}
 fit(
   mnist_spec,
   mnist_rec |> prep() |> formula(),
@@ -188,14 +188,14 @@ fit(
 
 Note that the model, while not optimized for accuracy on the training set, is informed by it through the preparation process, in particular the default choice of blur parameter:
 
-```{r blur value}
+```{r blur-value}
 mnist_prep$steps[[1]]$blur_sigmas
 ```
 
 To evaluate the model, we generate predictions for the testing set and compare them to the true labels.
 Because accuracy is a coarse metric for a 10-value classification task, we examine the confusion matrix to get a sense of what errors are most common.
 
-```{r evaluate fitted model}
+```{r evaluate-fitted-model}
 mnist_fit |> 
   predict(new_data = bake(prep(mnist_rec), new_data = mnist_test)) |> 
   bind_cols(select(mnist_test, label)) |> 
@@ -219,7 +219,7 @@ We rewrite the recipe to prepare the hyperparameters for tuning rather than to a
 Each parameter is given a character ID that will refer to it in the various system messages and outputs.
 Beware that this section of the vignette overwrites all `mnist_*` variable names used in the previous section! This is for readability but can cause problems if parts are executed out of order.
 
-```{r tunable persistent homological recipe}
+```{r tunable-persistent-homological-recipe}
 recipe(mnist_train) |> 
   update_role(label, new_role = "outcome") |> 
   update_role(digit, new_role = "image") |> 
@@ -236,7 +236,7 @@ recipe(mnist_train) |>
 
 This recipe has three tunable parameters, as we can verify by extracting their dials:
 
-```{r tunable recipe hyperparameters}
+```{r tunable-recipe-hyperparameters}
 ( rec_dials <- extract_parameter_set_dials(mnist_rec) )
 ```
 
@@ -244,7 +244,7 @@ Note that all three require finalization; like the number of randomly sampled pr
 In fact, the persistence landscape hyperparameters must be determined from columns derived by the first two steps from the input columns, not from the input columns themselves.
 For this reason only, we train the recipe with some intuitive values in order to obtain these derived columns for tuning purposes:
 
-```{r trained tunable recipe}
+```{r trained-tunable-recipe}
 mnist_rec |> 
   finalize_recipe(parameters = list(blur_sd = 8, pl_deg = 0, pl_lev = 3)) |> 
   prep() |> 
@@ -257,7 +257,7 @@ We use the input `digit` column to finalize the range of blurs and the derived `
 We expect the important topological features of the digits number at most 2 per image, so we manually prescribe a narrow range for `num_levels`, though it could also be learned from the training set.
 Each finalized range is printed for reference:
 
-```{r finalize recipe tuners}
+```{r finalize-recipe-tuners}
 ( blur_sd_fin <- finalize(blur_sigmas(), mnist_train |> select(digit)) )
 ( pl_deg_fin <- finalize(hom_degree(), mnist_bake |> select(digit)) )
 ( pl_lev_fin <- num_levels(range = c(1, 12)) )
@@ -269,7 +269,7 @@ Note that the homological degree ranges only from $0$ to $1$ because the image h
 
 As noted earlier, the three hyperparameters of the RF specification will be treated in different ways: `trees` fixed at $300$, `min_n` tuned over a default grid, and `mtry` tuned over a grid learned from the training set.
 
-```{r tunable random forest specification}
+```{r tunable-random-forest-specification}
 rand_forest(
   trees = 300,
   min_n = tune("rf_node"),
@@ -282,7 +282,7 @@ rand_forest(
 
 We can again check for the two tunable hyperparameters by extracting their dials:
 
-```{r tunable model parameters}
+```{r tunable-model-parameters}
 ( spec_dials <- extract_parameter_set_dials(mnist_spec) )
 ```
 
@@ -290,7 +290,7 @@ As seen in the printed dials, one hyperparameter range must be finalized.
 The process for doing so is the same as for the recipe, but in this case the variables of interest are the vectorized features.
 We see from the pre-processed data that these features use a consistent naming convention, and we use this convention to select them for learning the range:
 
-```{r finalize model tuners}
+```{r finalize-model-tuners}
 ( mtry_fin <- finalize(mtry(), mnist_bake |> select(contains("_pl_"))) )
 ```
 
@@ -299,7 +299,7 @@ We see from the pre-processed data that these features use a consistent naming c
 At last we arrive at the crux of this vignette!
 In preparation for tuning, we wrap the pre-processing recipe and the model specification in a workflow:
 
-```{r workflow of recipe and model}
+```{r workflow-of-recipe-and-model}
 workflow() |> 
   add_recipe(mnist_rec) |> 
   add_model(mnist_spec) |> 
@@ -310,7 +310,7 @@ One way to systematically optimize the recipe and model hyperparameters---to tun
 This can be important when the parameters have known trade-offs or the objective function is expected to have multiple optima, so the investigator wants a course-grained "map" of how performance varies across the whole parameter space.
 For illustration, we construct a workflow grid by crossing a recipe grid with a model grid:
 
-```{r prepare a tuning grid}
+```{r prepare-a-tuning-grid}
 mnist_rec_grid <- 
   grid_regular(blur_sd_fin, pl_deg_fin, pl_lev_fin, levels = 3) |> 
   set_names(c("blur_sd", "pl_deg", "pl_lev"))
@@ -325,7 +325,7 @@ This approach is not as inefficient as it might seem:
 As implemented in Tidymodels, [grid tuning recognizes the order of the pre-processing steps](https://tune.tidymodels.org/articles/extras/optimizations.html), and sometimes [of the model construction](https://www.tidymodels.org/learn/work/tune-text/#grid-search), and only performs each step once for every combination of subsequent steps, using the temporarily stored results rather than recomputing them from scratch.
 The unexecuted code chunk below shows the syntax for conducting this grid search:
 
-```{r tune workflow over a grid, eval=FALSE}
+```{r tune-workflow-over-a-grid, eval=FALSE}
 mnist_res <- tune_grid(
   mnist_wflow,
   resamples = mnist_folds,
@@ -339,7 +339,7 @@ Still, however, due to the exceptionally costly computations involved, a more ta
 For this reason, [Motta, Tralie, &al (2019)](https://ieeexplore.ieee.org/abstract/document/8999182) recommend Bayesian optimization for ML using topological features. This procedure is also implemented in Tidymodels and executed below.
 First, we combine the extracted dials from the pre-processing recipe and the model specification and update them with the finalized ranges:
 
-```{r update parameter dials}
+```{r update-parameter-dials}
 wflow_dials <- bind_rows(rec_dials, spec_dials) |> 
   update(blur_sd = blur_sd_fin, pl_deg = pl_deg_fin, pl_lev = pl_lev_fin) |> 
   update(rf_pred = mtry_fin)
@@ -348,7 +348,7 @@ wflow_dials <- bind_rows(rec_dials, spec_dials) |>
 The tuning syntax is similar to that of the grid search, but in place of the grid we only provide the updated dials.
 We specify 6 initial seeds with 12 tuning iterations each.
 
-```{r tune workflow via bayesian optimization}
+```{r tune-workflow-via-bayesian-optimization}
 mnist_res <- tune_bayes(
   mnist_wflow,
   resamples = mnist_folds,
@@ -361,7 +361,7 @@ mnist_res <- tune_bayes(
 Whereas in the previous section we fit only a single model, in this section we have obtained results for numerous hyperparameter settings and must choose among them for the final model.
 We first plot the parameter paths, for a sense of how each was tuned:
 
-```{r parameter plot of tuning results}
+```{r parameter-plot-of-tuning-results}
 autoplot(mnist_res, type = "parameters")
 ```
 
@@ -369,7 +369,7 @@ In this experiment, the pre-processing parameters quickly converged, whereas the
 Better results were obtained with less blur, lower-degree features, and more landscape levels.
 We also visualize the distribution of performance metrics at each iteration, to see what improvement each step incurred:
 
-```{r performance plot of tuning results}
+```{r performance-plot-of-tuning-results}
 autoplot(mnist_res, type = "performance")
 ```
 
@@ -379,7 +379,7 @@ We can also see that the dips at some iterations may have been associated with d
 We can now select settings from the top-performing models for the final model.
 We computed both accuracy and area under the ROC curve, but we use only the former to inform this choice.
 
-```{r select hyperparameter settings}
+```{r select-hyperparameter-settings}
 collect_metrics(mnist_res) |> 
   filter(.metric == "accuracy") |> 
   arrange(desc(mean))
@@ -390,7 +390,7 @@ collect_metrics(mnist_res) |>
 
 Now, finally, we fit the tuned model to the training set:
 
-```{r final model fit}
+```{r final-model-fit}
 mnist_fin <- prep(finalize_recipe(mnist_rec, mnist_best))
 fit(
   finalize_model(mnist_spec, mnist_best),
@@ -404,7 +404,7 @@ The resulting RF correctly classifies roughly half of the images "out of bag"---
 (Note also that the `blur` standard deviation is lower than originally defaulted to.)
 As before, we can look to the confusion matrix for insights into the sources of error:
 
-```{r evaluate on training set}
+```{r evaluate-on-training-set}
 mnist_fit |> 
   predict(new_data = bake(mnist_fin, new_data = mnist_train)) |> 
   bind_cols(select(mnist_train, label)) |> 
@@ -419,7 +419,7 @@ Among the most-confused digits in previous runs of these experiments are $1$ and
 
 Finally, we evaluate the final model on the testing set---the holdout data from the original partition.
 
-```{r evaluate on testing set}
+```{r evaluate-on-testing-set}
 mnist_fit |> 
   predict(new_data = bake(mnist_fin, new_data = mnist_test)) |> 
   bind_cols(select(mnist_test, label)) |> 
