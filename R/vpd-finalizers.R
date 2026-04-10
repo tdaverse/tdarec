@@ -29,7 +29,7 @@
 #' @rdname vpd-finalizers
 #' @export
 get_pairs_max <- function(object, x, hom_degrees = NULL, ...) {
-  check_param(object)
+  check_param(object, allow_unknown = TRUE)
   
   rngs <- dials::range_get(object, original = FALSE)
   if (! dials::is_unknown(rngs$upper)) {
@@ -67,7 +67,7 @@ get_pairs_max <- function(object, x, hom_degrees = NULL, ...) {
 get_pers_max_frac <- function(
     object, x, hom_degree = NULL, log_vals = TRUE, frac = 1/100, ...
 ) {
-  check_param(object)
+  check_param(object, allow_unknown = TRUE)
   
   rngs <- dials::range_get(object, original = FALSE)
   if (! dials::is_unknown(rngs$lower) && ! dials::is_unknown(rngs$upper)) {
@@ -114,7 +114,7 @@ get_pers_max_frac <- function(
 get_pers_min_mult <- function(
     object, x, hom_degree = NULL, log_vals = TRUE, mult = 100, ...
 ) {
-  check_param(object)
+  check_param(object, allow_unknown = TRUE)
   
   rngs <- dials::range_get(object, original = FALSE)
   if (! dials::is_unknown(rngs$lower) && ! dials::is_unknown(rngs$upper)) {

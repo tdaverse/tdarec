@@ -30,6 +30,7 @@ Imports:
     tidyr,
     magrittr
 Suggests:
+    cli,
     ripserr (>= 0.1.1),
     TDA,
     TDAvec (>= 0.1.4),
