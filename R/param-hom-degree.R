@@ -50,8 +50,8 @@ max_hom_degree <- function(range = c(0L, unknown()), trans = NULL) {
 #' @rdname hom_degree
 #' @export
 get_hom_range <- function(object, x, max_dim = 2L, ...) {
-  check_param(object)
-  
+  check_param(object, allow_unknown = TRUE)
+
   rngs <- dials::range_get(object, original = FALSE)
   if (! dials::is_unknown(rngs$upper)) {
     return(object)

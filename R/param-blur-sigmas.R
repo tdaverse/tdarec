@@ -29,8 +29,8 @@ blur_sigmas <- function(range = c(unknown(), unknown()), trans = transform_log1p
 #' @rdname hom_degree
 #' @export
 get_blur_range <- function(object, x, ...) {
-  check_param(object)
-  
+  check_param(object, allow_unknown = TRUE)
+
   rngs <- dials::range_get(object, original = FALSE)
   if (! dials::is_unknown(rngs$upper)) {
     return(object)
