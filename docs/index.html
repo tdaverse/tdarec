@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tdarec</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,11 +65,26 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of {tdarec} is to provide <a href="https://cran.r-project.org/package=recipes" class="external-link">{recipes}</a>-style preprocessing steps to compute persistent homology (PH) and calculate vectorizations of persistence diagrams (PDs), and to provide <a href="https://cran.r-project.org/package=dials" class="external-link">{dials}</a>-style hyperparameter tuners to optimize these steps in ML workflows.</p>
-<p>You can install the development version of tdarec from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>{tdarec} provides</p>
+<ul>
+<li>
+<a href="https://cran.r-project.org/package=recipes" class="external-link">{recipes}</a>-style preprocessing steps to compute persistent homology and calculate vectorizations of persistence diagrams and</li>
+<li>
+<a href="https://cran.r-project.org/package=dials" class="external-link">{dials}</a>-style hyperparameter tuners to optimize these steps in machine learning workflows.</li>
+</ul>
+<p>The most recent release can be installed from <a href="https://cran.r-project.org/package=tdarec" class="external-link">CRAN</a>:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"tdarec"</span><span class="op">)</span></span></code></pre></div>
+<p>You can also install the development version from <a href="https://github.com/" class="external-link">GitHub</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"tdaverse/tdarec"</span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="motivation">Motivation<a class="anchor" aria-label="anchor" href="#motivation"></a>
+</h2>
+<p>The rich theory of persistent homology (PH) has inspired a great volume and diversity of applications to domains beyond mathematics. Many, possibly most, publications on this front are curated at the <a href="https://donut.topology.rocks/" class="external-link">Database of Original &amp; Non-theoretical Uses of Topology</a>, which can be searched specifically for statistical inference or machine learning, for example.</p>
+<p>Some of these applications are highly specialized, but others require only that a few new topological tools be coupled with conventional statistical designs. As researchers implement and test new specialized tools, they should also establish conditions and develop standards for their use. The goal of {tdarec} is to make this more standardized work more efficient, transparent, and reproducible, including by providing additional steps and dials as methods mature.</p>
+</div>
 <div class="section level2">
 <h2 id="design">Design<a class="anchor" aria-label="anchor" href="#design"></a>
 </h2>
@@ -84,8 +99,8 @@
 <li>
 <strong>cubical</strong> filtrations of rasters (pixelated or voxelated data) using {ripserr}</li>
 </ul>
-<p>Also included are a pre-processing step to introduce <strong>Gaussian blur</strong> to rasters and a post-processing step to select PDs for <strong>specific homological degrees</strong>.</p>
-<p>Finally, this version provides steps that deploy the highly efficient <strong>vectorizations</strong> implemented in <a href="https://github.com/uislambekov/TDAvec" class="external-link">{TDAvec}</a>. These were written with {Rcpp} specifically for ML applications.</p>
+<p>Also included are a pre-processing step to introduce <strong>Gaussian blur</strong> to rasters and a post-processing step to select persistence diagrams (PDs) for <strong>specific homological degrees</strong>.</p>
+<p>Finally, this version provides steps that deploy the highly efficient <strong>vectorizations</strong> for PDs implemented in <a href="https://github.com/uislambekov/TDAvec" class="external-link">{TDAvec}</a>. These were written with {Rcpp} specifically for machine learning applications.</p>
 </div>
 <div class="section level3">
 <h3 id="tunable-parameters">Tunable parameters<a class="anchor" aria-label="anchor" href="#tunable-parameters"></a>
@@ -96,7 +111,7 @@
 <div class="section level3">
 <h3 id="data-formats-and-sets">Data formats and sets<a class="anchor" aria-label="anchor" href="#data-formats-and-sets"></a>
 </h3>
-<p>While the most common {recipes} are designed for structured tabular data, i.e. columns with numeric or categorical entries, almost all data subjected to machine learning with persistent homology has been in forms like point clouds or greyscale images that must be stored in list-columns. All {tdarec} examples use data in this form, and the data installed with the package is pre-processed for such use.</p>
+<p>While the most common {recipes} are designed for structured tabular data, i.e. columns with numeric or categorical entries, almost all data subjected to machine learning with PH has been in forms like point clouds or greyscale images that must be stored in list-columns. All {tdarec} examples use data in this form, and the data installed with the package is pre-processed for such use.</p>
 </div>
 </div>
 <div class="section level2">
@@ -106,14 +121,14 @@
 <div class="section level3">
 <h3 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h3>
-<p>While not required, we attach Tidyverse and Tidymodels for convenience (with messages suppressed):</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># prepare a Tidymodels session and attach {tdarec}</span></span>
+<p>While not required, we attach tidyverse and tidymodels for convenience (with messages suppressed):</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># prepare a tidymodels session and attach {tdarec}</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tdaverse/tdarec" class="external-link">tdarec</a></span><span class="op">)</span></span></code></pre></div>
 <p>The points are sampled uniformly from one of two Klein bottle embeddings, determined by a coin toss between the flat and the tube.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># generate samples from two embeddings</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">20024L</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>embedding <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"flat"</span>, <span class="st">"tube"</span><span class="op">)</span>, size <span class="op">=</span> <span class="fl">48</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -141,19 +156,19 @@
 <span><span class="co">#&gt; 10 flat      &lt;dbl [60 × 4]&gt;</span></span>
 <span><span class="co">#&gt; # ℹ 38 more rows</span></span></code></pre></div>
 <p>We apply a classical partition into 80% training and 20% testing sets and prepare to perform 3-fold cross-validation on the training set.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># partition the data</span></span>
 <span><span class="va">klein_split</span> <span class="op">&lt;-</span> <span class="fu">initial_split</span><span class="op">(</span><span class="va">klein_data</span>, prop <span class="op">=</span> <span class="fl">.8</span><span class="op">)</span></span>
 <span><span class="va">klein_train</span> <span class="op">&lt;-</span> <span class="fu">training</span><span class="op">(</span><span class="va">klein_split</span><span class="op">)</span></span>
 <span><span class="va">klein_test</span> <span class="op">&lt;-</span> <span class="fu">testing</span><span class="op">(</span><span class="va">klein_split</span><span class="op">)</span></span>
 <span><span class="va">klein_folds</span> <span class="op">&lt;-</span> <span class="fu">vfold_cv</span><span class="op">(</span><span class="va">klein_train</span>, v <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></code></pre></div>
-<p>In this example, we adopt a common transformation of persistence diagrams, Euler characteristic curves. For their vectorization, we need a scale sequence that spans the birth and death times of any persistent features, and for this we choose a round number larger than the diameters of both point clouds (based on the sampler documentation) as an upper bound. Rather than choose <em>a priori</em> to use homology up to degree 0, 1, 2, or 3, we prepare to tune the maximum degree during optimization.</p>
+<p>In this example, we adopt a common transformation of PDs, Euler characteristic curves. For their vectorization, we need a scale sequence that spans the birth and death times of any persistent features, and for this we choose a round number larger than the diameters of both point clouds (based on the sampler documentation) as an upper bound. Rather than choose <em>a priori</em> to use homology up to degree 0, 1, 2, or 3, we prepare to tune the maximum degree during optimization.</p>
 </div>
 <div class="section level3">
 <h3 id="specifications">Specifications<a class="anchor" aria-label="anchor" href="#specifications"></a>
 </h3>
-<p>To prevent the model from using the data set column as a predictor, we assign it a new role, which is preserved by the persistent homology step and ignored by the vectorization step (which outputs new predictor columns).</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>To prevent the model from using the data set column as a predictor, we assign it a new role, which is preserved by the PH step and ignored by the vectorization step (which outputs new predictor columns).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># specify a pre-processing recipe</span></span>
 <span><span class="va">scale_seq</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">3</span>, by <span class="op">=</span> <span class="fl">.05</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://recipes.tidymodels.org/reference/recipe.html" class="external-link">recipe</a></span><span class="op">(</span><span class="va">embedding</span> <span class="op">~</span> <span class="va">sample</span>, data <span class="op">=</span> <span class="va">klein_train</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -172,8 +187,8 @@
 <span><span class="co">#&gt; ── Operations</span></span>
 <span><span class="co">#&gt; • persistent features from a Rips filtration of: sample</span></span>
 <span><span class="co">#&gt; • Euler characteristic curve of: sample</span></span></code></pre></div>
-<p>For simplicity, we choose a common model for ML classification, penalized logistic regression. We fix the mixture coefficient to use LASSO rather than ridge regression but prepare the penalty parameter for tuning.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<p>For simplicity, we choose a common model for classification, penalized logistic regression. We fix the mixture coefficient to use LASSO rather than ridge regression but prepare the penalty parameter for tuning.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># specify a classification model</span></span>
 <span><span class="fu">logistic_reg</span><span class="op">(</span>penalty <span class="op">=</span> <span class="fu">tune</span><span class="op">(</span><span class="op">)</span>, mixture <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">set_mode</span><span class="op">(</span><span class="st">"classification"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
@@ -187,7 +202,7 @@
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Computational engine: glmnet</span></span></code></pre></div>
 <p>We then generate a complete hyperparameter tuning grid by crossing the grids generated for the two unspecified parameters:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># generate a hyperparameter tuning grid</span></span>
 <span><span class="va">klein_rec_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dials.tidymodels.org/reference/grid_regular.html" class="external-link">grid_regular</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://hardhat.tidymodels.org/reference/hardhat-extract.html" class="external-link">extract_parameter_set_dials</a></span><span class="op">(</span><span class="va">klein_rec</span><span class="op">)</span>, levels <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -202,7 +217,7 @@
 <h3 id="optimization">Optimization<a class="anchor" aria-label="anchor" href="#optimization"></a>
 </h3>
 <p>We evaluate the model across the hyperparameter grid using cross-validation, using the area under the sensitivity–specificity (ROC) curve:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># optimize the model performance</span></span>
 <span><span class="va">klein_res</span> <span class="op">&lt;-</span> <span class="fu">tune_grid</span><span class="op">(</span></span>
 <span>  <span class="va">klein_lm</span>,</span>
@@ -212,20 +227,20 @@
 <span>  metrics <span class="op">=</span> <span class="fu">metric_set</span><span class="op">(</span><span class="va">roc_auc</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>From the results, we obtain the best-performing parameter setting:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">klein_res</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">select_best</span><span class="op">(</span>metric <span class="op">=</span> <span class="st">"roc_auc"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="va">klein_best</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
-<span><span class="co">#&gt;        penalty vr_degree .config             </span></span>
-<span><span class="co">#&gt;          &lt;dbl&gt;     &lt;int&gt; &lt;chr&gt;               </span></span>
-<span><span class="co">#&gt; 1 0.0000000001         1 Preprocessor1_Model1</span></span></code></pre></div>
+<span><span class="co">#&gt;        penalty vr_degree .config        </span></span>
+<span><span class="co">#&gt;          &lt;dbl&gt;     &lt;int&gt; &lt;chr&gt;          </span></span>
+<span><span class="co">#&gt; 1 0.0000000001         1 pre1_mod1_post0</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="evaluation">Evaluation<a class="anchor" aria-label="anchor" href="#evaluation"></a>
 </h3>
 <p>This optimal setting includes both the VR homology degree and the GLM penalty, so both the pre-processing recipe and the predictive model must be finalized in order to fit the final model to the full training set:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">klein_rec_fin</span> <span class="op">&lt;-</span> <span class="va">klein_rec</span> <span class="op">|&gt;</span> <span class="fu">finalize_recipe</span><span class="op">(</span><span class="va">klein_best</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/prep.html" class="external-link">prep</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">klein_lm_fin</span> <span class="op">&lt;-</span> <span class="va">klein_lm</span> <span class="op">|&gt;</span> <span class="fu">finalize_model</span><span class="op">(</span><span class="va">klein_best</span><span class="op">)</span></span>
 <span><span class="va">klein_fit</span> <span class="op">&lt;-</span> <span class="fu">fit</span><span class="op">(</span></span>
@@ -234,7 +249,7 @@
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">klein_rec_fin</span>, new_data <span class="op">=</span> <span class="va">klein_train</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, we evaluate the fitted model on the testing set:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">klein_fit</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
 <span>    new_data <span class="op">=</span> <span class="fu"><a href="https://recipes.tidymodels.org/reference/bake.html" class="external-link">bake</a></span><span class="op">(</span><span class="va">klein_rec_fin</span>, new_data <span class="op">=</span> <span class="va">klein_test</span><span class="op">)</span>,</span>
@@ -255,7 +270,7 @@
 <div class="section level3">
 <h3 id="generated-code">Generated code<a class="anchor" aria-label="anchor" href="#generated-code"></a>
 </h3>
-<p>Much of the code exposing {TDAvec} tools to Tidymodels is generated by elaborate scripts rather than written manually. While maintenance of these scripts takes effort, it prevents (or at least flags) errors arising from cascading implications of changes to the original functions, and it allows simple and rapid package-wide adjustments. If you see an issue with generated code, please raise an issue to discuss it before submitting a pull request.</p>
+<p>Much of the code exposing {TDAvec} tools to tidymodels is generated by elaborate scripts rather than written manually. While maintenance of these scripts takes effort, it prevents (or at least flags) errors arising from cascading implications of changes to the original functions, and it allows simple and rapid package-wide adjustments. If you see an issue with generated code, please raise an issue to discuss it before submitting a pull request.</p>
 </div>
 <div class="section level3">
 <h3 id="acknowledgments">Acknowledgments<a class="anchor" aria-label="anchor" href="#acknowledgments"></a>
@@ -319,7 +334,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

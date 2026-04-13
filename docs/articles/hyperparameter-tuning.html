@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tdarec</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,7 +73,7 @@
 
     
     
-<!-- The vignette 'hyperparameter-tuning.Rmd' is generated from the (ignored) file '_hyperparameter-tuning.Rmd'; please edit that file. -->
+<!-- The vignette 'hyperparameter-tuning.Rmd' is pre-compiled from the (ignored) file '_hyperparameter-tuning.Rmd'. To revise the vignette, edit the ignored file and re-compile via 'pre-compile/compile-vignettes.R'. -->
 <p>This vignette will illustrate the tuning of hyperparameters at two
 pre-processing steps provided by {tdarec}: the computation of persistent
 homology from data, and the vectorization of the resulting persistence
@@ -85,20 +85,20 @@ checktime in particular.&lt;/p&gt;"><sup>1</sup></a></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://tidymodels.tidymodels.org" class="external-link">tidymodels</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; ── Attaching packages ────────────────────────────────────── tidymodels 1.4.1 ──</span></span>
-<span><span class="co">#&gt; ✔ broom        1.0.9          ✔ recipes      1.3.1     </span></span>
-<span><span class="co">#&gt; ✔ dials        1.4.2.9001     ✔ rsample      1.3.1     </span></span>
-<span><span class="co">#&gt; ✔ dplyr        1.1.4          ✔ tailor       0.1.0     </span></span>
-<span><span class="co">#&gt; ✔ ggplot2      4.0.0          ✔ tidyr        1.3.1     </span></span>
-<span><span class="co">#&gt; ✔ infer        1.0.9          ✔ tune         2.0.0     </span></span>
+<span><span class="co">#&gt; ✔ broom        1.0.11         ✔ recipes      1.3.1     </span></span>
+<span><span class="co">#&gt; ✔ dials        1.4.2          ✔ rsample      1.3.1     </span></span>
+<span><span class="co">#&gt; ✔ dplyr        1.2.1          ✔ tailor       0.1.0     </span></span>
+<span><span class="co">#&gt; ✔ ggplot2      4.0.2          ✔ tidyr        1.3.2     </span></span>
+<span><span class="co">#&gt; ✔ infer        1.1.0          ✔ tune         2.0.1     </span></span>
 <span><span class="co">#&gt; ✔ modeldata    1.5.1          ✔ workflows    1.3.0     </span></span>
-<span><span class="co">#&gt; ✔ parsnip      1.3.3.9001     ✔ workflowsets 1.1.1     </span></span>
-<span><span class="co">#&gt; ✔ purrr        1.1.0          ✔ yardstick    1.3.2</span></span>
+<span><span class="co">#&gt; ✔ parsnip      1.4.1.9004     ✔ workflowsets 1.1.1     </span></span>
+<span><span class="co">#&gt; ✔ purrr        1.2.1          ✔ yardstick    1.3.2.9000</span></span>
 <span><span class="co">#&gt; ── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──</span></span>
 <span><span class="co">#&gt; ✖ purrr::discard() masks scales::discard()</span></span>
 <span><span class="co">#&gt; ✖ dplyr::filter()  masks stats::filter()</span></span>
 <span><span class="co">#&gt; ✖ dplyr::lag()     masks stats::lag()</span></span>
 <span><span class="co">#&gt; ✖ recipes::step()  masks stats::step()</span></span>
-<span><span class="co">#&gt; • Search for functions across packages at https://www.tidymodels.org/find/</span></span>
+<span><span class="co">#&gt; • Use tidymodels_prefer() to resolve common conflicts.</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tdaverse/tdarec" class="external-link">tdarec</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="cubical-persistent-homology">cubical persistent homology<a class="anchor" aria-label="anchor" href="#cubical-persistent-homology"></a>
@@ -147,7 +147,7 @@ set persistence diagram for this image based on negated elevations:</p>
 <code class="sourceCode R"><span><span class="va">volcano_pd</span> <span class="op">&lt;-</span> <span class="fu">ripserr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/ripserr/man/cubical.html" class="external-link">cubical</a></span><span class="op">(</span><span class="op">-</span><span class="va">volcano</span><span class="op">)</span></span>
 <span><span class="fu">TDA</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/TDA/man/plot.diagram.html" class="external-link">plot.diagram</a></span><span class="op">(</span><span class="va">volcano_pd</span>, asp <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="vignette-volcano%20persistence-1.png" alt=""><p class="caption">plot of chunk volcano persistence</p>
+<img src="vignette-volcano-persistence-1.png" alt=""><p class="caption">plot of chunk volcano-persistence</p>
 </div>
 <p>While there are several peaks recognized as degree-0 persistent
 features, the caldera ridge obtains the sole degree-1 feature.</p>
@@ -238,7 +238,7 @@ landscapes. We comment on each step:</p>
 <ol style="list-style-type: decimal">
 <li>One limitation of cubical persistent homology is that it is
 sensitive only to the height difference between cells in the array, not
-the distances between them; see <a href="http://arxiv.org/abs/2005.12692" class="external-link">Kaji, Sudo, &amp; Ahara
+the distances between them; see <a href="https://arxiv.org/abs/2005.12692" class="external-link">Kaji, Sudo, &amp; Ahara
 (2020)</a> for a detailed discussion. So, on topographic data, a steep
 peak and a gentle mound of the same height will be encoded as the same
 feature. This is likely to be a problem in the classification of digits,
@@ -438,7 +438,7 @@ uniformly zero. To prevent this from derailing our workflow, we use the
 <span><span class="co">#&gt; Target node size:                 6 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.7866124</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.7864582</span></span></code></pre></div>
 <p>Note that the model, while not optimized for accuracy on the training
 set, is informed by it through the preparation process, in particular
 the default choice of blur parameter:</p>
@@ -458,8 +458,8 @@ get a sense of what errors are most common.</p>
 <span><span class="co">#&gt; # A tibble: 100 × 2</span></span>
 <span><span class="co">#&gt;    .pred_class label</span></span>
 <span><span class="co">#&gt;    &lt;fct&gt;       &lt;fct&gt;</span></span>
-<span><span class="co">#&gt;  1 5           0    </span></span>
-<span><span class="co">#&gt;  2 4           1    </span></span>
+<span><span class="co">#&gt;  1 7           0    </span></span>
+<span><span class="co">#&gt;  2 2           1    </span></span>
 <span><span class="co">#&gt;  3 1           4    </span></span>
 <span><span class="co">#&gt;  4 1           1    </span></span>
 <span><span class="co">#&gt;  5 1           2    </span></span>
@@ -473,22 +473,22 @@ get a sense of what errors are most common.</p>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt;          0 1 0 2 4 0 0 0 2 0 0</span></span>
-<span><span class="co">#&gt;          1 0 7 1 0 4 2 0 0 0 0</span></span>
-<span><span class="co">#&gt;          2 1 0 1 0 0 0 1 0 0 0</span></span>
-<span><span class="co">#&gt;          3 1 0 2 2 0 1 3 0 5 1</span></span>
-<span><span class="co">#&gt;          4 0 2 1 1 6 1 0 0 1 0</span></span>
-<span><span class="co">#&gt;          5 1 1 0 1 0 2 0 1 0 1</span></span>
-<span><span class="co">#&gt;          6 2 0 2 0 0 0 2 6 2 4</span></span>
-<span><span class="co">#&gt;          7 4 0 0 2 0 4 2 1 1 4</span></span>
-<span><span class="co">#&gt;          8 0 0 1 0 0 0 2 0 1 0</span></span>
+<span><span class="co">#&gt;          0 1 0 3 4 0 0 1 2 0 0</span></span>
+<span><span class="co">#&gt;          1 0 7 2 0 4 2 0 0 0 0</span></span>
+<span><span class="co">#&gt;          2 2 1 0 0 0 0 0 4 0 0</span></span>
+<span><span class="co">#&gt;          3 1 0 0 0 0 1 3 0 2 1</span></span>
+<span><span class="co">#&gt;          4 0 1 0 0 6 1 0 0 1 0</span></span>
+<span><span class="co">#&gt;          5 1 1 0 1 0 4 2 1 0 2</span></span>
+<span><span class="co">#&gt;          6 0 0 3 1 0 0 1 0 2 2</span></span>
+<span><span class="co">#&gt;          7 4 0 0 2 0 2 0 1 1 3</span></span>
+<span><span class="co">#&gt;          8 1 0 2 2 0 0 3 2 4 2</span></span>
 <span><span class="co">#&gt;          9 0 0 0 0 0 0 0 0 0 0</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 accuracy multiclass      0.23</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 accuracy multiclass      0.24</span></span></code></pre></div>
 <p>The accuracy is poor but clearly better than chance. The confusion
 matrix suggests some reasons for the misclassifications, in that the
 most commonly confused digits are <em>not</em> those with the same
@@ -756,37 +756,21 @@ seeds with 12 tuning iterations each.</p>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; → A | warning: ! 19 columns were requested but there were 16 predictors in the data.</span></span>
 <span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                ℹ 16 predictors will be used.</span></span>
 <span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x1 [K</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x1[K</span>
 <span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x2 [K</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x2[K</span>
 <span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x3 [K</span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x3[K</span>
 <span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x4 [K</span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x4[K</span>
 <span id="cb27-18"><a href="#cb27-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x5 [K</span>
+<span id="cb27-19"><a href="#cb27-19" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x5[K</span>
 <span id="cb27-20"><a href="#cb27-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6 [K</span>
+<span id="cb27-21"><a href="#cb27-21" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6[K</span>
 <span id="cb27-22"><a href="#cb27-22" aria-hidden="true" tabindex="-1"></a><span class="sc">!</span> The Gaussian process model is being fit using <span class="dv">5</span> features but only has <span class="dv">6</span></span>
 <span id="cb27-23"><a href="#cb27-23" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   data points to do so. This may cause errors or a poor model fit.</span></span>
 <span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a> [K→ B <span class="sc">|</span> warning<span class="sc">:</span> <span class="sc">!</span> <span class="dv">18</span> columns were requested but there were <span class="dv">16</span> predictors <span class="cf">in</span> the data.</span>
-<span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;                ℹ 16 predictors will be used.</span></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; There were issues with some computations   A: x6</span></span>
-<span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x1 [K</span>
-<span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-31"><a href="#cb27-31" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x2 [K</span>
-<span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x3 [K</span>
-<span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x4 [K</span>
-<span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x5 [K</span>
-<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x6 [K</span>
-<span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6   B<span class="sc">:</span> x6 [K</span></code></pre></div>
+<span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>There were issues with some computations   A<span class="sc">:</span> x6[K</span></code></pre></div>
 <p>Whereas in the previous section we fit only a single model, in this
 section we have obtained results for numerous hyperparameter settings
 and must choose among them for the final model. We first plot the
@@ -794,7 +778,7 @@ parameter paths, for a sense of how each was tuned:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mnist_res</span>, type <span class="op">=</span> <span class="st">"parameters"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="vignette-parameter%20plot%20of%20tuning%20results-1.png" alt=""><p class="caption">plot of chunk parameter plot of tuning results</p>
+<img src="vignette-parameter-plot-of-tuning-results-1.png" alt=""><p class="caption">plot of chunk parameter-plot-of-tuning-results</p>
 </div>
 <p>In this experiment, the pre-processing parameters quickly converged,
 whereas the model parameters were more difficult to optimize. Better
@@ -805,7 +789,7 @@ incurred:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">mnist_res</span>, type <span class="op">=</span> <span class="st">"performance"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="vignette-performance%20plot%20of%20tuning%20results-1.png" alt=""><p class="caption">plot of chunk performance plot of tuning results</p>
+<img src="vignette-performance-plot-of-tuning-results-1.png" alt=""><p class="caption">plot of chunk performance-plot-of-tuning-results</p>
 </div>
 <p>The diminishing returns suggest that further optimization would not
 have significantly improved performance. We can also see that the dips
@@ -819,32 +803,32 @@ we use only the former to inform this choice.</p>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.metric</span> <span class="op">==</span> <span class="st">"accuracy"</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 18 × 12</span></span>
-<span><span class="co">#&gt;    blur_sd pl_deg pl_lev rf_pred rf_node .metric .estimator   mean     n std_err</span></span>
-<span><span class="co">#&gt;      &lt;dbl&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1   0.949      0      5      43       3 accura… multiclass 0.475      6 0.0126 </span></span>
-<span><span class="co">#&gt;  2   0.750      0      6      35      10 accura… multiclass 0.445      6 0.0136 </span></span>
-<span><span class="co">#&gt;  3   0.872      0      7       4       4 accura… multiclass 0.407      6 0.00715</span></span>
-<span><span class="co">#&gt;  4   1.14       0      6      17       3 accura… multiclass 0.403      6 0.0201 </span></span>
-<span><span class="co">#&gt;  5   1.06       0      4      24      23 accura… multiclass 0.397      6 0.0145 </span></span>
-<span><span class="co">#&gt;  6   1.12       0      8      20      21 accura… multiclass 0.392      6 0.0147 </span></span>
-<span><span class="co">#&gt;  7   1.11       0     12       9      12 accura… multiclass 0.372      6 0.0192 </span></span>
-<span><span class="co">#&gt;  8   1.30       0      6       7      39 accura… multiclass 0.352      6 0.0255 </span></span>
-<span><span class="co">#&gt;  9   0.655      0      1      19      17 accura… multiclass 0.34       6 0.00816</span></span>
-<span><span class="co">#&gt; 10   1.07       0      1      18       4 accura… multiclass 0.335      6 0.0196 </span></span>
-<span><span class="co">#&gt; 11   4.50       0      9      10      32 accura… multiclass 0.332      6 0.0154 </span></span>
-<span><span class="co">#&gt; 12   2.10       0     11      17       3 accura… multiclass 0.278      6 0.0270 </span></span>
-<span><span class="co">#&gt; 13   1.71       0      8      41       2 accura… multiclass 0.267      6 0.0128 </span></span>
-<span><span class="co">#&gt; 14   2.68       1      7      48      40 accura… multiclass 0.255      6 0.0167 </span></span>
-<span><span class="co">#&gt; 15   1.47       1     12      29       2 accura… multiclass 0.205      6 0.0163 </span></span>
-<span><span class="co">#&gt; 16  11.2        0     11      15       4 accura… multiclass 0.205      6 0.0281 </span></span>
-<span><span class="co">#&gt; 17  11.2        0      3      38       9 accura… multiclass 0.185      6 0.0205 </span></span>
-<span><span class="co">#&gt; 18   7.20       1      5       1      24 accura… multiclass 0.0783     6 0.0209 </span></span>
+<span><span class="co">#&gt;    blur_sd pl_deg pl_lev rf_pred rf_node .metric  .estimator  mean     n std_err</span></span>
+<span><span class="co">#&gt;      &lt;dbl&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1   0.703      0     12      44      31 accuracy multiclass 0.465     6 0.0138 </span></span>
+<span><span class="co">#&gt;  2   0.667      0     11      44      36 accuracy multiclass 0.463     6 0.0169 </span></span>
+<span><span class="co">#&gt;  3   0.739      0     12      47      26 accuracy multiclass 0.46      6 0.0214 </span></span>
+<span><span class="co">#&gt;  4   0.697      0     12      47      22 accuracy multiclass 0.453     6 0.0150 </span></span>
+<span><span class="co">#&gt;  5   0.790      0      8      46      34 accuracy multiclass 0.443     6 0.0131 </span></span>
+<span><span class="co">#&gt;  6   0.826      0     12      45      36 accuracy multiclass 0.435     6 0.0128 </span></span>
+<span><span class="co">#&gt;  7   0.746      0     12       6      39 accuracy multiclass 0.408     6 0.0273 </span></span>
+<span><span class="co">#&gt;  8   1.20       0     11      48      34 accuracy multiclass 0.392     6 0.00910</span></span>
+<span><span class="co">#&gt;  9   0.676      0      9       2      25 accuracy multiclass 0.39      6 0.0191 </span></span>
+<span><span class="co">#&gt; 10   0.845      0      4       1      26 accuracy multiclass 0.37      6 0.0219 </span></span>
+<span><span class="co">#&gt; 11   0.754      0     11       2       2 accuracy multiclass 0.352     6 0.0162 </span></span>
+<span><span class="co">#&gt; 12   0.655      0      1      19      17 accuracy multiclass 0.332     6 0.0215 </span></span>
+<span><span class="co">#&gt; 13   4.50       0      9      10      32 accuracy multiclass 0.312     6 0.0246 </span></span>
+<span><span class="co">#&gt; 14   2.68       1      7      48      40 accuracy multiclass 0.258     6 0.0125 </span></span>
+<span><span class="co">#&gt; 15   2.42       0      2       2       5 accuracy multiclass 0.243     6 0.0228 </span></span>
+<span><span class="co">#&gt; 16   1.47       1     12      29       2 accuracy multiclass 0.212     6 0.0149 </span></span>
+<span><span class="co">#&gt; 17  11.2        0      3      38       9 accuracy multiclass 0.2       6 0.0207 </span></span>
+<span><span class="co">#&gt; 18   7.20       1      5       1      24 accuracy multiclass 0.12      6 0.0181 </span></span>
 <span><span class="co">#&gt; # ℹ 2 more variables: .config &lt;chr&gt;, .iter &lt;int&gt;</span></span>
 <span><span class="op">(</span><span class="va">mnist_best</span> <span class="op">&lt;-</span> <span class="fu">select_best</span><span class="op">(</span><span class="va">mnist_res</span>, metric <span class="op">=</span> <span class="st">"accuracy"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 6</span></span>
 <span><span class="co">#&gt;   blur_sd pl_deg pl_lev rf_pred rf_node .config</span></span>
 <span><span class="co">#&gt;     &lt;dbl&gt;  &lt;int&gt;  &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt;  </span></span>
-<span><span class="co">#&gt; 1   0.949      0      5      43       3 iter11</span></span></code></pre></div>
+<span><span class="co">#&gt; 1   0.703      0     12      44      31 iter12</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="fitting-and-evaluation-1">fitting and evaluation<a class="anchor" aria-label="anchor" href="#fitting-and-evaluation-1"></a>
@@ -863,17 +847,17 @@ we use only the former to inform this choice.</p>
 <span><span class="co">#&gt; Ranger result</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Call:</span></span>
-<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~43L,      x), num.trees = ~300, min.node.size = min_rows(~3L, x), num.threads = 1,      verbose = FALSE, seed = sample.int(10^5, 1), probability = TRUE) </span></span>
+<span><span class="co">#&gt;  ranger::ranger(x = maybe_data_frame(x), y = y, mtry = min_cols(~44L,      x), num.trees = ~300, min.node.size = min_rows(~31L, x),      num.threads = 1, verbose = FALSE, seed = sample.int(10^5,          1), probability = TRUE) </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Type:                             Probability estimation </span></span>
 <span><span class="co">#&gt; Number of trees:                  300 </span></span>
 <span><span class="co">#&gt; Sample size:                      600 </span></span>
-<span><span class="co">#&gt; Number of independent variables:  80 </span></span>
-<span><span class="co">#&gt; Mtry:                             43 </span></span>
-<span><span class="co">#&gt; Target node size:                 3 </span></span>
+<span><span class="co">#&gt; Number of independent variables:  192 </span></span>
+<span><span class="co">#&gt; Mtry:                             44 </span></span>
+<span><span class="co">#&gt; Target node size:                 31 </span></span>
 <span><span class="co">#&gt; Variable importance mode:         none </span></span>
 <span><span class="co">#&gt; Splitrule:                        gini </span></span>
-<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.4787972</span></span></code></pre></div>
+<span><span class="co">#&gt; OOB prediction error (Brier s.):  0.5178114</span></span></code></pre></div>
 <p>The resulting RF correctly classifies roughly half of the images “out
 of bag”—not great, but much better than the model using intuited
 hyperparameter values (and than pure chance). (Note also that the
@@ -891,34 +875,34 @@ the sources of error:</p>
 <span><span class="co">#&gt;  1 1           1    </span></span>
 <span><span class="co">#&gt;  2 6           6    </span></span>
 <span><span class="co">#&gt;  3 6           6    </span></span>
-<span><span class="co">#&gt;  4 2           2    </span></span>
-<span><span class="co">#&gt;  5 7           7    </span></span>
+<span><span class="co">#&gt;  4 6           2    </span></span>
+<span><span class="co">#&gt;  5 4           7    </span></span>
 <span><span class="co">#&gt;  6 9           9    </span></span>
 <span><span class="co">#&gt;  7 2           2    </span></span>
 <span><span class="co">#&gt;  8 0           0    </span></span>
-<span><span class="co">#&gt;  9 4           4    </span></span>
+<span><span class="co">#&gt;  9 5           4    </span></span>
 <span><span class="co">#&gt; 10 3           3    </span></span>
 <span><span class="co">#&gt; # ℹ 590 more rows</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction  0  1  2  3  4  5  6  7  8  9</span></span>
-<span><span class="co">#&gt;          0 60  0  0  0  0  0  0  0  0  0</span></span>
-<span><span class="co">#&gt;          1  0 55  0  0  0  0  0  2  0  0</span></span>
-<span><span class="co">#&gt;          2  0  0 35  0  0  0  0  0  0  0</span></span>
-<span><span class="co">#&gt;          3  0  0  1 26  0  0  0  1  0  0</span></span>
-<span><span class="co">#&gt;          4  0  0  0  1 35  0  0  1  0  0</span></span>
-<span><span class="co">#&gt;          5  0  1 20 28 22 57  3 11  0  0</span></span>
-<span><span class="co">#&gt;          6  0  0  0  0  0  0 56  0  0  0</span></span>
-<span><span class="co">#&gt;          7  0  4  4  5  3  3  1 45  0  0</span></span>
-<span><span class="co">#&gt;          8  0  0  0  0  0  0  0  0 60  0</span></span>
-<span><span class="co">#&gt;          9  0  0  0  0  0  0  0  0  0 60</span></span>
+<span><span class="co">#&gt;          0 50  0  0  1  0  0  2  0  0  0</span></span>
+<span><span class="co">#&gt;          1  0 56  5  4  4  3  1 14  0  1</span></span>
+<span><span class="co">#&gt;          2  0  0 26  0  0  1  2  0  1  4</span></span>
+<span><span class="co">#&gt;          3  0  3  4 38  3  1  2  5  0  1</span></span>
+<span><span class="co">#&gt;          4  0  1  5  1 40 10  0  4  0  0</span></span>
+<span><span class="co">#&gt;          5  1  0 10 13  8 44  3 12  0  0</span></span>
+<span><span class="co">#&gt;          6  3  0  6  1  3  0 42  0  5  4</span></span>
+<span><span class="co">#&gt;          7  0  0  2  2  0  0  2 25  0  0</span></span>
+<span><span class="co">#&gt;          8  2  0  1  0  0  0  1  0 51  1</span></span>
+<span><span class="co">#&gt;          9  4  0  1  0  2  1  5  0  3 49</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
 <span><span class="co">#&gt;   .metric  .estimator .estimate</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 accuracy multiclass     0.815</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 accuracy multiclass     0.702</span></span></code></pre></div>
 <p>Among the most-confused digits in previous runs of these experiments
 are
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
@@ -946,12 +930,12 @@ data from the original partition.</p>
 <span><span class="co">#&gt;    .pred_class label</span></span>
 <span><span class="co">#&gt;    &lt;fct&gt;       &lt;fct&gt;</span></span>
 <span><span class="co">#&gt;  1 5           0    </span></span>
-<span><span class="co">#&gt;  2 7           1    </span></span>
-<span><span class="co">#&gt;  3 4           4    </span></span>
+<span><span class="co">#&gt;  2 1           1    </span></span>
+<span><span class="co">#&gt;  3 7           4    </span></span>
 <span><span class="co">#&gt;  4 1           1    </span></span>
 <span><span class="co">#&gt;  5 6           2    </span></span>
 <span><span class="co">#&gt;  6 0           0    </span></span>
-<span><span class="co">#&gt;  7 4           4    </span></span>
+<span><span class="co">#&gt;  7 1           4    </span></span>
 <span><span class="co">#&gt;  8 9           9    </span></span>
 <span><span class="co">#&gt;  9 9           6    </span></span>
 <span><span class="co">#&gt; 10 0           0    </span></span>
@@ -960,16 +944,16 @@ data from the original partition.</p>
 <span>  <span class="fu">conf_mat</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt;           Truth</span></span>
 <span><span class="co">#&gt; Prediction 0 1 2 3 4 5 6 7 8 9</span></span>
-<span><span class="co">#&gt;          0 7 0 0 0 0 0 1 0 0 1</span></span>
-<span><span class="co">#&gt;          1 0 8 0 0 0 0 2 2 0 0</span></span>
-<span><span class="co">#&gt;          2 0 0 1 0 0 0 0 0 0 0</span></span>
-<span><span class="co">#&gt;          3 0 0 0 2 2 1 0 2 1 0</span></span>
-<span><span class="co">#&gt;          4 0 0 0 0 3 1 0 1 0 0</span></span>
-<span><span class="co">#&gt;          5 1 0 3 7 4 7 1 2 0 0</span></span>
-<span><span class="co">#&gt;          6 0 0 5 1 0 0 3 0 0 3</span></span>
-<span><span class="co">#&gt;          7 0 2 0 0 0 1 2 3 0 0</span></span>
-<span><span class="co">#&gt;          8 0 0 0 0 0 0 0 0 8 0</span></span>
-<span><span class="co">#&gt;          9 2 0 1 0 1 0 1 0 1 6</span></span>
+<span><span class="co">#&gt;          0 8 0 0 0 0 1 1 0 0 0</span></span>
+<span><span class="co">#&gt;          1 0 9 0 2 2 1 2 2 0 0</span></span>
+<span><span class="co">#&gt;          2 0 0 4 3 0 1 2 0 0 1</span></span>
+<span><span class="co">#&gt;          3 0 0 0 1 0 1 1 0 0 0</span></span>
+<span><span class="co">#&gt;          4 0 1 0 0 2 2 0 2 1 0</span></span>
+<span><span class="co">#&gt;          5 1 0 3 4 4 4 0 4 0 0</span></span>
+<span><span class="co">#&gt;          6 0 0 2 0 1 0 2 0 0 2</span></span>
+<span><span class="co">#&gt;          7 0 0 0 0 1 0 0 2 0 0</span></span>
+<span><span class="co">#&gt;          8 0 0 0 0 0 0 0 0 9 0</span></span>
+<span><span class="co">#&gt;          9 1 0 1 0 0 0 2 0 0 7</span></span>
 <span><span class="va">mnist_pred</span> <span class="op">|&gt;</span> </span>
 <span>  <span class="fu">accuracy</span><span class="op">(</span>truth <span class="op">=</span> <span class="va">label</span>, estimate <span class="op">=</span> <span class="va">.pred_class</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 3</span></span>
@@ -997,7 +981,7 @@ after hyperparameter optimization.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
