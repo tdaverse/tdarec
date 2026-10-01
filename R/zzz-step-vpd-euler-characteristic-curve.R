@@ -221,8 +221,11 @@ tidy.step_vpd_euler_characteristic_curve <- function(x, ...) {
 #' @export
 tunable.step_vpd_euler_characteristic_curve <- function(x, ...) {
   tibble::tibble(
-    name = c("max_hom_degree"),
+    name = c("xmin", "xmax", "xby", "max_hom_degree"),
     call_info = list(
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
       list(pkg = "tdarec", fun = "max_hom_degree", range = c(0L, unknown()))
     ),
     source = "recipe",

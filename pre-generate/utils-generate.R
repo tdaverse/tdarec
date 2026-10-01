@@ -352,7 +352,11 @@ c(
   # TODO: Rename `kernel_radius()`?
   tent_size = "tent_size",
   # PersistenceBlock
-  block_size = "block_size"
+  block_size = "block_size",
+  # Scale sequences
+  xmin = "grid_min", ymin = "grid_min",
+  xmax = "grid_max", ymax = "grid_max",
+  xby = "grid_by", yby = "grid_by"
 ) |> 
   # enframe(name = NULL, value = "param") |> 
   # mutate(dial = param) |> 
@@ -360,7 +364,7 @@ c(
 # dials for which to generate source code;
 # mostly those that are specific to a single vectorization method
 param_dials |> 
-  (\(s) s[! s %in% c("generalized")])() |> 
+  (\(s) s[! s %in% c("generalized", "grid_min", "grid_max", "grid_by")])() |> 
   print() -> param_tuners
 no_autotuners <- c("hom_degree", "max_hom_degree", "tent_size", "block_size")
 param_tuners |> 
@@ -435,7 +439,10 @@ dial_types <- c(
   num_bins       = "integer",
   tent_size     = "double",
   tent_shift    = "double",
-  block_size     = "double"
+  block_size     = "double",
+  grid_min       = "double",
+  grid_max       = "double",
+  grid_by        = "double"
 )
 # CHOICE: assign defaults to new dials & o/w note how to finalize from data
 # NOTE: Finalizers are written in `R/vpd-finalizers.R`.
@@ -464,7 +471,12 @@ dial_ranges_values <- list(
   tent_size = c(NA_real_, NA_real_),
   # finalize to minimum persistence (fractions)
   tent_shift = c(NA_real_, NA_real_),
-  block_size = c(0, 1)
+  block_size = c(0, 1),
+  # finalize to grid range
+  grid_min = c(NA_real_, NA_real_),
+  grid_max = c(NA_real_, NA_real_),
+  # finalize to grid resolution
+  grid_by = c(NA_real_, NA_real_)
 )
 # dial range endpoints
 dial_inclusive <- list(

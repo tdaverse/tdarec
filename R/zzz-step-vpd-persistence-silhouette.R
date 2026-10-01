@@ -226,9 +226,12 @@ tidy.step_vpd_persistence_silhouette <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_silhouette <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "weight_power"),
+    name = c("hom_degree", "xmin", "xmax", "xby", "weight_power"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
       list(pkg = "tdarec", fun = "weight_power", range = c(1, 2))
     ),
     source = "recipe",
