@@ -592,19 +592,19 @@ build_tunable <- function(fn) {
   fn_args <- tdavec_functions |> 
     filter(name == fn) |> 
     pull(args) |> first() |> names() |> setdiff("D")
-  fn_dials <- arg_params[fn_args] |> 
-    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
+  fn_params <- arg_params[fn_args] |> 
+    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1min|\\1max|\\1by") |> 
     strsplit("\\|") |> unlist() |> unname() |> 
-    # FIXME: Enable tuning by resolution.
-    setdiff(c("xseq", "xother", "yseq", "yother")) |> 
-    intersect(param_tuners)
+    setdiff(c("xseq", "yseq")) |> 
+    intersect(names(param_dials))
+  fn_dials <- unname(param_dials[fn_params])
   fn_ranges_values <- dial_ranges_values[fn_dials] |> 
     lapply(\(x) vapply(x, deparse, "")) |> 
     lapply(\(x) ifelse(grepl("^NA\\_", x), "unknown()", x)) |> 
     sapply(paste0, collapse = ", ")
   fn_param_class <- type_class[dial_types[fn_dials]] |> unname()
   fn_scope_param <- c(quant = "range", qual = "values")[fn_param_class]
-  fn_params_string <- paste0("\"", paste0(fn_dials, collapse = "\", \""), "\"")
+  fn_params_string <- paste0("\"", paste0(fn_params, collapse = "\", \""), "\"")
   fn_dials_set <- ! is.na(fn_scope_param)
   fn_dials_string <- paste0(
     "      list(pkg = \"tdarec\", fun = \"",
@@ -637,9 +637,9 @@ build_tunable <- function(fn) {
     "\n\n"
   )
 }
-# build_tunable("computeBettiCurve")
-# build_tunable("computePersistenceLandscape")
-# build_tunable("computeTemplateFunction")
+build_tunable("computeBettiCurve")
+build_tunable("computePersistenceLandscape")
+build_tunable("computeTemplateFunction")
 
 #' WRITING
 
@@ -762,9 +762,10 @@ for (fn in tdavec_functions$name) {
   fn_arg_vals <- param_args[fn_test_params] |> 
     paste0(" = ", test_param_vals[fn_test_params], collapse = ", ")
   fn_params <- arg_params[fn_args] |> 
-    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1other") |> 
+    gsub(pattern = "([xy]{1})seq", replacement = "\\1seq|\\1min|\\1max|\\1by") |> 
     strsplit("\\|") |> unlist() |> unname() |> 
-    intersect(param_tuners) |> deparse()
+    setdiff(c("xseq", "yseq")) |> 
+    intersect(names(param_dials)) |> deparse(width.cutoff = 500L)
   
   glue::glue("tests/testthat/test-{build_prefix}-step-vpd-{fn_hname}.R") |> 
     here::here() ->

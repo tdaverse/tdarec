@@ -232,9 +232,15 @@ tidy.step_vpd_persistence_block <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_block <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "block_size"),
+    name = c("hom_degree", "xmin", "xmax", "xby", "ymin", "ymax", "yby", "block_size"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
       list(pkg = "tdarec", fun = "block_size", range = c(0, 1))
     ),
     source = "recipe",

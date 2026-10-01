@@ -268,9 +268,12 @@ tidy.step_vpd_persistence_landscape <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_landscape <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "num_levels", "weight_func_pl", "bandwidth"),
+    name = c("hom_degree", "xmin", "xmax", "xby", "num_levels", "weight_func_pl", "bandwidth"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
       list(pkg = "tdarec", fun = "num_levels", range = c(1L, unknown())),
       list(pkg = "tdarec", fun = "weight_func_pl", values = c("triangle", "epanechnikov", "tricubic")),
       list(pkg = "tdarec", fun = "bandwidth", range = c(unknown(), unknown()))

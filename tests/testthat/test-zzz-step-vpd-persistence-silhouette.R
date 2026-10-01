@@ -52,7 +52,7 @@ test_that("`tunable()` returns standard names", {
   )
   expect_equal(
     tun$name,
-    c("hom_degree", "weight_power")
+    c("hom_degree", "xmin", "xmax", "xby", "weight_power")
   )
   expect_equal(unique(tun$source), "recipe")
   expect_true(is.list(tun$call_info))

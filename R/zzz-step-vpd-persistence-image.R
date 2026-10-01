@@ -231,9 +231,15 @@ tidy.step_vpd_persistence_image <- function(x, ...) {
 #' @export
 tunable.step_vpd_persistence_image <- function(x, ...) {
   tibble::tibble(
-    name = c("hom_degree", "img_sigma"),
+    name = c("hom_degree", "xmin", "xmax", "xby", "ymin", "ymax", "yby", "img_sigma"),
     call_info = list(
       list(pkg = "tdarec", fun = "hom_degree", range = c(0L, unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_min", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_max", range = c(unknown(), unknown())),
+      list(pkg = "tdarec", fun = "grid_by", range = c(unknown(), unknown())),
       list(pkg = "tdarec", fun = "img_sigma", range = c(unknown(), unknown()))
     ),
     source = "recipe",
